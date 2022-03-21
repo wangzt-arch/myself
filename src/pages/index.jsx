@@ -1,4 +1,4 @@
 const Home=()=>{
-    return <div>home</div>
+    return <div>welcome to here! just start➡️</div>
 }
 export default Home
