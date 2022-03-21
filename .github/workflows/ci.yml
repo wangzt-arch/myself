@@ -15,9 +15,10 @@ jobs:
       run: |
         npm install
         npm run-script build
+        npm run-script start
     - name: Deploy
       uses: JamesIves/github-pages-deploy-action@v4.2.5
       with:
         ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         BRANCH: gh-pages
-        FOLDER: .next
+        FOLDER: dist
