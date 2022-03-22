@@ -9,9 +9,9 @@ function App() {
       测试
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/docs" element={<Docs />} />
+          <Route path="/myself" element={<Home />} />
+          <Route path="/myself/home" element={<Home />} />
+          <Route path="/myself/docs" element={<Docs />} />
         </Routes>
       </BrowserRouter>
     </div>
