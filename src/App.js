@@ -5,16 +5,13 @@ import Docs from "./pages/docs";
 
 function App() {
   return (
-    <div>
-      测试
-      <BrowserRouter>
-        <Routes>
-          <Route path="/myself" element={<Home />} />
-          <Route path="/myself/home" element={<Home />} />
-          <Route path="/myself/docs" element={<Docs />} />
-        </Routes>
-      </BrowserRouter>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/myself" element={<Home />} />
+        <Route path="/myself/home" element={<Home />} />
+        <Route path="/myself/docs" element={<Docs />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
