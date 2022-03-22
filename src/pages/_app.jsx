@@ -8,7 +8,7 @@ function App({ Component, pageProps }) {
     <div className="container">
       <Header></Header>
       <Component {...pageProps} />
-      <Footer></Footer>
+      {/* <Footer></Footer> */}
     </div>
   );
 };
