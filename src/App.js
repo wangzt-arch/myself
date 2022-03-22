@@ -1,26 +1,19 @@
-import React, { useState, useEffect } from "react";
-import "./App.css";
+import React from "react";
+import { Provider } from "react-redux";
+import { Router } from "react-router-dom";
+import { createBrowserHistory } from "history";
+import { store } from "./reducers";
+import Routers from "./routers";
+
+const history = createBrowserHistory();
 
 const App = () => {
-  const [count, setCount] = useState(0);
-  useEffect(() => {
-    console.log("执行了useEffect[]");
-  }, []);
-  useEffect(() => {
-    console.log("执行了useEffect");
-  });
-  useEffect(() => {
-    console.log("执行了useEffect count");
-  }, [count]);
-  const onChangeCount = () => {
-    console.log(count);
-    setCount(count + 1);
-  };
   return (
-    <div className="App">
-      {count}
-      <button onClick={onChangeCount}>点击</button>
-    </div>
+    <Provider store={store}>
+      <Router history={history}>
+        <Routers />
+      </Router>
+    </Provider>
   );
 };
 
