@@ -1,7 +1,6 @@
 import React from 'react';
 import Header from '../components/Header/index';
 import '../styles/base.css';
-// import '../styles/charge.css';
 
 function App({ Component, pageProps }) {
   return (
