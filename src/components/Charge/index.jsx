@@ -5,21 +5,21 @@ const Charge = () => {
       <div className="g-contrast">
         <div className="g-circle"></div>
         <ul className="g-bubbles">
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
-          <li></li>
+          <li className="g-bubbles_item"></li>
+          <li className="g-bubbles_item"></li>
+          <li className="g-bubbles_item"></li>
+          <li className="g-bubbles_item"></li>
+          <li className="g-bubbles_item"></li>
+          <li className="g-bubbles_item"></li>
+          <li className="g-bubbles_item"></li>
+          <li className="g-bubbles_item"></li>
+          <li className="g-bubbles_item"></li>
+          <li className="g-bubbles_item"></li>
+          <li className="g-bubbles_item"></li>
+          <li className="g-bubbles_item"></li>
+          <li className="g-bubbles_item"></li>
+          <li className="g-bubbles_item"></li>
+          <li className="g-bubbles_item"></li>
         </ul>
       </div>
     </div>
