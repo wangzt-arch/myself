@@ -8,7 +8,7 @@ const Home = () => {
     };
     return (
         <div className="home" onClick={handleClick}>
-            {/* welcome to here! just start➡️ */}
+            welcome to here! just start➡️
             {/* <div> <Charge></Charge></div> */}
         </div>
     );
