@@ -1,7 +1,8 @@
 import React from 'react';
 import Footer from '../components/Footer/index';
 import Header from '../components/Header/index';
-import '../styles/base.css';
+import '../styles/base.scss';
+import '../styles/charge.scss';
 
 function App({ Component, pageProps }) {
   return (

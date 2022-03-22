@@ -17,3 +17,11 @@ div {
     display: flex;
     align-items: center;
 }
+.home {
+    display: flex;
+    background-color: black;
+    width: 100%;
+    height: calc(100vh - 40px);
+    align-items: center;
+    justify-content: center;
+}
