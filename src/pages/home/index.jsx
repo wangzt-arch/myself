@@ -8,6 +8,7 @@ function Home() {
     return (
         <div onClick={() => navigate('/myself/docs')}>
             <Header></Header>
+            Home大特效
         </div>
     )
 }
