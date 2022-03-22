@@ -7,7 +7,7 @@ export default class Home extends Component {
   };
   render() {
     return (
-      <div className="home" onClick={()=>this.goto("account")}>
+      <div className="home" onClick={() => this.goto("account")}>
         home
       </div>
     );
