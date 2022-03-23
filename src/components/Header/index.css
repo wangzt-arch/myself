@@ -111,3 +111,6 @@
         top: 30px;
     }
 }
+.header-right{
+    display: flex;
+}

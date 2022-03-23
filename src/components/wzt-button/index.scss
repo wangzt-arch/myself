@@ -1,0 +1,45 @@
+.wzt-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: black;
+    border: 1px solid transparent;
+    padding: 5px 10px;
+    width: 80px;
+    height: 40px;
+    position: relative;
+
+    &:hover {
+        color: red;
+        &::before {
+            transition: width 0.5s, height 0.5s, border-bottom-color 0s;
+            transition-delay: 0.5s, 0s, 0.5s;
+            width: 80px;
+            height: 40px;
+            border-left: 3px solid red;
+            border-bottom: 3px solid red;
+        }
+
+        &::after {
+            transition: width 0.5s, height 0.5s, border-right-color 0.5s;
+            transition-delay: 0s, 0.5s, 0.5s;
+            width: 80px;
+            height: 40px;
+            border-top: 3px solid red;
+            border-right: 3px solid red;
+        }
+    }
+}
+
+.wzt-button::before,
+.wzt-button::after {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
+    border: 3px solid transparent;
+}
