@@ -12,13 +12,14 @@
 
     &:hover {
         color: red;
+        transition:color 1.5s;
         &::before {
             transition: width 0.5s, height 0.5s, border-bottom-color 0s;
             transition-delay: 0.5s, 0s, 0.5s;
             width: 80px;
             height: 40px;
-            border-left: 3px solid red;
-            border-bottom: 3px solid red;
+            border-left: 1px solid red;
+            border-bottom: 1px solid red;
         }
 
         &::after {
@@ -26,8 +27,8 @@
             transition-delay: 0s, 0.5s, 0.5s;
             width: 80px;
             height: 40px;
-            border-top: 3px solid red;
-            border-right: 3px solid red;
+            border-top: 1px solid red;
+            border-right: 1px solid red;
         }
     }
 }
