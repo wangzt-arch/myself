@@ -56,7 +56,7 @@ $time: 4s;
     font-family: $f;
     font-size: $fz;
     color: #fff;
-    background-color: #132a4f;
+    background-color: #ffffff;
 }
 #toggle {
     display: none;
@@ -154,7 +154,7 @@ $time: 4s;
         transition: all $time/5;
         // filter: blur(0px);
         opacity: 1;
-        color: #f7eebb;
+        color: #000;
         transform-origin: center -123vmax;
         animation: pendulum ease-in-out infinite alternate $time;
 
