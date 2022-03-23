@@ -25,11 +25,6 @@ $fb: unquote("'Trebuchet MS', Helvetica, sans-serif");
 $fz: 16px;
 // uncomment for responsive font-size
 $fz: unquote("calc(1.1vw + 1.1vh - .6vmin)");
-@media screen and (max-width: 600px) {
-    body > * {
-        font-size: 1.5em;
-    }
-}
 
 $time: 4s;
 
