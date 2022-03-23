@@ -1,0 +1,8 @@
+.home {
+    width: 100%;
+    height: calc(100vh - 50px);
+}
+.home-open {
+    width: 100%;
+    height: 100%;
+}

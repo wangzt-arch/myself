@@ -1,0 +1,193 @@
+$random_color: rgba(255, 255, 255, 0.33);
+
+$c: (
+    // colors
+    t: rgba(0, 0, 0, 0),
+    s: #000,
+    w: #fff,
+    gr: desaturate(rgb(255, 255, 255), 100%),
+    r: rgb(255, 150, 150),
+    g: rgb(150, 255, 150),
+    b: rgb(150, 150, 255),
+    bg: $random_color,
+    cp: (
+        // color palette
+        1: #283739,
+        2: #2c5d63,
+        3: #a9c52f,
+        4: #f7eebb
+    )
+);
+
+// settings
+$f: unquote("'Podkova', serif");
+$fb: unquote("'Trebuchet MS', Helvetica, sans-serif");
+$fz: 16px;
+// uncomment for responsive font-size
+$fz: unquote("calc(1.1vw + 1.1vh - .6vmin)");
+@media screen and (max-width: 600px) {
+    body > * {
+        font-size: 1.5em;
+    }
+}
+
+$time: 4s;
+
+// --------- defaults ---------
+* {
+    &:focus {
+        outline: 0;
+    }
+
+    &,
+    &:before,
+    &:after {
+        box-sizing: border-box;
+    }
+}
+// @include placeholder(){
+//         font-family: $f;
+// }
+// --------------------
+.line {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: $f;
+    font-size: $fz;
+    color: #fff;
+    background-color: #132a4f;
+}
+#toggle {
+    display: none;
+}
+
+.toggle {
+    position: fixed;
+    z-index: 10;
+    left: 1em;
+    top: 1em;
+    display: inline-block;
+    padding: 0.4em 0.5em 0.5em;
+    cursor: pointer;
+    text-indent: 1.7em;
+    color: #a9c52f;
+    border-radius: 0.25em;
+    transition: all $time/5;
+    background-color: #283739;
+
+    &:before {
+        content: "";
+        position: absolute;
+        z-index: 20;
+        left: 0.5em;
+        top: 0.4em;
+        width: 1em;
+        height: 1em;
+        display: inline-block;
+        border: 2px solid #2c5d63;
+        vertical-align: middle;
+        border-radius: 3px;
+    }
+
+    &:after {
+        content: "";
+        position: absolute;
+        width: 0;
+        height: 0;
+        z-index: 21;
+        display: inline-block;
+        border: 2px solid #f7eebb;
+        border-width: 0 4px 4px 0;
+        left: 0.75em;
+        top: 0.75em;
+        opacity: 0;
+        transition: all $time/5;
+        transform: rotate(45deg);
+
+        #toggle:checked + #sect & {
+            width: 0.5em;
+            top: 0.25em;
+            height: 1em;
+            opacity: 1;
+        }
+    }
+
+    #toggle:checked + #sect & {
+        color: #f7eebb;
+    }
+}
+
+#sect {
+    width: 100vw;
+    height: 100vh;
+    padding: 1em;
+    text-align: center;
+    vertical-align: middle;
+    display: block;
+    position: relative;
+    perspective: 600px;
+
+    ul {
+        display: block;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        transition: all $time/3;
+        transform-style: preserve-3d;
+        transform: translateZ(-70vmax) translateX(-50vw) rotateY(0deg);
+        position: absolute;
+
+        #toggle:checked + & {
+            transform: translateZ(-50em) translateX(0vw) rotateY(90deg);
+        }
+    }
+
+    li {
+        display: inline-block;
+        position: absolute;
+        font-size: 3em;
+        margin-left: -5em;
+        transition: all $time/5;
+        // filter: blur(0px);
+        opacity: 1;
+        color: #f7eebb;
+        transform-origin: center -123vmax;
+        animation: pendulum ease-in-out infinite alternate $time;
+
+        &:before {
+            content: "";
+            position: absolute;
+            bottom: 100%;
+            width: 1px;
+            box-shadow: 0 0 0 0.01em #a9c52f;
+            height: 25em;
+            left: 50%;
+            background-color: #a9c52f;
+        }
+
+        @for $i from 0 to 24 {
+            &:nth-of-type(#{$i}) {
+                left: 2.5em * $i;
+                animation-delay: -#{$i/10}s;
+
+                #toggle:checked + & {
+                    // filter: blur(#{floor($i/3)}px);
+                    opacity: 1.2 - ($i/15);
+                }
+            }
+        }
+    }
+}
+
+@keyframes pendulum {
+    from {
+        transform: translateY(70vh) rotateX(-45deg);
+    }
+    to {
+        transform: translateY(70vh) rotateX(45deg);
+    }
+}

@@ -1,14 +1,18 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom';
-import Header from '../../components/Header'
+import Header from '../../components/Header';
+import Line from '../../components/Line'
+import './index.css'
 
 
 function Home() {
     const navigate = useNavigate()
     return (
-        <div onClick={() => navigate('/myself/docs')}>
+        <div className="home" onClick={() => navigate('/myself/docs')}>
             <Header></Header>
-            Home大特效！
+            <div className="home-open">
+                <Line></Line>
+            </div>
         </div>
     )
 }
