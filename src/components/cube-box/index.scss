@@ -1,0 +1,114 @@
+.cube-box {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.cube-box__right,
+.cube-box__left,
+.cube-box__top,
+.cube-box__bottom,
+.cube-box__center {
+    position: absolute;
+    width: inherit;
+    height: inherit;
+    text-align: center;
+    line-height: inherit;
+    transition: transform 0.4s ease;
+}
+
+.cube-box__right:before,
+.cube-box__left:before,
+.cube-box__top:before,
+.cube-box__bottom:before,
+.cube-box__center:before {
+    position: absolute;
+    content: "";
+    width: 70.71%;
+    height: 70.71%;
+    transform: rotate(45deg);
+}
+
+.cube-box__right:hover,
+.cube-box__left:hover,
+.cube-box__top:hover,
+.cube-box__bottom:hover,
+.cube-box__center:hover {
+    transform: translateX(0);
+    z-index: 1;
+}
+
+.cube-box__right:hover:before,
+.cube-box__left:hover:before,
+.cube-box__top:hover:before,
+.cube-box__bottom:hover:before,
+.cube-box__center:hover:before {
+    width: 100%;
+    height: 100%;
+    transform: none;
+}
+
+.cube-box__right {
+    background: rgb(136, 136, 238);
+    transform: translateX(100%);
+}
+
+.cube-box__right:before {
+    right: 100%;
+    bottom: 0;
+    transform-origin: 100% 100%;
+}
+
+.cube-box__right:hover ~ .cube-box__center {
+    transform: translateX(-100%);
+}
+
+.cube-box__left {
+    background: green;
+    transform: translateX(-100%);
+}
+
+.cube-box__left:before {
+    left: 100%;
+    transform-origin: 0 0;
+}
+
+.cube-box__left:hover ~ .cube-box__center {
+    transform: translateX(100%);
+}
+
+.cube-box__top {
+    background: red;
+    transform: translateY(-100%);
+}
+
+.cube-box__top:before {
+    top: 100%;
+    right: 0;
+    transform-origin: 100% 0;
+}
+
+.cube-box__top:hover ~ .cube-box__center {
+    transform: translateY(100%);
+}
+
+.cube-box__bottom {
+    background: yellow;
+    transform: translateY(100%);
+}
+
+.cube-box__bottom:before {
+    bottom: 100%;
+    left: 0;
+    transform-origin: 0 100%;
+}
+
+.cube-box__bottom:hover ~ .cube-box__center {
+    transform: translateY(-100%);
+}
+
+.cube-box__center {
+    background: orange;
+    z-index: -1;
+}
