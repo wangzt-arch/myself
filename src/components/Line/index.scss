@@ -71,17 +71,16 @@ $time: 4s;
     padding: 0.4em 0.5em 0.5em;
     cursor: pointer;
     text-indent: 1.7em;
-    color: #a9c52f;
+    color: #080808;
     border-radius: 0.25em;
     transition: all $time/5;
-    background-color: #283739;
 
     &:before {
         content: "";
         position: absolute;
         z-index: 20;
         left: 0.5em;
-        top: 0.4em;
+        top: 0.6em;
         width: 1em;
         height: 1em;
         display: inline-block;
@@ -97,10 +96,10 @@ $time: 4s;
         height: 0;
         z-index: 21;
         display: inline-block;
-        border: 2px solid #f7eebb;
+        border: 2px solid #f10909;
         border-width: 0 4px 4px 0;
         left: 0.75em;
-        top: 0.75em;
+        top: 0.6em;
         opacity: 0;
         transition: all $time/5;
         transform: rotate(45deg);
@@ -114,7 +113,7 @@ $time: 4s;
     }
 
     #toggle:checked + #sect & {
-        color: #f7eebb;
+        color: #0c0c0b;
     }
 }
 
@@ -166,7 +165,7 @@ $time: 4s;
             box-shadow: 0 0 0 0.01em #a9c52f;
             height: 25em;
             left: 50%;
-            background-color: #a9c52f;
+            background-color: #121312;
         }
 
         @for $i from 0 to 24 {
