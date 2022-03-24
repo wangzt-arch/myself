@@ -10,6 +10,9 @@ function Home() {
             <Header></Header>
             <div className="home-open">
                 <Line></Line>
+                <div className="home-content">
+                    
+                </div>
             </div>
         </div>
     )
