@@ -5,8 +5,10 @@ import docs from "../../docs";
 import "./index.scss";
 
 function Docs() {
+  let [currentIndex, setCurrentIndex] = useState(0);
   let [doc, setDoc] = useState(docs[0]);
   const changeContent = (index) => {
+    setCurrentIndex(index)
     setDoc(docs[index]);
   };
   return (
@@ -16,8 +18,8 @@ function Docs() {
         <div className="docs-title">
           {docs.map((item, index) => (
             <div
-              onClick={() =>changeContent(index)}
-              className="docs-title_item"
+              onClick={() => changeContent(index)}
+              className={currentIndex === index ? "docs-title_item docs-title_item--active" : "docs-title_item"}
               key={index}
             >
               {item.title}
