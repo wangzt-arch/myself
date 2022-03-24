@@ -400,6 +400,18 @@ module.exports = function (webpackEnv) {
                 and: [/\.(ts|tsx|js|jsx|md|mdx)$/],
               },
             },
+            {
+              test: /\.md$/,
+              use: [
+                {
+                  loader: "raw-loader",
+                  options: {
+                    // Pass options to marked
+                    // See https://marked.js.org/using_advanced#options
+                  },
+                },
+              ],
+            },
             // Process application JS with Babel.
             // The preset includes JSX, Flow, TypeScript, and some ESnext features.
             {
