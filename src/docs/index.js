@@ -1,8 +1,8 @@
 import regex from "./regex.md";
-import regex2 from "./regex1.md";
+import fp from "./fp.md";
 
 const docs = [
-  { title: "regex", value: regex },
-  { title: "regex1", value: regex2 },
+  { title: "常用正则", value: regex },
+  { title: "函数式编程", value: fp },
 ];
 export default docs;
