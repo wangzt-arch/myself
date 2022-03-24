@@ -18,10 +18,10 @@
         sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     cursor: pointer;
     &:hover {
-        background-color: rgb(245, 243, 243);
+        background-color: #f5f7ff;
     }
     &--active {
-        background-color: rgb(245, 243, 243);
+        background-color: #f5f7ff;
     }
 }
 .docs-content {
