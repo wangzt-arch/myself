@@ -5795,6 +5795,11 @@ levn@~0.3.0:
     prelude-ls "~1.1.2"
     type-check "~0.3.2"
 
+lib-flexible@^0.3.2:
+  version "0.3.2"
+  resolved "https://registry.npmmirror.com/lib-flexible/-/lib-flexible-0.3.2.tgz#06f5a74832314a2d35c12039bc9c3ca2daeaa426"
+  integrity sha512-9yowMWA70tKhKdCJDaltY0mNQG4OWo7pWKScnTp9aiSxS7s20ZYlwBRE3335nweOf5qKXVC7sDxJwMPM8/MFZg==
+
 lilconfig@^2.0.3, lilconfig@^2.0.4:
   version "2.0.4"
   resolved "https://registry.npmmirror.com/lilconfig/-/lilconfig-2.0.4.tgz#f4507d043d7058b380b6a8f5cb7bcd4b34cee082"
