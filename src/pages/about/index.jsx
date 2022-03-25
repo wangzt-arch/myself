@@ -11,10 +11,10 @@ function About() {
     let [totalPage, setTotalPage] = useState(null);
     let [scale, setScale] = useState(1);
     const narrow = () => {
-        setScale(scale - 0.2)
+        setScale(scale - 0.1)
     }
     const enlarge = () => {
-        setScale(scale + 0.2)
+        setScale(scale + 0.1)
     }
     const onDocumentComplete = (pages) => {
         setTotalPage(pages)
