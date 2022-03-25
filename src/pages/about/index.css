@@ -3,6 +3,8 @@
     height: calc(100vh - 60px);
     overflow: hidden;
     display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .cube-box-area{
     width: 100px;
