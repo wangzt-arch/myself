@@ -9,7 +9,13 @@ import './index.css'
 function About() {
     let [page, setPage] = useState(1);
     let [totalPage, setTotalPage] = useState(null);
-
+    let [scale, setScale] = useState(1);
+    const narrow = () => {
+        setScale(scale - 0.2)
+    }
+    const enlarge = () => {
+        setScale(scale + 0.2)
+    }
     const onDocumentComplete = (pages) => {
         setTotalPage(pages)
     }
@@ -23,14 +29,16 @@ function About() {
         <div className="about">
             <Header></Header>
             <div className="about-me">
-                <div className="about-me_pdf">
-                    <Pdf file={me} page={page} onDocumentComplete={onDocumentComplete}></Pdf>
-                </div>
-                <div className="pdf-button">
-                    <button className='pdf-button_prev' onClick={prevPage}>上一页</button>
-                    <button className='pdf-button_next' onClick={nextPage}>下一页</button>
+                <div>
+                    <Pdf className="about-me_pdf" file={me} scale={scale} page={page} onDocumentComplete={onDocumentComplete}></Pdf>
                 </div>
             </div>
+            <div className="pdf-button">
+                    <button className='pdf-button_prev' onClick={narrow}>缩小</button>
+                    <button className='pdf-button_next' onClick={enlarge}>放大</button>
+                    <button className='pdf-button_next' onClick={prevPage}>上一页</button>
+                    <button className='pdf-button_next' onClick={nextPage}>下一页</button>
+                </div>
             <div className="cube-box-area">
                 <CubeBox></CubeBox>
             </div>
