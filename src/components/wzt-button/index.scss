@@ -6,7 +6,7 @@
     color: black;
     border: 2px solid transparent;
     padding: 5px 10px;
-    width: 80px;
+    font-size: 16px;
     height: 40px;
     position: relative;
 
@@ -16,7 +16,7 @@
         &::before {
             transition: width 0.5s, height 0.5s, border-bottom-color 0s;
             transition-delay: 0.5s, 0s, 0.5s;
-            width: 80px;
+            width: 62px;
             height: 40px;
             border-left: 2px solid red;
             border-bottom: 2px solid red;
@@ -25,7 +25,7 @@
         &::after {
             transition: width 0.5s, height 0.5s, border-right-color 0.5s;
             transition-delay: 0s, 0.5s, 0.5s;
-            width: 80px;
+            width:62px;
             height: 40px;
             border-top: 2px solid red;
             border-right: 2px solid red;

@@ -11,8 +11,7 @@
     align-items: center;
     justify-content: space-between;
     background-color: #fff;
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow: hidden;
 }
 .header::webkit-scrollbar {
     display: none;
