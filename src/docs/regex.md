@@ -26,7 +26,6 @@ console.log(urlReg.test(urlStr1)) // true
 
 const urlStr2 = 'sss://haha.sunshine.com/xxx/xxx'
 console.log(urlReg.test(urlStr2)) // false
-复制代码
 ```
 
 ## 5、IPv4的校验
