@@ -1,5 +1,14 @@
 .about-me{
-    width:200px;
-    height:200px;
-    margin-left:100px;
+    width: 100%;
+    height: calc(100vh - 60px);
+    overflow: hidden;
+    display: flex;
+}
+.cube-box-area{
+    width: 100px;
+    height: 100px;
+    position:fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10;
 }

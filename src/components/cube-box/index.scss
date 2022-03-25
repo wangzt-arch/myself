@@ -112,3 +112,9 @@
     background: orange;
     z-index: -1;
 }
+.cube-box_item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(231, 227, 227);
+}

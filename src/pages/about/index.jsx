@@ -9,6 +9,8 @@ function About() {
         <div className="about">
             <Header></Header>
             <div className="about-me">
+            </div>
+            <div className="cube-box-area">
                 <CubeBox></CubeBox>
             </div>
         </div>
