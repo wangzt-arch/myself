@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { base16AteliersulphurpoolLight   } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import { base16AteliersulphurpoolLight } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import gfm from 'remark-gfm'
 import Header from "../../components/Header";
 import docs from "../../docs";
@@ -37,7 +37,7 @@ function Docs() {
                 return !inline && match ? (
                   <SyntaxHighlighter
                     children={String(children).replace(/\n$/, '')}
-                    style={base16AteliersulphurpoolLight  }
+                    style={base16AteliersulphurpoolLight}
                     language={match[1]}
                     PreTag="div"
                     {...props}
