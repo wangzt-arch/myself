@@ -1,16 +1,36 @@
-.about-me{
+.about-me {
     width: 100%;
     height: calc(100vh - 60px);
-    overflow: hidden;
+    overflow-y: auto;
     display: flex;
     align-items: center;
-    justify-content: center;
+    flex-direction: column;
+    padding-bottom: 20px;
 }
-.cube-box-area{
+.cube-box-area {
     width: 100px;
     height: 100px;
-    position:fixed;
+    position: fixed;
     bottom: 20px;
     right: 20px;
     z-index: 10;
+}
+.pdf-button_prev,
+.pdf-button_next {
+    width: 100px;
+    height: 30px;
+    font-size: 14px;
+    border-radius: 15px;
+    background-color: transparent;
+    border: none;
+    border: 1px solid gray;
+}
+.pdf-button_next {
+    margin-left: 10px;
+}
+.pdf-button_prev:hover,
+.pdf-button_next:hover {
+    background-color: #000;
+    color: #fff;
+    transition: background-color 1s ease;
 }
