@@ -8,13 +8,14 @@ import './index.css'
 
 
 function About() {
+    let [page, setPage] = useState(1);
+    let [totalPage, setTotalPage] = useState(null);
+    let [scale, setScale] = useState(1);
     useEffect(() => {
         console.log(isPc());
         isPc() ? setScale(1) : setScale(0.6)
     },[])
-    let [page, setPage] = useState(1);
-    let [totalPage, setTotalPage] = useState(null);
-    let [scale, setScale] = useState(1);
+    
     const narrow = () => {
         setScale(scale - 0.1)
     }
