@@ -4,7 +4,7 @@
     justify-content: center;
     cursor: pointer;
     color: black;
-    border: 1px solid transparent;
+    border: 2px solid transparent;
     padding: 5px 10px;
     width: 80px;
     height: 40px;
@@ -18,8 +18,8 @@
             transition-delay: 0.5s, 0s, 0.5s;
             width: 80px;
             height: 40px;
-            border-left: 1px solid red;
-            border-bottom: 1px solid red;
+            border-left: 2px solid red;
+            border-bottom: 2px solid red;
         }
 
         &::after {
@@ -27,8 +27,8 @@
             transition-delay: 0s, 0.5s, 0.5s;
             width: 80px;
             height: 40px;
-            border-top: 1px solid red;
-            border-right: 1px solid red;
+            border-top: 2px solid red;
+            border-right: 2px solid red;
         }
     }
 }
