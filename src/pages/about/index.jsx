@@ -1,12 +1,17 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Pdf from 'react-pdf-js'
 import Header from '../../components/Header';
 import CubeBox from '../../components/cube-box'
+import isPc from '../../utils'
 import me from './pdf/myself.pdf'
 import './index.css'
 
 
 function About() {
+    useEffect(() => {
+        console.log(isPc());
+        isPc() ? setScale(1) : setScale(0.6)
+    },[])
     let [page, setPage] = useState(1);
     let [totalPage, setTotalPage] = useState(null);
     let [scale, setScale] = useState(1);
@@ -34,11 +39,11 @@ function About() {
                 </div>
             </div>
             <div className="pdf-button">
-                    <button className='pdf-button_prev' onClick={narrow}>缩小</button>
-                    <button className='pdf-button_next' onClick={enlarge}>放大</button>
-                    <button className='pdf-button_next' onClick={prevPage}>上一页</button>
-                    <button className='pdf-button_next' onClick={nextPage}>下一页</button>
-                </div>
+                <button className='pdf-button_prev' onClick={narrow}>缩小</button>
+                <button className='pdf-button_next' onClick={enlarge}>放大</button>
+                <button className='pdf-button_next' onClick={prevPage}>上一页</button>
+                <button className='pdf-button_next' onClick={nextPage}>下一页</button>
+            </div>
             <div className="cube-box-area">
                 <CubeBox></CubeBox>
             </div>
