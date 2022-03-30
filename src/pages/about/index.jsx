@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import Pdf from 'react-pdf-js'
 import Header from '../../components/Header';
+import Loading from '../../components/Loading';
 import CubeBox from '../../components/cube-box'
 import isPc from '../../utils'
 import me from './pdf/myself.pdf'
@@ -11,11 +12,11 @@ function About() {
     let [page, setPage] = useState(1);
     let [totalPage, setTotalPage] = useState(null);
     let [scale, setScale] = useState(1);
+    let [show, setShow] = useState(true);
     useEffect(() => {
-        console.log(isPc());
         isPc() ? setScale(1) : setScale(0.6)
-    },[])
-    
+    }, [])
+
     const narrow = () => {
         setScale(scale - 0.1)
     }
@@ -23,6 +24,7 @@ function About() {
         setScale(scale + 0.1)
     }
     const onDocumentComplete = (pages) => {
+        setShow(false)
         setTotalPage(pages)
     }
     const nextPage = () => {
@@ -35,6 +37,7 @@ function About() {
         <div className="about">
             <Header></Header>
             <div className="about-me">
+                <Loading show={show}></Loading>
                 <div>
                     <Pdf className="about-me_pdf" file={me} scale={scale} page={page} onDocumentComplete={onDocumentComplete}></Pdf>
                 </div>
