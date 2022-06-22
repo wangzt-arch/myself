@@ -2,7 +2,8 @@ import "./App.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from "./pages/home";
 import Docs from "./pages/docs";
-import About from "./pages/about"
+import About from "./pages/about";
+import YqDistribution from "./pages/yq-distribution";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="/myself/home" element={<Home />} />
         <Route path="/myself/docs" element={<Docs />} />
         <Route path="/myself/about" element={<About />} />
+        <Route path="/myself/yq" element={<YqDistribution />} />
       </Routes>
     </BrowserRouter>
   );
