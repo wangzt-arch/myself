@@ -4,7 +4,7 @@ import harmony from "./harmonyos.md";
 import lets from "./let.md";
 import utils from "./utils.md";
 import skills from './skills.md';
-import commonInstructions from './skills'
+import commonInstructions from './common-instructions.md'
 
 
 const docs = [
