@@ -7,6 +7,10 @@ npm config get registry
 npm config set registry https://registry.npm.taobao.org
 
 yarn config set registry https://registry.npm.taobao.org
+
+npm config set registry https://registry.npmjs.org
+
+npm cache clean --force
 ~~~
 ## 2.vite
 ### 本地服务
