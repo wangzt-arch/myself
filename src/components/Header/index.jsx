@@ -20,19 +20,19 @@ function Header() {
         </a>
         <WztButton
           text="Home"
-          onNavigate={() => navigate("/myself/home")}
+          onNavigate={() => navigate("/home")}
         ></WztButton>
         <WztButton
           text="About"
-          onNavigate={() => navigate("/myself/about")}
+          onNavigate={() => navigate("/about")}
         ></WztButton>
         <WztButton
           text="Docs"
-          onNavigate={() => navigate("/myself/docs")}
+          onNavigate={() => navigate("/docs")}
         ></WztButton>
         <WztButton
           text="疫情"
-          onNavigate={() => navigate("/myself/yq")}
+          onNavigate={() => navigate("/yq")}
         ></WztButton>
       </div>
     </div>
