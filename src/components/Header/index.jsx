@@ -32,7 +32,7 @@ function Header() {
           onNavigate={() => navigate("/docs")}
         ></WztButton>
         <WztButton
-          text="疫情"
+          text="COVID-19"
           onNavigate={() => navigate("/yq")}
         ></WztButton>
       </div>
