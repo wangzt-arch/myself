@@ -9,10 +9,11 @@ function Header() {
   return (
     <div className="header">
       <div className="header-left">
-        <div className="text-magic" data-word="WangZhiTao">
+        {/* <div className="text-magic" data-word="WangZhiTao">
           WangZhiTao
           <div className="white"></div>
-        </div>
+        </div> */}
+        <div className="text-shadow">举个栗子 🌰</div>
       </div>
       <div className="header-right">
         <a href="https://github.com/wangzt-arch">
