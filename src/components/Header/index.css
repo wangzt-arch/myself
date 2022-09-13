@@ -26,10 +26,11 @@
 .text-shadow {
     font-size: 20px;
     color: #0d0d0e;
-    text-shadow: 1px 1px rgba(0, 173, 181, .2882),
-        2px 2px rgba(0, 173, 181, .2882),
-        3px 3px rgba(0, 173, 181, .2882),
-        4px 4px rgba(0, 173, 181, .2882);
+    text-shadow: 1px 1px rgba(22, 22, 22, 0.288),
+        2px 2px rgba(48, 49, 49, 0.288),
+        3px 3px rgba(42, 43, 43, 0.288),
+        4px 4px rgba(47, 48, 48, 0.288);
+    user-select: none;
 }
 
 .text-magic {
