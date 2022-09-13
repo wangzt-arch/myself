@@ -27,7 +27,7 @@ const docs = [
         title: "鸿蒙OS",
         value: harmony
     }, {
-        title: "常用node指令",
+        title: "常用指令",
         value: commonInstructions
     }, {
         title: "掌握技能",
