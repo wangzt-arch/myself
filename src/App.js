@@ -4,14 +4,15 @@ import Home from "./pages/home";
 import Docs from "./pages/docs";
 import About from "./pages/about";
 import YqDistribution from "./pages/yq-distribution";
+import NoFound from "./pages/no-found";
 
 function App() {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/myself"
+                <Route path="/"
                     element={<Home/>}/>
-                <Route path="/home"
+                <Route path="/myself"
                     element={<Home/>}/>
                 <Route path="/home"
                     element={<Home/>}/>
@@ -21,6 +22,8 @@ function App() {
                     element={<About/>}/>
                 <Route path="/yq"
                     element={<YqDistribution/>}/>
+                <Route path="*"
+                    element={<NoFound/>}/>
             </Routes>
         </BrowserRouter>
     );
