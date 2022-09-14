@@ -5,6 +5,7 @@ import lets from "./let.md";
 import utils from "./utils.md";
 import skills from './skills.md';
 import commonInstructions from './common-instructions.md'
+import openlayers from './openlayers-func.md'
 
 
 const docs = [
@@ -32,6 +33,9 @@ const docs = [
     }, {
         title: "掌握技能",
         value: skills
+    }, {
+        title: "openlayers常用",
+        value: openlayers
     },
 ];
 export default docs;
