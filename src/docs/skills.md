@@ -14,6 +14,8 @@
 * 路由
 * ElementUi
 * VueX
+  * actions  可异步 store.dispatch()
+  * mutations 同步提交 store.commit()
 
 ## webpack
 
