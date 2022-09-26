@@ -16,6 +16,31 @@
 * VueX
   * actions  可异步 store.dispatch()
   * mutations 同步提交 store.commit()
+* Vue3+jsx
+~~~jsx
+  import { defineComponent, onMounted, ref } from "vue";
+  export default defineComponent({
+    setup() {
+      onMounted(() => {
+      console.log("jsx");
+    })
+      const renderHeader = (isShow = true) => {
+        return <div v-show={isShow}>header</div>
+    }
+      const msg = ref('message+jsx+vue')
+        return { msg, renderHeader }
+  },
+
+  render() {
+    return <div>
+      {this.renderHeader(false)}
+      {this.renderHeader()}
+      <div v-show={false}>{this.msg}</div>
+      <div v-show={true}>{this.msg}</div>
+    </div>
+  }
+})
+~~~
 
 ## webpack
 
