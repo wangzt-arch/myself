@@ -42,6 +42,26 @@
 })
 ~~~
 
+* 自定义指令
+  * 拖动
+~~~js
+  drag: {
+      inserted: (el) => {
+        const parentDom = el.parentElement
+        el.onmousedown = (e) => {
+          const disX = e.pageX - parentDom.offsetLeft
+          const disY = e.pageY - parentDom.offsetTop
+          document.onmousemove = (de) => {
+            parentDom.style.left = de.pageX - disX + 'px'
+            parentDom.style.top = de.pageY - disY + 'px'
+          }
+          document.onmouseup = () => {
+            document.onmousemove = document.onmouseup = null
+          }
+        }
+      }
+    }
+~~~
 ## webpack
 
 ## vite
