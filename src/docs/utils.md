@@ -71,4 +71,18 @@ let headerP = 0,
             }
         })
 ~~~
+# 滚动条
+~~~ js
+ &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+    background-color: #f1f1f1;
+    border-radius: 5px;
+  }
 
+  &::-webkit-scrollbar-thumb {
+    width: 8px;
+    background-color: #a8a8a8;
+    border-radius: 5px;
+  }
+~~~
