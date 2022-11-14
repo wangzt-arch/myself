@@ -62,3 +62,7 @@ git branch -a
 ~~~js
 git remote -v
 ~~~
+### vs code 终端执行npm
+~~~js
+set-ExecutionPolicy RemoteSigned
+~~~
