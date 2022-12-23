@@ -1,6 +1,8 @@
-import React, {useRef} from "react";
+import React, { useRef } from "react";
 import Header from "../../components/Header";
 // import Line from '../../components/Line'
+import { useEffect } from "react";
+import { getTranslate } from "../../api"
 import party from "party-js";
 import "./index.css";
 
@@ -11,6 +13,10 @@ function Home() {
             count: party.variation.range(20, 40)
         });
     }
+    useEffect(() => {
+        console.log('s');
+        // getTranslate('word')
+    }, [])
     return (
         <div className="home">
             <Header></Header>
