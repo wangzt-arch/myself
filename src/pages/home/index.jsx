@@ -1,17 +1,9 @@
-import React, { useRef } from "react";
+import React from "react";
 import Header from "../../components/Header";
-// import Line from '../../components/Line'
 import { useEffect } from "react";
-import party from "party-js";
 import "./index.css";
 
 function Home() {
-    const partyRef = useRef();
-    function onParty() {
-        party.confetti(partyRef.current, {
-            count: party.variation.range(20, 40)
-        });
-    }
     useEffect(() => {
         console.log('s');
         // getTranslate('word')
@@ -19,13 +11,9 @@ function Home() {
     return (
         <div className="home">
             <Header></Header>
-            <div className="home-open" id="home-open"
-                ref={partyRef}
-                onClick={onParty}>
-                {/* <Line></Line> */}
-                {/* <div className="home-content"></div> */}
+            <div className="home-open" id="home-open">
                 <div className="home-tip">
-                    构思中......点击试试吧
+                    构思中......
                 </div>
             </div>
         </div>
