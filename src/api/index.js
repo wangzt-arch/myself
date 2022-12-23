@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export function getTranslate(text) {
+export function getTranslate(text,language) {
   return axios({
     method: 'post',
     url: 'http://api.interpreter.caiyunai.com/v1/translator',
@@ -10,7 +10,7 @@ export function getTranslate(text) {
     },
     data: {
       source: text,
-      trans_type: "auto2zh",
+      trans_type: language === 'en' ? "auto2en" : "auto2zh",
       detect: "true",
       request_id: "demo"
     }

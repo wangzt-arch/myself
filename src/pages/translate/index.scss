@@ -1,0 +1,10 @@
+.home {
+  width: 100%;
+  height: calc(100vh - 60px);
+}
+.translate-box{
+  min-height:300px ;
+  background-color: rgb(228, 224, 224);
+  display: flex;
+  justify-content: center;
+}

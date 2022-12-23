@@ -35,6 +35,10 @@ function Header() {
           text="COVID-19"
           onNavigate={() => navigate("/yq")}
         ></WztButton>
+        <WztButton
+          text="翻译"
+          onNavigate={() => navigate("/translate")}
+        ></WztButton>
       </div>
     </div>
   );
