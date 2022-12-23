@@ -2,7 +2,6 @@ import React, { useRef } from "react";
 import Header from "../../components/Header";
 // import Line from '../../components/Line'
 import { useEffect } from "react";
-import { getTranslate } from "../../api"
 import party from "party-js";
 import "./index.css";
 
