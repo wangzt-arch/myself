@@ -2,9 +2,52 @@
   width: 100%;
   height: calc(100vh - 60px);
 }
-.translate-box{
-  min-height:300px ;
+
+.translate-box {
+  min-height: 300px;
   background-color: rgb(228, 224, 224);
   display: flex;
   justify-content: center;
+  position: relative;
+}
+
+.textarea-input,
+.textarea-input:focus-visible {
+  border: 1px solid rgb(119, 118, 118);
+  outline: 1px rgb(66, 66, 66);
+}
+
+.textarea-show,
+.textarea-show:focus-visible {
+  background-color: rgb(230, 228, 226);
+  border: none;
+  outline: none;
+}
+
+.textarea-clear {
+  border-radius: 50%;
+  padding: 3px 7px;
+  background-color: rgb(248, 245, 245);
+  position: absolute;
+  left: calc(50% - 15px);
+  top: 5px;
+  cursor: pointer;
+}
+
+.textarea-clear:hover {
+  background-color: rgb(219, 218, 218);
+}
+
+.textarea-copy {
+  border-radius: 50%;
+  padding: 3px 5px;
+  background-color: rgb(248, 245, 245);
+  position: absolute;
+  left: calc(50% + 15px);
+  bottom: 5px;
+  cursor: pointer;
+}
+
+.textarea-copy:hover {
+  background-color: rgb(219, 218, 218);
 }

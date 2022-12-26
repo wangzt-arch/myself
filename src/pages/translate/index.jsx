@@ -23,24 +23,41 @@ function Home() {
       console.log(error);
     }
   }
+  const clear = () => {
+    textArea.current.value = ''
+    textArea.current.focus()
+  }
+  const copy = () => {
+    const el = document.createElement('input')
+    el.setAttribute('value', transRes)
+    document.body.appendChild(el)
+    el.select()
+    document.execCommand('copy')
+    document.body.removeChild(el)
+  }
   return (
     <div className="home">
       <Header></Header>
       <div>
-        <button onClick={translate}>翻译</button>
+        <button onClick={translate} style={{ marginRight: '10px' }}>翻译</button>
+        <label>自动检测——{">"} </label>
         <select name="" id="" onChange={languageChange}>
           <option value="en" label="英文"></option>
           <option value="zh" label="中文"></option>
         </select>
       </div>
       <div className="translate-box">
+        <div className="textarea-clear" onClick={clear}>X</div>
+        <div className="textarea-copy" onClick={copy}>三</div>
         <textarea
+          className="textarea-input"
           ref={textArea}
-          style={{ width: '50%', fontSize: '18px'}}
-          rows="5" onChange={(e) => inputWords(e)} autoFocus>
+          style={{ width: '50%', fontSize: '18px', padding: '10px', resize: 'none' }}
+          rows="5" onChange={inputWords} autoFocus>
         </textarea>
         <textarea
-          style={{ width: '50%', fontSize: '18px' }}
+          className="textarea-show"
+          style={{ width: '50%', fontSize: '18px', resize: 'none' }}
           rows="5" value={transRes} readOnly >
         </textarea>
       </div>
