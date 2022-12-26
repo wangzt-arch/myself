@@ -35,6 +35,11 @@ function Home() {
     document.execCommand('copy')
     document.body.removeChild(el)
   }
+  const onKeyDownEnter = (e) => {
+    if (e.code == "Enter") {
+      translate()
+    }
+  }
   return (
     <div className="home">
       <Header></Header>
@@ -50,6 +55,7 @@ function Home() {
         <div className="textarea-clear" onClick={clear}>X</div>
         <div className="textarea-copy" onClick={copy}>三</div>
         <textarea
+          onKeyDown={onKeyDownEnter}
           className="textarea-input"
           ref={textArea}
           style={{ width: '50%', fontSize: '18px', padding: '10px', resize: 'none' }}
