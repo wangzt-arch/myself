@@ -51,3 +51,16 @@
 .textarea-copy:hover {
   background-color: rgb(219, 218, 218);
 }
+
+.copy-tip {
+  position: absolute;
+  width: 80px;
+  top: -20px;
+  color: rgb(29, 77, 236);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+}

@@ -8,6 +8,8 @@ function Home() {
   let [transRes, setTransRes] = useState('');
   let [language, setLanguage] = useState('en');
   let [transInp, setTransInp] = useState('');
+  let [copyTip, setCopyTip] = useState('复制');
+  let [copyTipShow, setCopyTipShow] = useState(false);
   const textArea = useRef(null)
   const inputWords = (e) => {
     setTransInp(e.target.value.trim())
@@ -35,6 +37,7 @@ function Home() {
     el.select()
     document.execCommand('copy')
     document.body.removeChild(el)
+    setCopyTip('已复制')
   }
   const onKeyDownEnter = (e) => {
     if (e.code === "Enter") {
@@ -54,7 +57,10 @@ function Home() {
       </div>
       <div className="translate-box">
         {transInp && <div className="textarea-clear" onClick={clear}>X</div>}
-        <div className="textarea-copy" onClick={copy}>三</div>
+        <div className="textarea-copy" onClick={copy} onMouseMove={() => setCopyTipShow(true)} onMouseLeave={() => { setCopyTipShow(false); setCopyTip('复制') }}>
+          三
+          {copyTipShow && <div className="copy-tip">{copyTip}</div>}
+        </div>
         <textarea
           onKeyDown={onKeyDownEnter}
           className="textarea-input"
