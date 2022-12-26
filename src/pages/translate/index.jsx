@@ -37,7 +37,7 @@ function Home() {
     document.body.removeChild(el)
   }
   const onKeyDownEnter = (e) => {
-    if (e.code == "Enter") {
+    if (e.code === "Enter") {
       translate()
     }
   }
