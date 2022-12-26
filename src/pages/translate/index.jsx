@@ -25,6 +25,7 @@ function Home() {
   }
   const clear = () => {
     textArea.current.value = ''
+    setTransInp('')
     textArea.current.focus()
   }
   const copy = () => {
@@ -52,7 +53,7 @@ function Home() {
         </select>
       </div>
       <div className="translate-box">
-        <div className="textarea-clear" onClick={clear}>X</div>
+        {transInp && <div className="textarea-clear" onClick={clear}>X</div>}
         <div className="textarea-copy" onClick={copy}>三</div>
         <textarea
           onKeyDown={onKeyDownEnter}
