@@ -31,6 +31,22 @@
         3px 3px rgba(42, 43, 43, 0.288),
         4px 4px rgba(47, 48, 48, 0.288);
     user-select: none;
+    cursor: pointer;
+}
+
+.text-shadow:hover {
+    /* animation: title-shadow 1.5s ease-in-out infinite alternate; */
+}
+
+@keyframes title-shadow {
+    to {
+        text-shadow: 0 0 10px rgb(100, 100, 100), 0 0 20px rgb(100, 100, 100), 0 0 30px rgb(100, 100, 100), 0 0 40px #0d0d0e, 0 0 70px #0d0d0e, 0 0 80px #0d0d0e, 0 0 100px #0d0d0e, 0 0 150px #0d0d0e;
+    }
+
+    from {
+        filter: brightness(110%);
+        text-shadow: 0 0 5px rgb(100, 100, 100), 0 0 10px rgb(100, 100, 100), 0 0 15px rgb(100, 100, 100), 0 0 20px #0d0d0e, 0 0 35px #0d0d0e, 0 0 40px #0d0d0e, 0 0 50px #0d0d0e, 0 0 75px #0d0d0e;
+    }
 }
 
 .text-magic {
