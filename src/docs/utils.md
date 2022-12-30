@@ -86,3 +86,13 @@ let headerP = 0,
     border-radius: 5px;
   }
 ~~~
+# 下载pdf文件流
+~~~ js
+const url = window.URL.createObjectURL(new Blob([res], { type: 'application/pdf' }));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', val.bookName);
+        document.body.appendChild(link);
+        link.click()
+        document.body.removeChild(link)
+~~~
