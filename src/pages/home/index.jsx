@@ -1,6 +1,7 @@
 import React from "react";
 import Header from "../../components/Header";
 import Loading1 from "../../components/Loading1";
+import Lanterns from "../../components/lanterns";
 import { useEffect } from "react";
 import "./index.css";
 
@@ -12,6 +13,7 @@ function Home() {
     return (
         <div className="home">
             <Header></Header>
+            <Lanterns></Lanterns>
             <div className="home-open" id="home-open">
                 <div className="home-tip">
                     构思中......
