@@ -3,7 +3,7 @@ import "./index.scss";
 
 function Lantern() {
   return (
-    <div>
+    <div className="lanterns">
       <div className="deng-box">
         <div className="deng">
           <div className="xian"></div>
