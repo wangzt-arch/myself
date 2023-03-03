@@ -6,6 +6,7 @@ import utils from "./utils.md";
 import skills from './skills.md';
 import commonInstructions from './common-instructions.md'
 import openlayers from './openlayers-func.md'
+import cesium from './cesium.md'
 
 
 const docs = [
@@ -34,8 +35,11 @@ const docs = [
         title: "掌握技能",
         value: skills
     }, {
-        title: "openlayers常用",
+        title: "openlayers方法",
         value: openlayers
+    }, {
+        title: "cesium方法",
+        value: cesium
     },
 ];
 export default docs;
