@@ -4,10 +4,10 @@ import "./index.scss";
 function Loading(props) {
   const { show } = props
   return (
-    show && <div class="loader-container">
-      <div class="loader-child"></div>
-      <div class="loader-child"></div>
-      <div class="loader-child"></div>
+    show && <div className="loader-container">
+      <div className="loader-child"></div>
+      <div className="loader-child"></div>
+      <div className="loader-child"></div>
     </div>
   );
 }
