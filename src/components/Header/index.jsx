@@ -39,6 +39,10 @@ function Header() {
           text="翻译"
           onNavigate={() => navigate("/translate")}
         ></WztButton>
+        <WztButton
+          text="模型预览"
+          onNavigate={() => navigate("/preview")}
+        ></WztButton>
       </div>
     </div>
   );

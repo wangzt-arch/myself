@@ -1,0 +1,20 @@
+.model-preview {
+  width: 100%;
+  height: calc(100vh - 60px);
+}
+.model-preview__area{
+  height: calc(100% - 60px);
+  border: 1px solid red;
+}
+.choose-model{
+  margin: auto;
+  width: 100px;
+  height: 40px;
+  border: 1px solid #000;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  font-size: 16px;
+}
