@@ -21,7 +21,7 @@ import white from "./white.jpg"
 
 const importAll = (r) => {
   let models = [];
-  r.keys().map((item) => {
+  r.keys().forEach((item) => {
     models.push({ name: item.replace('./', ''), value: r(item) });
   });
   return models;
