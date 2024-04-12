@@ -1,21 +1,30 @@
 {
   "files": {
-    "main.css": "/myself/static/css/main.67d70a24.css",
-    "main.js": "/myself/static/js/main.eaf435f6.js",
+    "main.css": "/myself/static/css/main.3d451744.css",
+    "main.js": "/myself/static/js/main.8bb0a263.js",
     "static/js/510.30a337e9.chunk.js": "/myself/static/js/510.30a337e9.chunk.js",
+    "static/media/狙击枪_ar-15.glb": "/myself/static/media/狙击枪_ar-15.11739dd9547babb3f7a5.glb",
+    "static/media/防弹衣.glb": "/myself/static/media/防弹衣.61f3fcbd50ea9d985943.glb",
+    "static/media/自动步枪_m16.glb": "/myself/static/media/自动步枪_m16.905547cbb773a69fbc3f.glb",
+    "static/media/高射炮.glb": "/myself/static/media/高射炮.6443b1cb553fb07f1bfd.glb",
+    "static/media/自动步枪_m4a1.glb": "/myself/static/media/自动步枪_m4a1.7d15ba0fa2dbc219aab6.glb",
+    "static/media/火箭筒_rpg7.glb": "/myself/static/media/火箭筒_rpg7.5fe48a56d2326219e8e4.glb",
+    "static/media/火箭筒.glb": "/myself/static/media/火箭筒.7e788756c1888ef84f91.glb",
+    "static/media/步枪.glb": "/myself/static/media/步枪.e7347df7d09124c1aa01.glb",
     "static/media/myself.pdf": "/myself/static/media/myself.ef8bb158ab9abc3dd547.pdf",
+    "static/media/无人机.glb": "/myself/static/media/无人机.a9fe1bb39ae4b2efaa15.glb",
     "static/media/sass.svg": "/myself/static/media/sass.13c7d6a0a956523ebafe6e89516dbbbd.svg",
     "static/media/react.svg": "/myself/static/media/react.5d6ef7b78e37b66ee5bd99bd55ae96a4.svg",
     "static/media/ts.svg": "/myself/static/media/ts.1d6568a01e83425f43de98376df3f92e.svg",
     "static/media/vscode.svg": "/myself/static/media/vscode.2d030c71e831f3235a4db50534aa7ca4.svg",
     "index.html": "/myself/index.html",
     "static/media/vue.svg": "/myself/static/media/vue.7201feae62a155559a321e3209eb0049.svg",
-    "main.67d70a24.css.map": "/myself/static/css/main.67d70a24.css.map",
-    "main.eaf435f6.js.map": "/myself/static/js/main.eaf435f6.js.map",
+    "main.3d451744.css.map": "/myself/static/css/main.3d451744.css.map",
+    "main.8bb0a263.js.map": "/myself/static/js/main.8bb0a263.js.map",
     "510.30a337e9.chunk.js.map": "/myself/static/js/510.30a337e9.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.67d70a24.css",
-    "static/js/main.eaf435f6.js"
+    "static/css/main.3d451744.css",
+    "static/js/main.8bb0a263.js"
   ]
 }
