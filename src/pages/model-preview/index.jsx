@@ -19,7 +19,17 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import white from "./white.jpg"
 
 
+const importAll = (r) => {
+  let models = [];
+  r.keys().map((item) => {
+    models.push({ name: item.replace('./', ''), value: r(item) });
+  });
+  return models;
+};
 
+const modelLists = importAll(require.context('./models', false, /\.glb$/));
+
+ 
 
 
 function Preview() {
@@ -27,6 +37,7 @@ function Preview() {
   const modelRef = useRef();
   let [currentModel, setCurrentModel] = useState({});
   let [flag, setFlag] = useState(false);
+
 
 
   const loadModel = () => {
@@ -41,13 +52,20 @@ function Preview() {
       const center = box.getCenter(new THREE.Vector3());
       glb.scene.position.sub(center);
     }
-    return<scene><primitive object={glb.scene}  ref={modelRef}/></scene> ;
+    return <scene><primitive object={glb.scene} ref={modelRef} /></scene>;
   };
 
   const currentModelChange = (event) => {
-    console.log(event);
     const value = event.target.files[0]
     setCurrentModel(URL.createObjectURL(value))
+    setFlag(false)
+    setFlag(true)
+
+  }
+
+  const onclickToShowModel=(event)=>{
+    const value = event.target.value
+    setCurrentModel(value)
     setFlag(false)
     setFlag(true)
 
@@ -59,17 +77,29 @@ function Preview() {
 
       <div className="model-preview__area">
         <Canvas>
-        <ambientLight intensity={1} />
-        <pointLight position={[10, 10, 10]} intensity={1} />
+          <ambientLight intensity={1} />
+          <pointLight position={[10, 10, 10]} intensity={1} />
           <Suspense fallback={<Loader />}>
             {flag && <Model></Model>}
             <OrbitControls />
-            <Environment  files={white} background />
+            <Environment files={white} background />
           </Suspense>
         </Canvas>
       </div>
       <div className="choose-model" onClick={loadModel}>加载模型</div>
-      <input ref={input} type="file" className="input-model" onChange={currentModelChange} accept=".gltf,.glb" />
+      <input ref={input} type="file"
+        className="input-model"
+        onChange={currentModelChange}
+        accept=".gltf,.glb" />
+      <select name="" id="" className="select-model" onChange={onclickToShowModel}>
+        {
+          modelLists.map((item)=>{
+            return <option value={item.value} label={item.name} ></option>
+          })
+        }
+        
+
+      </select>
     </div>
   );
 }
