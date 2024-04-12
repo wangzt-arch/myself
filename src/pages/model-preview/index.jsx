@@ -2,7 +2,7 @@ import React, { Suspense, useState } from "react";
 import Header from "../../components/Header";
 import { useRef } from "react";
 import { Canvas } from '@react-three/fiber'
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
+// import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { useLoader } from '@react-three/fiber'
 import * as THREE from 'three'
 import "./index.css";
@@ -14,8 +14,8 @@ import {
   useProgress
 } from "@react-three/drei";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import city from "./city.jpg"
-import blue from "./blue.jpg"
+// import city from "./city.jpg"
+// import blue from "./blue.jpg"
 import white from "./white.jpg"
 
 
