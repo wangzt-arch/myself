@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@babel/core": "^7.16.0",
+    "@mikecousins/react-pdf": "^7.0.4",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
     "@react-three/drei": "^9.105.3",
     "@react-three/fiber": "^8.16.1",

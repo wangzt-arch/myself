@@ -10,12 +10,43 @@
   <meta name="description" content="Web site created using create-react-app" />
   <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
   <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+  <!-- <link rel="stylesheet" href="./live2d/live.css"> -->
   <title>举个栗子 🌰</title>
 </head>
 
 <body>
   <noscript>You need to enable JavaScript to run this app.</noscript>
   <div id="root"></div>
+  <div id="live2d-widget"></div>
+  <script src="https://cdn.jsdelivr.net/npm/live2d-widget@3.x/lib/L2Dwidget.min.js"></script>
+
+  <script>
+    L2Dwidget.init({
+      "model": {
+        jsonPath: "https://unpkg.com/live2d-widget-model-hijiki/assets/hijiki.model.json",
+        "scale": 1
+      },
+      "display": {
+        "position": "left",
+        "width": 200,
+        "height": 400,
+        "hOffset": 5,
+        "vOffset": -100
+      },
+      "mobile": {
+        "show": true,
+        "scale": 0.5
+      },
+      name: {
+        div: 'live2d-widget',
+      },
+      "react": {
+        "opacityDefault": 0.7,
+        "opacityOnHover": 0.3
+      }
+    });
+
+  </script>
 </body>
 
 </html>
