@@ -7,6 +7,7 @@ import YqDistribution from "./pages/yq-distribution";
 import NoFound from "./pages/no-found";
 import Translate from "./pages/translate"
 import ModelPreview from "./pages/model-preview"
+import LogicFlow from "./pages/logicflow"
 
 function App() {
     return (
@@ -28,6 +29,8 @@ function App() {
                     element={<Translate />} />
                 <Route path="/preview"
                     element={<ModelPreview />} />
+                <Route path="/logicflow"
+                    element={<LogicFlow />} />
                 <Route path="*"
                     element={<NoFound />} />
             </Routes>

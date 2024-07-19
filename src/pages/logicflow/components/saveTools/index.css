@@ -1,0 +1,44 @@
+.save-tools{
+    position: absolute;
+    bottom: 10px;
+    left: 15px;
+    background: hsla(0, 0%, 100%, .8);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .3);
+    display: flex;
+    width: 100px;
+    padding: 10px 5px;
+    align-items: center;
+    justify-content: space-between;
+    .download,.upload-xml{
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+    }
+    .download-xml{
+        background: url('../../img/download-xml.png') no-repeat 0 0;
+        background-size: 100% 100%;
+        width: 20px;
+        height: 20px;
+    }
+    .download-img{
+        background: url('../../img/download-png.png') no-repeat 0 0;
+        background-size: 100% 100%;
+        width: 20px;
+        height: 20px;
+    }
+    .upload-xml{
+        background: url('../../img/upload-xml.png') no-repeat 0 0;
+        background-size: 100% 100%;
+        width: 25px;
+        height: 25px;
+        cursor: pointer;
+        overflow: hidden;
+        .upload{
+            opacity: 0.1;
+            cursor: pointer;
+        }
+        input{
+            cursor: pointer !important;
+        }
+    }
+}
