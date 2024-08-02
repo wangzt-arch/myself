@@ -68,6 +68,15 @@ const cartesianToLnglat = function (cartesian, viewer) {
 
 ## 视角定位方法
 ~~~js
+/**
+ * 视角定位方法
+ * @param {Object} opt 定位参数
+ * @param {Cartesian3|Array} opt.center 当前定位中心点
+ * @param {Number} opt.heading 当前定位偏转角度 默认为0 
+ * @param {Number} opt.pitch 当前定位仰俯角 默认为-60
+ * @param {Number} opt.range 当前定位距离 默认为1000米
+ * @param {Cesium.Viewer} viewer 当前viewer对象
+ */
 const flyTo = function (opt, viewer) {
   if (!viewer) {
     console.log('缺少viewer对象');
