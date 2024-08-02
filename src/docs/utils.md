@@ -1,4 +1,4 @@
-# 1.移动端禁止手指操作缩放
+## 1.移动端禁止手指操作缩放
 
 ~~~ js
  //禁止双击放大
@@ -17,7 +17,7 @@ document.documentElement.addEventListener('touchstart', function (event) {
 })
 ~~~
 
-# 2.判断pc或者移动端环境
+## 2.判断pc或者移动端环境
 
 ~~~ js
  function isPC() {
@@ -36,7 +36,7 @@ document.documentElement.addEventListener('touchstart', function (event) {
         }
 ~~~
 
-# 3.判断页面上滚还是下滚
+## 3.判断页面上滚还是下滚
 
 ~~~ js
 let headerP = 0,
@@ -53,7 +53,7 @@ let headerP = 0,
     });
 ~~~
 
-# 4.判断手指上滑还是下滑
+## 4.判断手指上滑还是下滑
 
 ~~~ js
  $('body').on('touchstart', function (e) {
@@ -71,7 +71,7 @@ let headerP = 0,
             }
         })
 ~~~
-# 滚动条
+## 滚动条
 ~~~ js
  &::-webkit-scrollbar {
     width: 6px;
@@ -86,7 +86,7 @@ let headerP = 0,
     border-radius: 5px;
   }
 ~~~
-# 下载pdf文件流
+## 下载pdf文件流
 ~~~ js
 const url = window.URL.createObjectURL(new Blob([res], { type: 'application/pdf' }));
         const link = document.createElement('a');
@@ -96,3 +96,62 @@ const url = window.URL.createObjectURL(new Blob([res], { type: 'application/pdf'
         link.click()
         document.body.removeChild(link)
 ~~~
+## 下载方法
+~~~js
+/**
+ * 常用工具、和地图无关的方法
+ * @exports tool
+ * @alias tool
+ */
+var tool = {};
+/**
+ * 文本或json等下载方法
+ * @param {String} fileName 文件名称，后缀需要加类型，如.txt / .json等
+ * @param {String} datastr 文本字符串
+ * @example tool.downloadFile("测试.json",JSON.stringify(data));
+*/
+
+tool.downloadFile = function (fileName, datastr) {
+  var blob = new Blob([datastr]);
+
+  _download(fileName, blob);
+};
+/**
+ * 图片下载方法
+ * @param {String} fileName 图片名称
+ * @param {Canvas} canvas dom canvas对象
+*/
+
+
+tool.downloadImage = function (fileName, canvas) {
+  var base64 = canvas.toDataURL("image/png");
+  var blob = base64Img2Blob(base64);
+
+  _download(fileName + '.png', blob);
+};
+
+function _download(fileName, blob) {
+  var aLink = document.createElement('a');
+  aLink.download = fileName;
+  aLink.href = URL.createObjectURL(blob);
+  document.body.appendChild(aLink);
+  aLink.click();
+  document.body.removeChild(aLink);
+}
+
+function base64Img2Blob(code) {
+  var parts = code.split(';base64,');
+  var contentType = parts[0].split(':')[1];
+  var raw = window.atob(parts[1]);
+  var rawLength = raw.length;
+  var uInt8Array = new Uint8Array(rawLength);
+
+  for (var i = 0; i < rawLength; ++i) {
+    uInt8Array[i] = raw.charCodeAt(i);
+  }
+
+  return new Blob([uInt8Array], {
+    type: contentType
+  });
+}
+~~~ 
