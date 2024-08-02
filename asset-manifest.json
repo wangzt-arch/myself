@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/myself/static/css/main.75e20b41.css",
-    "main.js": "/myself/static/js/main.1720ca69.js",
+    "main.js": "/myself/static/js/main.087a2f83.js",
     "static/js/510.dc0df6e1.chunk.js": "/myself/static/js/510.dc0df6e1.chunk.js",
     "static/media/狙击枪_ar-15.glb": "/myself/static/media/狙击枪_ar-15.11739dd9547babb3f7a5.glb",
     "static/media/防弹衣.glb": "/myself/static/media/防弹衣.61f3fcbd50ea9d985943.glb",
@@ -22,6 +22,6 @@
   },
   "entrypoints": [
     "static/css/main.75e20b41.css",
-    "static/js/main.1720ca69.js"
+    "static/js/main.087a2f83.js"
   ]
 }
