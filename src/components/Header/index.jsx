@@ -47,6 +47,10 @@ function Header() {
           text="流程图"
           onNavigate={() => navigate("/logicflow")}
         ></WztButton>
+        <WztButton
+          text="视频案例"
+          onNavigate={() => navigate("/video")}
+        ></WztButton>
       </div>
     </div>
   );

@@ -8,6 +8,7 @@ import NoFound from "./pages/no-found";
 import Translate from "./pages/translate"
 import ModelPreview from "./pages/model-preview"
 import LogicFlow from "./pages/logicflow"
+import Video from "./pages/video"
 
 function App() {
     return (
@@ -31,6 +32,8 @@ function App() {
                     element={<ModelPreview />} />
                 <Route path="/logicflow"
                     element={<LogicFlow />} />
+                <Route path="/video"
+                    element={<Video />} />
                 <Route path="*"
                     element={<NoFound />} />
             </Routes>

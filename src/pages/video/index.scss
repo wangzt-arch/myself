@@ -1,0 +1,17 @@
+.video {
+    width: 100%;
+    height: calc(100vh - 60px);
+    overflow: hidden;
+    display: flex;
+    // justify-content: space-around;
+    flex-wrap: wrap;
+    align-content: flex-start;
+}
+
+.video-item {
+    min-width: 320Px;
+    width: 320Px;
+    height: 200px;
+    // border: 1px solid red;
+    margin: 10px;
+}
