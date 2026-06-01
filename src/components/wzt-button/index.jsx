@@ -2,11 +2,17 @@ import React from "react";
 import "./index.scss";
 
 function WztButton(props) {
-    const { text = '点击', onNavigate } = props
+    const { text = "点击", active = false, onNavigate } = props;
+
     return (
-        <div className="wzt-button" onClick={() => onNavigate()}>
+        <button
+            className={active ? "wzt-button wzt-button--active" : "wzt-button"}
+            type="button"
+            aria-current={active ? "page" : undefined}
+            onClick={onNavigate}
+        >
             {text}
-        </div>
+        </button>
     );
 }
 

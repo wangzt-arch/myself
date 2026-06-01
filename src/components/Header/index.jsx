@@ -1,58 +1,86 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import WztButton from "../wzt-button";
 import logo from "../../images/github-icon.png";
 import "./index.css";
 
+const navItems = [
+  { text: "Home", path: "/home" },
+  { text: "About", path: "/about" },
+  { text: "Docs", path: "/docs" },
+  { text: "COVID-19", path: "/yq" },
+  { text: "翻译", path: "/translate" },
+  { text: "模型预览", path: "/preview" },
+  { text: "流程图", path: "/logicflow" },
+  { text: "视频案例", path: "/video" },
+];
+
 function Header() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const currentPath = useMemo(() => {
+    return location.pathname === "/" || location.pathname === "/myself"
+      ? "/home"
+      : location.pathname;
+  }, [location.pathname]);
+
+  const navigateTo = (path) => {
+    navigate(path);
+    setMenuOpen(false);
+  };
+
   return (
-    <div className="header">
-      <div className="header-left">
-        {/* <div className="text-magic" data-word="WangZhiTao">
-          WangZhiTao
-          <div className="white"></div>
-        </div> */}
-        <div className="text-shadow">举个栗子 🌰</div>
-      </div>
-      <div className="header-right">
-        <a href="https://github.com/wangzt-arch">
+    <header className="header">
+      <button
+        className="header-brand"
+        type="button"
+        onClick={() => navigateTo("/home")}
+      >
+        <span className="text-shadow">举个栗子</span>
+        <span className="brand-mark" aria-hidden="true">
+          🌰
+        </span>
+      </button>
+
+      <div className="header-actions">
+        <a
+          className="github-link"
+          href="https://github.com/wangzt-arch"
+          target="_blank"
+          rel="noreferrer"
+          aria-label="GitHub"
+        >
           <img className="header-logo" src={logo} alt="" />
         </a>
-        <WztButton
-          text="Home"
-          onNavigate={() => navigate("/home")}
-        ></WztButton>
-        <WztButton
-          text="About"
-          onNavigate={() => navigate("/about")}
-        ></WztButton>
-        <WztButton
-          text="Docs"
-          onNavigate={() => navigate("/docs")}
-        ></WztButton>
-        <WztButton
-          text="COVID-19"
-          onNavigate={() => navigate("/yq")}
-        ></WztButton>
-        <WztButton
-          text="翻译"
-          onNavigate={() => navigate("/translate")}
-        ></WztButton>
-        <WztButton
-          text="模型预览"
-          onNavigate={() => navigate("/preview")}
-        ></WztButton>
-        <WztButton
-          text="流程图"
-          onNavigate={() => navigate("/logicflow")}
-        ></WztButton>
-        <WztButton
-          text="视频案例"
-          onNavigate={() => navigate("/video")}
-        ></WztButton>
+        <button
+          className={menuOpen ? "menu-toggle menu-toggle--open" : "menu-toggle"}
+          type="button"
+          aria-label="切换导航菜单"
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((value) => !value)}
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
       </div>
-    </div>
+
+      <nav
+        className={menuOpen ? "header-nav header-nav--open" : "header-nav"}
+        aria-label="主导航"
+      >
+        {navItems.map((item) => (
+          <WztButton
+            key={item.path}
+            text={item.text}
+            active={currentPath === item.path}
+            onNavigate={() => navigateTo(item.path)}
+          />
+        ))}
+      </nav>
+    </header>
   );
 }
 
