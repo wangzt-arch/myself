@@ -1,0 +1,2 @@
+/*! For license information please see gaussianSplatSorter.js.LICENSE.txt */
+import{b as t,c as f}from"./chunk-KG2GJUJT.js";import{a as s}from"./chunk-XR7MN4PJ.js";import{f as o}from"./chunk-5XHUDY37.js";async function m(s,t){let e=s.webAssemblyConfig;if(o(e)&&o(e.wasmBinary))return f({module:e.wasmBinary}),!0}function c(s,e){let i=s.webAssemblyConfig;if(o(i))return m(s,e);let{primitive:n,sortType:r}=s;return"Index"===r?t(n.positions,n.modelView,n.count):void 0}var y=s(c);export{y as default};
