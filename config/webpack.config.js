@@ -185,6 +185,9 @@ module.exports = function (webpackEnv) {
           loader: require.resolve(preProcessor),
           options: {
             sourceMap: true,
+            sassOptions: {
+              silenceDeprecations: ["legacy-js-api"],
+            },
           },
         }
       );
@@ -348,7 +351,10 @@ module.exports = function (webpackEnv) {
         // Handle node_modules packages that contain sourcemaps
         shouldUseSourceMap && {
           enforce: "pre",
-          exclude: /@babel(?:\/|\\{1,2})runtime/,
+          exclude: [
+            /@babel(?:\/|\\{1,2})runtime/,
+            /@mediapipe(?:\/|\\{1,2})tasks-vision/,
+          ],
           test: /\.(js|mjs|jsx|ts|tsx|css)$/,
           loader: require.resolve("source-map-loader"),
         },
