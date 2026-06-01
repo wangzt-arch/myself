@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../components/Header";
+import useScrollReveal from "../../hooks/useScrollReveal";
 import "./index.css";
 
 const featureItems = [
@@ -44,11 +45,19 @@ const skillItems = [
 function Home() {
     const navigate = useNavigate();
 
+    // 各区块的滚动入场动画
+    const heroReveal = useScrollReveal({ threshold: 0.1 });
+    const featureReveal = useScrollReveal();
+    const skillReveal = useScrollReveal();
+
     return (
         <div className="home">
             <Header />
             <main className="home-main">
-                <section className="home-hero">
+                <section
+                    className={`home-hero reveal ${heroReveal.isVisible ? "reveal--visible" : ""}`}
+                    ref={heroReveal.ref}
+                >
                     <div className="hero-copy">
                         <p className="hero-kicker">个人技术实验室</p>
                         <h1>把前端想法做成可以打开、可以操作、可以复盘的作品。</h1>
@@ -82,14 +91,22 @@ function Home() {
                     </div>
                 </section>
 
-                <section className="home-section">
+                <section
+                    className={`home-section reveal ${featureReveal.isVisible ? "reveal--visible" : ""}`}
+                    ref={featureReveal.ref}
+                >
                     <div className="section-heading">
                         <p>精选入口</p>
                         <h2>从已有页面里整理出的作品线索</h2>
                     </div>
                     <div className="feature-grid">
-                        {featureItems.map((item) => (
-                            <button className="feature-card" key={item.path} type="button" onClick={() => navigate(item.path)}>
+                        {featureItems.map((item, index) => (
+                            <button
+                                className={`feature-card reveal reveal--delay-${index + 1} ${featureReveal.isVisible ? "reveal--visible" : ""}`}
+                                key={item.path}
+                                type="button"
+                                onClick={() => navigate(item.path)}
+                            >
                                 <span className="feature-category">{item.category}</span>
                                 <strong>{item.title}</strong>
                                 <span>{item.description}</span>
@@ -98,14 +115,22 @@ function Home() {
                     </div>
                 </section>
 
-                <section className="home-section home-section--skills">
+                <section
+                    className={`home-section home-section--skills reveal ${skillReveal.isVisible ? "reveal--visible" : ""}`}
+                    ref={skillReveal.ref}
+                >
                     <div className="section-heading">
                         <p>能力拼图</p>
                         <h2>这个站点正在积累的技术面</h2>
                     </div>
                     <div className="skill-list">
-                        {skillItems.map((item) => (
-                            <span key={item}>{item}</span>
+                        {skillItems.map((item, index) => (
+                            <span
+                                key={item}
+                                className={`reveal reveal--delay-${index + 1} ${skillReveal.isVisible ? "reveal--visible" : ""}`}
+                            >
+                                {item}
+                            </span>
                         ))}
                     </div>
                 </section>

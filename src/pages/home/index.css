@@ -222,6 +222,40 @@
   font-weight: 700;
 }
 
+/* ========== 滚动入场动画 ========== */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.reveal--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 子元素逐个延迟入场 */
+.reveal--delay-1 { transition-delay: 0.08s; }
+.reveal--delay-2 { transition-delay: 0.16s; }
+.reveal--delay-3 { transition-delay: 0.24s; }
+.reveal--delay-4 { transition-delay: 0.32s; }
+.reveal--delay-5 { transition-delay: 0.40s; }
+.reveal--delay-6 { transition-delay: 0.48s; }
+.reveal--delay-7 { transition-delay: 0.56s; }
+.reveal--delay-8 { transition-delay: 0.64s; }
+
+/* Hero 区块使用更柔和的入场 */
+.home-hero.reveal {
+  transform: translateY(48px);
+}
+
+/* 技能标签使用缩放入场 */
+.skill-list .reveal {
+  transform: translateY(16px) scale(0.92);
+}
+
 @media (max-width: 1080px) {
   .home-main {
     width: min(100% - 32px, 920px);

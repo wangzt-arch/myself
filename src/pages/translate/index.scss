@@ -1,66 +1,385 @@
-.home {
-  width: 100%;
-  height: calc(100vh - 60px);
+/* ========== 翻译页面 — 设计图风格 ========== */
+
+// 色彩变量
+$coral: #f05a5a;
+$coral-dark: #e04848;
+$teal: #3ecdc6;
+$teal-dark: #2fb8b2;
+$bg-page: #f0f0f2;
+$bg-card: #ffffff;
+$bg-input: #f5f5f7;
+$text-primary: #1c1c1e;
+$text-secondary: #8e8e93;
+$text-placeholder: #c7c7cc;
+$border-light: rgba(0, 0, 0, 0.06);
+
+.translate-page {
+  min-height: 100vh;
+  background: $bg-page;
+  color: $text-primary;
 }
 
-.translate-box {
-  min-height: 300px;
-  background-color: rgb(228, 224, 224);
+.translate-main {
+  width: min(920px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 88px 24px 64px;
+}
+
+/* --- Pill 按钮（通用） --- */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0;
+  white-space: nowrap;
+  user-select: none;
+
+  &--primary {
+    background: $coral;
+    color: #fff;
+    border: none;
+    cursor: default;
+  }
+
+  &--sm {
+    padding: 4px 14px;
+    font-size: 12px;
+  }
+}
+
+/* --- 语言工具栏 --- */
+.translate-toolbar {
   display: flex;
-  justify-content: center;
-  position: relative;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
 }
 
-.textarea-input,
-.textarea-input:focus-visible {
-  border: 1px solid rgb(119, 118, 118);
-  outline: 1px rgb(66, 66, 66);
+.toolbar-select {
+  padding: 6px 32px 6px 14px;
+  border: 1.5px solid $border-light;
+  border-radius: 999px;
+  background: $bg-card;
+  color: $coral;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23f05a5a' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  transition: border-color 0.2s;
 }
 
-.textarea-show,
-.textarea-show:focus-visible {
-  background-color: rgb(230, 228, 226);
+.toolbar-select:focus {
+  outline: none;
+  border-color: $coral;
+}
+
+.toolbar-swap {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  border: 1.5px solid $border-light;
+  border-radius: 999px;
+  background: $bg-card;
+  color: $text-secondary;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, transform 0.25s;
+}
+
+.toolbar-swap:hover {
+  background: $coral;
+  color: #fff;
+  border-color: $coral;
+  transform: rotate(180deg);
+}
+
+/* --- 翻译区域 --- */
+.translate-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-radius: 16px;
+  background: $bg-card;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+/* --- 面板 --- */
+.translate-pane {
+  display: flex;
+  flex-direction: column;
+  min-height: 280px;
+}
+
+.translate-pane--input {
+  background: $bg-input;
+  border-right: 1px solid $border-light;
+}
+
+.translate-pane--output {
+  background: $bg-card;
+}
+
+.translate-textarea {
+  flex: 1;
+  width: 100%;
+  padding: 24px;
   border: none;
   outline: none;
+  background: transparent;
+  color: $text-primary;
+  font-size: 18px;
+  line-height: 1.7;
+  resize: none;
+  font-family: inherit;
 }
 
-.textarea-clear {
+.translate-textarea::placeholder {
+  color: $text-placeholder;
+}
+
+/* --- 面板底部 --- */
+.pane-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+}
+
+.char-count {
+  font-size: 12px;
+  color: $text-secondary;
+}
+
+.pane-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
   border-radius: 50%;
-  padding: 3px 7px;
-  background-color: rgb(248, 245, 245);
-  position: absolute;
-  left: calc(50% - 15px);
-  top: 5px;
+  background: rgba(0, 0, 0, 0.04);
+  color: $text-secondary;
   cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
 }
 
-.textarea-clear:hover {
-  background-color: rgb(219, 218, 218);
+.pane-action:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: $text-primary;
 }
 
-.textarea-copy {
-  border-radius: 50%;
-  padding: 3px 5px;
-  background-color: rgb(248, 245, 245);
-  position: absolute;
-  left: calc(50% + 15px);
-  bottom: 5px;
+/* --- 结果卡片（teal 背景） --- */
+.result-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 28px 24px;
+  background: $teal;
+  border-radius: 0;
+}
+
+.result-text {
+  margin: 0;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+.result-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-end;
+  padding: 6px 14px;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
   cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: background-color 0.2s;
 }
 
-.textarea-copy:hover {
-  background-color: rgb(219, 218, 218);
+.result-copy:hover {
+  background: rgba(255, 255, 255, 0.28);
 }
 
-.copy-tip {
-  position: absolute;
-  width: 80px;
-  top: -20px;
-  color: rgb(29, 77, 236);
-  left: 50%;
-  transform: translateX(-50%);
+/* --- 状态提示 --- */
+.translate-placeholder {
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-wrap: nowrap;
+  color: $text-placeholder;
+  font-size: 15px;
+}
+
+.translate-loading {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: $text-secondary;
+  font-size: 15px;
+}
+
+.loading-spinner {
+  display: block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(62, 205, 198, 0.25);
+  border-top-color: $teal;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.translate-error {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $coral;
+  font-size: 14px;
+  background: rgba(240, 90, 90, 0.06);
+}
+
+/* --- 翻译历史 --- */
+.translate-history {
+  margin-top: 28px;
+  padding: 20px 24px;
+  border-radius: 16px;
+  background: $bg-card;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.history-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: $bg-input;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.history-item:hover {
+  background: rgba(62, 205, 198, 0.08);
+}
+
+.history-source {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  color: $text-primary;
+}
+
+.history-eq {
+  flex-shrink: 0;
+  color: $text-secondary;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.history-target {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  color: $teal-dark;
+  font-weight: 600;
+}
+
+/* --- 快捷键提示 --- */
+.translate-hint {
+  margin: 24px 0 0;
+  text-align: center;
+  font-size: 13px;
+  color: $text-secondary;
+}
+
+.translate-hint kbd {
+  display: inline-block;
+  padding: 2px 8px;
+  border: 1px solid $border-light;
+  border-radius: 6px;
+  background: $bg-card;
+  font-family: inherit;
+  font-size: 12px;
+  color: $text-secondary;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+/* ========== 响应式 ========== */
+@media (max-width: 640px) {
+  .translate-main {
+    width: calc(100% - 24px);
+    padding: 72px 12px 48px;
+  }
+
+  .translate-box {
+    grid-template-columns: 1fr;
+  }
+
+  .translate-pane--input {
+    border-right: none;
+    border-bottom: 1px solid $border-light;
+  }
+
+  .translate-textarea {
+    font-size: 16px;
+    padding: 18px;
+  }
+
+  .result-text {
+    font-size: 18px;
+  }
+
+  .history-item {
+    flex-wrap: wrap;
+  }
+
+  .history-source,
+  .history-target {
+    flex: 1 1 100%;
+  }
 }
