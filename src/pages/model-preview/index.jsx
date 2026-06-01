@@ -1,9 +1,9 @@
-import React, { Suspense, useState } from "react";
+import React, { Suspense, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import Header from "../../components/Header";
 import { useRef } from "react";
 import { Canvas } from '@react-three/fiber'
 // import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
-import { useLoader } from '@react-three/fiber'
+import { useLoader, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import "./index.css";
 
@@ -34,9 +34,17 @@ const modelLists = importAll(require.context('./models', false, /\.glb$/));
 
 function Preview() {
   const input = useRef(null);
-  const modelRef = useRef();
-  let [currentModel, setCurrentModel] = useState({});
-  let [flag, setFlag] = useState(false);
+  const defaultModel = modelLists[0]?.value || "";
+  const [currentModel, setCurrentModel] = useState(defaultModel);
+  const [uploadedModel, setUploadedModel] = useState("");
+
+  useEffect(() => {
+    return () => {
+      if (uploadedModel) {
+        URL.revokeObjectURL(uploadedModel);
+      }
+    };
+  }, [uploadedModel]);
 
 
 
@@ -46,42 +54,69 @@ function Preview() {
   }
   const Model = () => {
     const glb = useLoader(GLTFLoader, currentModel);
+    const { camera } = useThree();
 
-    if (modelRef.current && glb) {
-      const box = new THREE.Box3().setFromObject(glb.scene);
+    const scene = useMemo(() => glb.scene.clone(true), [glb]);
+    const fit = useMemo(() => {
+      const box = new THREE.Box3().setFromObject(scene);
       const center = box.getCenter(new THREE.Vector3());
-      glb.scene.position.sub(center);
-    }
-    return <scene><primitive object={glb.scene} ref={modelRef} /></scene>;
+      const size = box.getSize(new THREE.Vector3());
+      const maxSize = Math.max(size.x, size.y, size.z) || 1;
+      const scale = 3.2 / maxSize;
+
+      return {
+        position: [-center.x * scale, -center.y * scale, -center.z * scale],
+        scale,
+      };
+    }, [scene]);
+
+    useLayoutEffect(() => {
+      camera.position.set(0, 1.45, 5.2);
+      camera.near = 0.1;
+      camera.far = 1000;
+      camera.lookAt(0, 0, 0);
+      camera.updateProjectionMatrix();
+    }, [camera, currentModel]);
+
+    return (
+      <group position={fit.position} scale={fit.scale}>
+        <primitive object={scene} />
+      </group>
+    );
   };
 
   const currentModelChange = (event) => {
     const value = event.target.files[0]
-    setCurrentModel(URL.createObjectURL(value))
-    setFlag(false)
-    setFlag(true)
-
+    if (!value) return;
+    if (uploadedModel) {
+      URL.revokeObjectURL(uploadedModel);
+    }
+    const modelUrl = URL.createObjectURL(value);
+    setUploadedModel(modelUrl);
+    setCurrentModel(modelUrl);
   }
 
   const onclickToShowModel=(event)=>{
     const value = event.target.value
     setCurrentModel(value)
-    setFlag(false)
-    setFlag(true)
 
   }
+
+  const selectedModel = modelLists.some((item) => item.value === currentModel)
+    ? currentModel
+    : "";
 
   return (
     <div className="model-preview">
       <Header></Header>
 
       <div className="model-preview__area">
-        <Canvas>
+        <Canvas camera={{ position: [0, 1.45, 5.2], fov: 45 }}>
           <ambientLight intensity={1} />
           <pointLight position={[10, 10, 10]} intensity={1} />
           <Suspense fallback={<Loader />}>
-            {flag && <Model></Model>}
-            <OrbitControls />
+            {currentModel && <Model key={currentModel}></Model>}
+            <OrbitControls target={[0, 0, 0]} enableDamping />
             <Environment files={white} background />
           </Suspense>
         </Canvas>
@@ -91,10 +126,11 @@ function Preview() {
         className="input-model"
         onChange={currentModelChange}
         accept=".gltf,.glb" />
-      <select name="" id="" className="select-model" onChange={onclickToShowModel}>
+      <select name="" id="" className="select-model" value={selectedModel} onChange={onclickToShowModel}>
+        <option value="" disabled>自定义模型</option>
         {
           modelLists.map((item)=>{
-            return <option value={item.value} label={item.name} ></option>
+            return <option value={item.value} label={item.name} key={item.value}></option>
           })
         }
         
