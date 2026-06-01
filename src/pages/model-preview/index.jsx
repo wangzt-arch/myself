@@ -76,7 +76,7 @@ function Preview() {
       camera.far = 1000;
       camera.lookAt(0, 0, 0);
       camera.updateProjectionMatrix();
-    }, [camera, currentModel]);
+    }, [camera]);
 
     return (
       <group position={fit.position} scale={fit.scale}>
