@@ -25,8 +25,10 @@ const ForkTsCheckerWebpackPlugin =
     ? require("react-dev-utils/ForkTsCheckerWarningWebpackPlugin")
     : require("react-dev-utils/ForkTsCheckerWebpackPlugin");
 const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 const createEnvironmentHash = require("./webpack/persistentCache/createEnvironmentHash");
+const cesiumSource = "node_modules/cesium/Build/Cesium";
 
 // Source maps are resource heavy and can cause out of memory issue for large source files.
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== "false";
@@ -771,6 +773,19 @@ module.exports = function (webpackEnv) {
             },
           },
         }),
+      // Cesium configuration
+      new webpack.DefinePlugin({
+        CESIUM_BASE_URL: JSON.stringify("/myself"),
+      }),
+      // Copy Cesium static files
+      new CopyWebpackPlugin({
+        patterns: [
+          { from: path.join(cesiumSource, "Workers"), to: "Workers" },
+          { from: path.join(cesiumSource, "Assets"), to: "Assets" },
+          { from: path.join(cesiumSource, "ThirdParty"), to: "ThirdParty" },
+          { from: path.join(cesiumSource, "Widgets"), to: "Widgets" },
+        ],
+      }),
     ].filter(Boolean),
     // Turn off performance processing because we utilize
     // our own hints via the FileSizeReporter

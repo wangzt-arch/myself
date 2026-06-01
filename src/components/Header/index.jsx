@@ -13,6 +13,7 @@ const navItems = [
   { text: "模型预览", path: "/preview" },
   { text: "流程图", path: "/logicflow" },
   { text: "视频案例", path: "/video" },
+  { text: "3D地球", path: "/cesium" },
 ];
 
 function Header() {

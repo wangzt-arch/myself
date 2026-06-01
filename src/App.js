@@ -9,6 +9,7 @@ import Translate from "./pages/translate"
 import ModelPreview from "./pages/model-preview"
 import LogicFlow from "./pages/logicflow"
 import Video from "./pages/video"
+import CesiumPage from "./pages/cesium"
 
 function App() {
     return (
@@ -39,6 +40,8 @@ function App() {
                     element={<LogicFlow />} />
                 <Route path="/video"
                     element={<Video />} />
+                <Route path="/cesium"
+                    element={<CesiumPage />} />
                 <Route path="*"
                     element={<NoFound />} />
             </Routes>
