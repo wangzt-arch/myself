@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/myself/static/css/main.0fab7d5d.css",
-    "main.js": "/myself/static/js/main.5dc60bd4.js",
+    "main.js": "/myself/static/js/main.dedf322a.js",
     "static/js/510.03e488e9.chunk.js": "/myself/static/js/510.03e488e9.chunk.js",
     "static/media/狙击枪_ar-15.glb": "/myself/static/media/狙击枪_ar-15.11739dd9547babb3f7a5.glb",
     "static/media/3.mp4": "/myself/static/media/3.f507eb3be05fcc52ef7a.mp4",
@@ -16,7 +16,7 @@
     "static/media/火箭筒_rpg7.glb": "/myself/static/media/火箭筒_rpg7.5fe48a56d2326219e8e4.glb",
     "static/media/火箭筒.glb": "/myself/static/media/火箭筒.7e788756c1888ef84f91.glb",
     "static/media/步枪.glb": "/myself/static/media/步枪.e7347df7d09124c1aa01.glb",
-    "static/media/myself.pdf": "/myself/static/media/myself.838995c03b1595fbbda0.pdf",
+    "static/media/myself.pdf": "/myself/static/media/myself.8f2ede063ee49b8ba7e9.pdf",
     "static/media/无人机.glb": "/myself/static/media/无人机.a9fe1bb39ae4b2efaa15.glb",
     "static/media/sass.svg": "/myself/static/media/sass.13c7d6a0a956523ebafe6e89516dbbbd.svg",
     "static/media/react.svg": "/myself/static/media/react.5d6ef7b78e37b66ee5bd99bd55ae96a4.svg",
@@ -27,6 +27,6 @@
   },
   "entrypoints": [
     "static/css/main.0fab7d5d.css",
-    "static/js/main.5dc60bd4.js"
+    "static/js/main.dedf322a.js"
   ]
 }
