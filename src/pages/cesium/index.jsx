@@ -1,177 +1,183 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import * as Cesium from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import Header from "../../components/Header";
+import CityPopup from "./components/CityPopup";
+import { CITIES_DATA } from "./cityData";
+import { CESIUM_TOKEN, VIEWER_OPTIONS, INITIAL_CAMERA, STATS } from "./constants";
 import "./index.scss";
 
-// 设置 Cesium Ion token
-Cesium.Ion.defaultAccessToken =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlZDA2OTcyOC01MTU5LTQ0MWQtODExMi0zYTZjNzE5NWYwMGYiLCJpZCI6NDM4OTQyLCJpc3MiOiJodHRwczovL2FwaS5jZXNpdW0uY29tIiwiYXVkIjoidW5kZWZpbmVkX2RlZmF1bHQiLCJpYXQiOjE3ODAzMTAyMDd9.7H3KXRDhmnCOaRVGVmzRs_snRWKTWQbhEN1sQbVbQQA";
+Cesium.Ion.defaultAccessToken = CESIUM_TOKEN;
 
 function CesiumPage() {
   const cesiumContainerRef = useRef(null);
   const viewerRef = useRef(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [coordinates, setCoordinates] = useState({ lon: "105.0000", lat: "35.0000", height: 8000000 });
+  const [selectedCity, setSelectedCity] = useState(null);
+  const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 });
+
+  const handleClosePopup = useCallback(() => setSelectedCity(null), []);
+  const handleDragPopup = useCallback((dx, dy) => {
+    setPopupPosition((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
+  }, []);
 
   useEffect(() => {
     if (!cesiumContainerRef.current) return;
 
-    const viewer = new Cesium.Viewer(cesiumContainerRef.current, {
-      baseLayerPicker: false,
-      geocoder: false,
-      homeButton: true,
-      sceneModePicker: true,
-      navigationHelpButton: false,
-      animation: false,
-      timeline: false,
-      fullscreenButton: true,
-      vrButton: false,
-      infoBox: false,
-      selectionIndicator: false,
-      targetFrameRate: 60,
-    });
-
+    const viewer = new Cesium.Viewer(cesiumContainerRef.current, VIEWER_OPTIONS);
     viewerRef.current = viewer;
 
-    // 使用异步方式添加 Cesium Ion Bing Maps 影像
-    const loadIonImagery = async () => {
+    // 鼠标移动 → 实时坐标
+    const mouseMoveHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+    mouseMoveHandler.setInputAction((movement) => {
+      const cartesian = viewer.camera.pickEllipsoid(movement.endPosition, viewer.scene.globe.ellipsoid);
+      if (cartesian) {
+        const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+        setCoordinates({
+          lon: Cesium.Math.toDegrees(cartographic.longitude).toFixed(4),
+          lat: Cesium.Math.toDegrees(cartographic.latitude).toFixed(4),
+          height: Math.round(cartographic.height),
+        });
+      }
+    }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+    // 点击拾取城市
+    const clickHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+    clickHandler.setInputAction((click) => {
+      const picked = viewer.scene.pick(click.position);
+      if (Cesium.defined(picked) && Cesium.defined(picked.id)) {
+        const entity = picked.id;
+        let cityName = entity.name;
+        if (!cityName && entity.properties) {
+          try { cityName = entity.properties.name?.getValue?.(); } catch (e) { /* ignore */ }
+        }
+        const cityData = CITIES_DATA.find((c) => c.name === cityName);
+        if (cityData) {
+          const rect = viewer.scene.canvas.getBoundingClientRect();
+          const pageX = rect.left + click.position.x;
+          const pageY = rect.top + click.position.y;
+          const pw = 300, ph = 320;
+          let x = pageX + 15, y = pageY - ph / 2;
+          if (x + pw > window.innerWidth - 10) x = pageX - pw - 15;
+          if (x < 10) x = 10;
+          if (y < 10) y = 10;
+          if (y + ph > window.innerHeight - 10) y = window.innerHeight - ph - 10;
+          setSelectedCity(cityData);
+          setPopupPosition({ x, y });
+        }
+      } else {
+        setSelectedCity(null);
+      }
+    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+    // 加载卫星影像
+    (async () => {
       try {
+        const v = viewerRef.current;
+        if (!v) return;
         const provider = await Cesium.IonImageryProvider.fromAssetId(2);
-        viewer.imageryLayers.removeAll();
-        viewer.imageryLayers.addImageryProvider(provider);
+        if (!viewerRef.current) return;
+        v.imageryLayers.removeAll();
+        v.imageryLayers.addImageryProvider(provider);
       } catch (err) {
         console.error("Failed to load Ion imagery:", err);
       }
-    };
-    loadIonImagery();
+    })();
 
-    // 加载中国行政区划边界和名称
-    const loadChinaBoundary = async () => {
+    // 加载中国行政区划
+    (async () => {
       try {
-        // 等待一段时间确保viewer完全初始化
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        
-        // 加载GeoJSON数据
-        const response = await fetch("/myself/china.json");
-        const geojson = await response.json();
-        
-        // 创建数据源
+        await new Promise((r) => setTimeout(r, 2000));
+        const v = viewerRef.current;
+        if (!v) return;
+
+        const res = await fetch("/myself/china.json");
+        const geojson = await res.json();
         const dataSource = new Cesium.GeoJsonDataSource("china");
         await dataSource.load(geojson, {
-          stroke: Cesium.Color.WHITE,
+          stroke: Cesium.Color.fromCssColorString("#00f5ff"),
           fill: Cesium.Color.TRANSPARENT,
           strokeWidth: 2,
         });
-        
-        await viewer.dataSources.add(dataSource);
-        
-        // 为每个行政区添加名称标签
-        if (geojson.features) {
-          geojson.features.forEach((feature) => {
-            const name = feature.properties?.name;
-            const center = feature.properties?.center;
-            
-            if (name && center && Array.isArray(center) && center.length >= 2) {
-              const [lon, lat] = center;
-              
-              viewer.entities.add({
-                name: name,
-                position: Cesium.Cartesian3.fromDegrees(lon, lat),
-                label: {
-                  text: name,
-                  font: "bold 14px sans-serif",
-                  fillColor: Cesium.Color.WHITE,
-                  outlineColor: Cesium.Color.BLACK,
-                  outlineWidth: 2,
-                  style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-                  verticalOrigin: Cesium.VerticalOrigin.CENTER,
-                  horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
-                  pixelOffset: new Cesium.Cartesian2(0, 0),
-                  heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-                  scaleByDistance: new Cesium.NearFarScalar(1000000, 1.0, 50000000, 0.5),
-                  translucencyByDistance: new Cesium.NearFarScalar(1000000, 1.0, 20000000, 0.0),
-                },
-              });
-            }
-          });
-        }
-        
-        console.log("China boundary and labels loaded successfully");
+        await v.dataSources.add(dataSource);
+
+        // 添加省份标签
+        geojson.features?.forEach((f) => {
+          const [lon, lat] = f.properties?.center || [];
+          if (f.properties?.name && lon != null && lat != null) {
+            v.entities.add({
+              name: f.properties.name,
+              position: Cesium.Cartesian3.fromDegrees(lon, lat),
+              label: {
+                text: f.properties.name,
+                font: "bold 14px sans-serif",
+                fillColor: Cesium.Color.fromCssColorString("#00f5ff"),
+                outlineColor: Cesium.Color.BLACK,
+                outlineWidth: 2,
+                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                verticalOrigin: Cesium.VerticalOrigin.CENTER,
+                horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+                heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                scaleByDistance: new Cesium.NearFarScalar(1000000, 1.0, 50000000, 0.5),
+                translucencyByDistance: new Cesium.NearFarScalar(1000000, 1.0, 20000000, 0.0),
+              },
+            });
+          }
+        });
+
+        setIsLoading(false);
       } catch (err) {
         console.error("Failed to load China boundary:", err);
+        setIsLoading(false);
       }
-    };
-    loadChinaBoundary();
+    })();
 
-    // 设置初始视角 - 飞到中国上空
+    // 初始视角
+    const cam = INITIAL_CAMERA;
     viewer.camera.flyTo({
-      destination: Cesium.Cartesian3.fromDegrees(105, 35, 8000000),
+      destination: Cesium.Cartesian3.fromDegrees(cam.destination.lon, cam.destination.lat, cam.destination.height),
       orientation: {
-        heading: Cesium.Math.toRadians(0),
-        pitch: Cesium.Math.toRadians(-90),
-        roll: 0,
+        heading: Cesium.Math.toRadians(cam.orientation.heading),
+        pitch: Cesium.Math.toRadians(cam.orientation.pitch),
+        roll: cam.orientation.roll,
       },
-      duration: 3,
+      duration: cam.duration,
     });
 
-    // 添加北京标记
-    viewer.entities.add({
-      name: "北京",
-      position: Cesium.Cartesian3.fromDegrees(116.4074, 39.9042),
-      point: {
-        pixelSize: 12,
-        color: Cesium.Color.RED,
-        outlineColor: Cesium.Color.WHITE,
-        outlineWidth: 2,
-        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-      },
-      label: {
-        text: "北京",
-        font: "bold 14px sans-serif",
-        fillColor: Cesium.Color.WHITE,
-        outlineColor: Cesium.Color.BLACK,
-        outlineWidth: 2,
-        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-        pixelOffset: new Cesium.Cartesian2(0, -15),
-        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-      },
-    });
-
-    // 添加其他城市标记
-    const cities = [
-      { name: "上海", lon: 121.4737, lat: 31.2304 },
-      { name: "广州", lon: 113.2644, lat: 23.1291 },
-      { name: "深圳", lon: 114.0579, lat: 22.5431 },
-      { name: "成都", lon: 104.0668, lat: 30.5728 },
-      { name: "西安", lon: 108.9398, lat: 34.3416 },
-    ];
-
-    cities.forEach((city) => {
+    // 添加城市标记
+    CITIES_DATA.forEach((city) => {
       viewer.entities.add({
+        id: city.name,
         name: city.name,
         position: Cesium.Cartesian3.fromDegrees(city.lon, city.lat),
         point: {
-          pixelSize: 8,
-          color: Cesium.Color.ORANGE,
+          pixelSize: city.name === "北京" ? 18 : 14,
+          color: Cesium.Color.fromCssColorString(city.color),
           outlineColor: Cesium.Color.WHITE,
           outlineWidth: 2,
           heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,
+          scaleByDistance: new Cesium.NearFarScalar(1.0, 1.0, 50000000, 0.6),
         },
         label: {
           text: city.name,
-          font: "12px sans-serif",
+          font: city.name === "北京" ? "bold 14px sans-serif" : "12px sans-serif",
           fillColor: Cesium.Color.WHITE,
           outlineColor: Cesium.Color.BLACK,
           outlineWidth: 2,
           style: Cesium.LabelStyle.FILL_AND_OUTLINE,
           verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-          pixelOffset: new Cesium.Cartesian2(0, -10),
+          pixelOffset: new Cesium.Cartesian2(0, -12),
           heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,
         },
       });
     });
 
     return () => {
+      mouseMoveHandler.destroy();
+      clickHandler.destroy();
       if (viewerRef.current) {
         viewerRef.current.destroy();
         viewerRef.current = null;
@@ -183,6 +189,40 @@ function CesiumPage() {
     <div className="cesium-page">
       <Header />
       <main className="cesium-main">
+        {isLoading && (
+          <div className="loading-overlay">
+            <div className="loading-spinner"></div>
+            <div className="loading-text">Initializing System...</div>
+          </div>
+        )}
+
+        <div className="info-panel">
+          <div className="panel-header">
+            <div className="status-indicator"></div>
+            <h2>Earth Monitor</h2>
+          </div>
+          <div className="panel-content">
+            {Object.entries(STATS).map(([key, value]) => (
+              <div className="data-row" key={key}>
+                <span className="label">{key.charAt(0).toUpperCase() + key.slice(1)}</span>
+                <span className="value">{value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="coordinates-display">
+          <span>LON: {coordinates.lon}°</span>
+          <span>LAT: {coordinates.lat}°</span>
+          <span>ALT: {coordinates.height.toLocaleString()}m</span>
+        </div>
+
+        {selectedCity && (
+          <div className="city-popup-wrapper" style={{ left: popupPosition.x, top: popupPosition.y }}>
+            <CityPopup city={selectedCity} onClose={handleClosePopup} onDrag={handleDragPopup} />
+          </div>
+        )}
+
         <div ref={cesiumContainerRef} className="cesium-container" />
       </main>
     </div>
