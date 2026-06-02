@@ -1,0 +1,2 @@
+/*! For license information please see chunk-VXS2FTO4.js.LICENSE.txt */
+import{f as e}from"./chunk-6K4BWAPV.js";function t(t){let r;this.name="RuntimeError",this.message=t;try{throw new Error}catch(e){r=e.stack}this.stack=r}e(Object.create)&&(t.prototype=Object.create(Error.prototype),t.prototype.constructor=t),t.prototype.toString=function(){let t=`${this.name}: ${this.message}`;return e(this.stack)&&(t+=`\n${this.stack.toString()}`),t};var c=t;export{c as a};

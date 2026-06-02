@@ -1,2 +1,0 @@
-/*! For license information please see chunk-PWBQN4GK.js.LICENSE.txt */
-import{c as e}from"./chunk-TM6SYYHO.js";function r(t){t=t??e.EMPTY_OBJECT,this.position=t.position,this.normal=t.normal,this.st=t.st,this.bitangent=t.bitangent,this.tangent=t.tangent,this.color=t.color}var n=r;export{n as a};
