@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/myself/static/css/main.e22e9708.css",
-    "main.js": "/myself/static/js/main.128c0133.js",
+    "main.css": "/myself/static/css/main.e8da8317.css",
+    "main.js": "/myself/static/js/main.758f5784.js",
     "static/js/510.03e488e9.chunk.js": "/myself/static/js/510.03e488e9.chunk.js",
     "static/media/狙击枪_ar-15.glb": "/myself/static/media/狙击枪_ar-15.11739dd9547babb3f7a5.glb",
     "static/media/3.mp4": "/myself/static/media/3.f507eb3be05fcc52ef7a.mp4",
@@ -222,7 +222,6 @@
     "Assets/Textures/maki/pitch.png": "/myself/Assets/Textures/maki/pitch.png",
     "Assets/Textures/maki/theatre.png": "/myself/Assets/Textures/maki/theatre.png",
     "Workers/createBoxOutlineGeometry.js": "/myself/Workers/createBoxOutlineGeometry.js",
-    "static/media/sass.svg": "/myself/static/media/sass.13c7d6a0a956523ebafe6e89516dbbbd.svg",
     "Assets/Textures/maki/art-gallery.png": "/myself/Assets/Textures/maki/art-gallery.png",
     "Assets/Textures/maki/dog-park.png": "/myself/Assets/Textures/maki/dog-park.png",
     "Workers/createCylinderOutlineGeometry.js": "/myself/Workers/createCylinderOutlineGeometry.js",
@@ -281,7 +280,6 @@
     "Assets/Textures/maki/garden.png": "/myself/Assets/Textures/maki/garden.png",
     "Widgets/BaseLayerPicker/BaseLayerPicker.css": "/myself/Widgets/BaseLayerPicker/BaseLayerPicker.css",
     "Assets/Textures/maki/harbor.png": "/myself/Assets/Textures/maki/harbor.png",
-    "static/media/react.svg": "/myself/static/media/react.5d6ef7b78e37b66ee5bd99bd55ae96a4.svg",
     "Assets/Textures/maki/clothing-store.png": "/myself/Assets/Textures/maki/clothing-store.png",
     "Assets/Textures/maki/fast-food.png": "/myself/Assets/Textures/maki/fast-food.png",
     "Assets/Textures/maki/town-hall.png": "/myself/Assets/Textures/maki/town-hall.png",
@@ -341,7 +339,6 @@
     "Assets/Textures/maki/music.png": "/myself/Assets/Textures/maki/music.png",
     "Assets/Textures/maki/prison.png": "/myself/Assets/Textures/maki/prison.png",
     "Assets/Textures/maki/lodging.png": "/myself/Assets/Textures/maki/lodging.png",
-    "static/media/ts.svg": "/myself/static/media/ts.1d6568a01e83425f43de98376df3f92e.svg",
     "Workers/createPlaneOutlineGeometry.js": "/myself/Workers/createPlaneOutlineGeometry.js",
     "Assets/Textures/maki/library.png": "/myself/Assets/Textures/maki/library.png",
     "Workers/incrementallyBuildTerrainPicker.js": "/myself/Workers/incrementallyBuildTerrainPicker.js",
@@ -373,7 +370,6 @@
     "Assets/Textures/maki/hospital.png": "/myself/Assets/Textures/maki/hospital.png",
     "Workers/combineGeometry.js": "/myself/Workers/combineGeometry.js",
     "Widgets/lighterShared.css": "/myself/Widgets/lighterShared.css",
-    "static/media/vscode.svg": "/myself/static/media/vscode.2d030c71e831f3235a4db50534aa7ca4.svg",
     "Workers/chunk-FCRW2AGG.js": "/myself/Workers/chunk-FCRW2AGG.js",
     "Widgets/NavigationHelpButton/lighter.css": "/myself/Widgets/NavigationHelpButton/lighter.css",
     "Workers/createEllipseOutlineGeometry.js": "/myself/Workers/createEllipseOutlineGeometry.js",
@@ -397,7 +393,6 @@
     "Widgets/I3SBuildingSceneLayerExplorer/I3SBuildingSceneLayerExplorer.css": "/myself/Widgets/I3SBuildingSceneLayerExplorer/I3SBuildingSceneLayerExplorer.css",
     "Workers/chunk-VXS2FTO4.js": "/myself/Workers/chunk-VXS2FTO4.js",
     "Widgets/Geocoder/lighter.css": "/myself/Widgets/Geocoder/lighter.css",
-    "static/media/vue.svg": "/myself/static/media/vue.7201feae62a155559a321e3209eb0049.svg",
     "Assets/Textures/pin.svg": "/myself/Assets/Textures/pin.svg",
     "Widgets/VoxelInspector/VoxelInspector.css": "/myself/Widgets/VoxelInspector/VoxelInspector.css",
     "Widgets/SelectionIndicator/SelectionIndicator.css": "/myself/Widgets/SelectionIndicator/SelectionIndicator.css",
@@ -415,7 +410,7 @@
     "ThirdParty/Workers/package.json": "/myself/ThirdParty/Workers/package.json"
   },
   "entrypoints": [
-    "static/css/main.e22e9708.css",
-    "static/js/main.128c0133.js"
+    "static/css/main.e8da8317.css",
+    "static/js/main.758f5784.js"
   ]
 }
