@@ -1,17 +1,276 @@
-.video {
-    width: 100%;
-    height: calc(100vh - 60px);
-    overflow: hidden;
-    display: flex;
-    // justify-content: space-around;
-    flex-wrap: wrap;
-    align-content: flex-start;
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+// ========== 变量 ==========
+$color-bg: #fafaf8;
+$color-surface: #ffffff;
+$color-text: #1a1a1a;
+$color-text-secondary: #888888;
+$color-accent: #e8652e;
+$color-border: #e8e6e1;
+$color-tag-bg: #f0eee9;
+$font-display: 'Playfair Display', Georgia, serif;
+$font-body: 'DM Sans', -apple-system, sans-serif;
+
+// ========== 页面 ==========
+.video-page {
+  min-height: 100vh;
+  background: $color-bg;
+  color: $color-text;
+  font-family: $font-body;
+  -webkit-font-smoothing: antialiased;
 }
 
-.video-item {
-    min-width: 320Px;
-    width: 320Px;
-    height: 200px;
-    // border: 1px solid red;
-    margin: 10px;
+// ========== Hero 区域 ==========
+.video-hero {
+  padding: 80px 60px 50px;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  @media (max-width: 768px) {
+    padding: 60px 24px 36px;
+  }
+}
+
+.video-hero-inner {
+  border-bottom: 1px solid $color-border;
+  padding-bottom: 40px;
+}
+
+.video-eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: $color-accent;
+  margin-bottom: 16px;
+}
+
+.video-title {
+  font-family: $font-display;
+  font-size: clamp(36px, 5vw, 56px);
+  font-weight: 700;
+  line-height: 1.1;
+  color: $color-text;
+  margin: 0 0 20px;
+  letter-spacing: -0.5px;
+}
+
+.video-subtitle {
+  font-size: 15px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: $color-text-secondary;
+  max-width: 520px;
+  margin: 0;
+}
+
+// ========== 内容区 ==========
+.video-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 60px 80px;
+
+  @media (max-width: 768px) {
+    padding: 24px 24px 60px;
+  }
+}
+
+// ========== 分类筛选 ==========
+.video-filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  font-family: $font-body;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 20px;
+  border: 1px solid $color-border;
+  border-radius: 100px;
+  background: transparent;
+  color: $color-text-secondary;
+  cursor: pointer;
+  transition: all 0.25s ease;
+
+  &:hover {
+    border-color: $color-text;
+    color: $color-text;
+  }
+
+  &.active {
+    background: $color-text;
+    border-color: $color-text;
+    color: $color-bg;
+  }
+}
+
+// ========== 瀑布流网格 ==========
+.video-grid {
+  columns: 3;
+  column-gap: 24px;
+
+  @media (max-width: 1024px) {
+    columns: 2;
+  }
+
+  @media (max-width: 640px) {
+    columns: 1;
+  }
+}
+
+// ========== 视频卡片 ==========
+.video-card {
+  break-inside: avoid;
+  margin-bottom: 28px;
+  background: $color-surface;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+  }
+
+  &.card-large {
+    .video-thumb {
+      height: 320px;
+    }
+  }
+
+  &.card-wide {
+    .video-thumb {
+      height: 200px;
+    }
+  }
+}
+
+// ========== 视频缩略图 ==========
+.video-thumb {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+  background: #e8e6e1;
+}
+
+// ========== 播放器 ==========
+.video-player {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+  }
+
+  &:hover video {
+    transform: scale(1.03);
+  }
+}
+
+.play-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.08);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+
+  .video-player:hover & {
+    opacity: 1;
+  }
+}
+
+.play-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: $color-accent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 4px 20px rgba($color-accent, 0.35);
+  transform: scale(0.85);
+  transition: transform 0.3s ease;
+
+  svg {
+    margin-left: 3px;
+  }
+
+  .video-player:hover & {
+    transform: scale(1);
+  }
+}
+
+// ========== 分类标签 ==========
+.video-tag {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 4px 12px;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  color: $color-text;
+  z-index: 2;
+}
+
+// ========== 视频信息 ==========
+.video-info {
+  padding: 18px 20px 20px;
+}
+
+.video-name {
+  font-family: $font-display;
+  font-size: 17px;
+  font-weight: 600;
+  color: $color-text;
+  margin: 0 0 6px;
+  line-height: 1.3;
+}
+
+.video-desc {
+  font-size: 13px;
+  font-weight: 300;
+  color: $color-text-secondary;
+  line-height: 1.5;
+  margin: 0;
+}
+
+// ========== 入场动画 ==========
+.video-card {
+  animation: cardFadeIn 0.5s ease both;
+
+  @for $i from 1 through 10 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{$i * 0.06}s;
+    }
+  }
+}
+
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
