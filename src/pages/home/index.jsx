@@ -29,6 +29,18 @@ const featureItems = [
         category: "Media",
         description: "集中展示视频素材与前端播放器布局，作为动效与媒体展示样例。",
     },
+    {
+        title: "图表",
+        path: "/chart",
+        category: "ECharts",
+        description: "基于 ECharts 的数据可视化图表模块。",
+    },
+    {
+        title: "3D 地球",
+        path: "/cesium",
+        category: "CesiumJS",
+        description: "CesiumJS 驱动的 3D 地球，支持卫星影像、行政区划和城市标记交互。",
+    },
 ];
 
 const skillItems = [
@@ -40,7 +52,20 @@ const skillItems = [
     "ECharts",
     "PDF 预览",
     "响应式布局",
+    "Cesium",
+    "Vue",
 ];
+
+const skillUrls = {
+    React: "https://react.dev",
+    Webpack: "https://webpack.js.org",
+    "Three.js": "https://threejs.org",
+    LogicFlow: "https://logic-flow.cn",
+    Markdown: "https://www.markdownguide.org",
+    ECharts: "https://echarts.apache.org",
+    Cesium: "https://cesium.com/platform/cesiumjs",
+    Vue: "https://vuejs.org",
+};
 
 function Home() {
     const navigate = useNavigate();
@@ -125,12 +150,16 @@ function Home() {
                     </div>
                     <div className="skill-list">
                         {skillItems.map((item, index) => (
-                            <span
+                            <a
+                                href={skillUrls[item]}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title={`访问 ${item} 官网`}
                                 key={item}
                                 className={`reveal reveal--delay-${index + 1} ${skillReveal.isVisible ? "reveal--visible" : ""}`}
                             >
                                 {item}
-                            </span>
+                            </a>
                         ))}
                     </div>
                 </section>

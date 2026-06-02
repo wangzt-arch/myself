@@ -8,7 +8,7 @@ const navItems = [
   { text: "Home", path: "/home" },
   { text: "About", path: "/about" },
   { text: "Docs", path: "/docs" },
-  { text: "COVID-19", path: "/yq" },
+  { text: "图表", path: "/chart" },
   { text: "翻译", path: "/translate" },
   { text: "模型预览", path: "/preview" },
   { text: "流程图", path: "/logicflow" },

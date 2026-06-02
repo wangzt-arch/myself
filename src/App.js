@@ -3,7 +3,7 @@ import { HashRouter, Route, Routes } from "react-router-dom";
 import Home from "./pages/home";
 import Docs from "./pages/docs";
 import About from "./pages/about";
-import YqDistribution from "./pages/yq-distribution";
+import Chart from "./pages/yq-distribution";
 import NoFound from "./pages/no-found";
 import Translate from "./pages/translate"
 import ModelPreview from "./pages/model-preview"
@@ -30,8 +30,8 @@ function App() {
                     element={<Docs />} />
                 <Route path="/about"
                     element={<About />} />
-                <Route path="/yq"
-                    element={<YqDistribution />} />
+                <Route path="/chart"
+                    element={<Chart />} />
                 <Route path="/translate"
                     element={<Translate />} />
                 <Route path="/preview"

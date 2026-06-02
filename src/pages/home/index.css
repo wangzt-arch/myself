@@ -212,7 +212,7 @@
   gap: 10px;
 }
 
-.skill-list span {
+.skill-list a {
   padding: 10px 14px;
   border: 1px solid rgba(31, 122, 109, 0.18);
   border-radius: 999px;
@@ -220,6 +220,14 @@
   color: #24544d;
   font-size: 14px;
   font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+
+  &:hover {
+    background: rgba(31, 122, 109, 0.08);
+    border-color: rgba(31, 122, 109, 0.5);
+  }
 }
 
 /* ========== 滚动入场动画 ========== */
