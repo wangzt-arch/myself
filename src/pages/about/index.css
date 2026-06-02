@@ -1,54 +1,308 @@
-.about-me {
+/* ========== 白色阅读器主题 ========== */
+.about-reader {
+  min-height: 100vh;
+  background: #fafafa;
+  color: #14191f;
+}
+
+/* ========== 两栏布局 ========== */
+.reader-wrapper {
+  display: flex;
+  height: calc(100vh - 64px);
+  margin-top: 64px;
+  overflow: hidden;
+}
+
+/* ========== 左侧边栏 ========== */
+.reader-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: #fff;
+  border-right: 1px solid #e8e8e8;
+  padding: 32px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sidebar-avatar {
+  display: flex;
+  justify-content: center;
+}
+
+.avatar-placeholder {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fff5f5, #fef2f2);
+  border: 2px solid #f0d0d0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+}
+
+.sidebar-name {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #14191f;
+  text-align: center;
+}
+
+.sidebar-role {
+  margin: 0;
+  font-size: 13px;
+  color: #8b949e;
+  text-align: center;
+}
+
+/* ========== 技术栈标签 ========== */
+.sidebar-skills {
+  margin-top: auto;
+}
+
+.skills-label {
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #8b949e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.skill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.skill-tag {
+  padding: 4px 10px;
+  background: #f5f5f5;
+  border-radius: 12px;
+  font-size: 12px;
+  color: #46515f;
+  transition: all 0.2s;
+}
+
+.skill-tag:hover {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+/* ========== 主阅读区 ========== */
+.reader-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* 工具栏 */
+.reader-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 24px;
+  background: #fff;
+  border-bottom: 1px solid #e8e8e8;
+  flex-shrink: 0;
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toolbar-filename {
+  font-size: 13px;
+  font-weight: 600;
+  color: #14191f;
+}
+
+.toolbar-sep {
+  color: #d0d0d0;
+}
+
+.toolbar-page {
+  font-size: 13px;
+  color: #8b949e;
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.toolbar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  color: #46515f;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.toolbar-btn:hover:not(:disabled) {
+  background: #f5f5f5;
+  color: #14191f;
+}
+
+.toolbar-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.toolbar-zoom {
+  font-size: 12px;
+  color: #8b949e;
+  min-width: 40px;
+  text-align: center;
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 20px;
+  background: #e8e8e8;
+  margin: 0 4px;
+}
+
+/* PDF 内容区 */
+.reader-content {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 32px;
+  background: #f0f0f0;
+  min-height: 0;
+}
+
+.reader-content canvas {
+  max-width: 100%;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+  border-radius: 2px;
+}
+
+.reader-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* 底部翻页 */
+.reader-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 12px 24px;
+  background: #fff;
+  border-top: 1px solid #e8e8e8;
+  flex-shrink: 0;
+}
+
+.footer-btn {
+  padding: 6px 16px;
+  border: 1px solid #e0e0e0;
+  background: #fff;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #46515f;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.footer-btn:hover:not(:disabled) {
+  border-color: #b91c1c;
+  color: #b91c1c;
+  background: #fef2f2;
+}
+
+.footer-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.footer-indicator {
+  font-size: 13px;
+  color: #8b949e;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 滚动条 */
+.reader-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.reader-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.reader-content::-webkit-scrollbar-thumb {
+  background: #d0d0d0;
+  border-radius: 3px;
+}
+
+.reader-content::-webkit-scrollbar-thumb:hover {
+  background: #b0b0b0;
+}
+
+/* ========== 响应式 ========== */
+@media (max-width: 768px) {
+  .reader-wrapper {
+    flex-direction: column;
+  }
+
+  .reader-sidebar {
     width: 100%;
-    height: calc(100vh - 60px);
-    overflow-y: auto;
-    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 16px 20px;
+    gap: 12px;
+    border-right: none;
+    border-bottom: 1px solid #e8e8e8;
     align-items: center;
-    flex-direction: column;
-    padding-bottom: 20px;
-    position: relative;
-}
+  }
 
-.about-me__loading {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-}
+  .sidebar-avatar {
+    display: none;
+  }
 
-.cube-box-area {
-    width: 100px;
-    height: 100px;
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    z-index: 10;
-}
+  .sidebar-name {
+    text-align: left;
+  }
 
-.pdf-button_prev,
-.pdf-button_next {
-    height: 30px;
-    font-size: 14px;
-    border-radius: 15px;
-    background-color: transparent;
-    border: none;
-    border: 1px solid gray;
-    margin-bottom: 10px;
-    padding: 0 10px;
-    flex-shrink: 0;
-    cursor: pointer;
-}
+  .sidebar-role {
+    text-align: left;
+  }
 
-.pdf-button_prev:hover,
-.pdf-button_next:hover {
-    background-color: #000;
-    color: #fff;
-    transition: background-color 1s ease;
-}
+  .sidebar-skills {
+    margin-top: 0;
+    width: 100%;
+  }
 
-.pdf-button {
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    right: 20px;
-    top: 80px;
+  .skill-tags {
+    gap: 4px;
+  }
+
+  .reader-content {
+    padding: 16px;
+  }
+
+  .reader-footer {
+    gap: 12px;
+    padding: 10px 16px;
+  }
 }
