@@ -8,6 +8,7 @@ import { toolMap } from './toolsData';
 import PositionsTools from './components/positionTools';
 import SaveTools from './components/saveTools'
 import Header from "../../components/Header";
+import { defaultDevelopmentFlow } from './defaultFlowData';
 
 const modulesFiles = require.context("./nodeStyles", true, /\.js$/);
 
@@ -118,8 +119,11 @@ export default function LogicFlowCanvas() {
       lf.extension.selectionSelect.closeSelectionSelect()
     })
 
-    //渲染
-    lf.render()
+    // 渲染默认开发流程
+    lf.render(defaultDevelopmentFlow)
+    requestAnimationFrame(() => {
+      lf.fitView(80, 80);
+    });
   }
   const rightToolsClick = (type) => {
     switch (type) {
