@@ -329,6 +329,7 @@
 
     .docs-back-top {
         right: 16px;
-        bottom: 16px;
+        bottom: max(16px, env(safe-area-inset-bottom));
+        z-index: 20;
     }
 }

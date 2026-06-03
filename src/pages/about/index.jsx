@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react'
 import Header from '../../components/Header';
 import Loading from '../../components/Loading2';
-import isPc from '../../utils'
 import me from './pdf/myself.pdf'
 import { usePdf } from '@mikecousins/react-pdf';
 import './index.css'
 
 function About() {
   const [page, setPage] = useState(1);
-  const [scale, setScale] = useState(1);
+  const [scale, setScale] = useState(() => (
+    window.innerWidth <= 768 ? 0.7 : 1.3
+  ));
   const canvasRef = useRef(null);
   const { pdfDocument } = usePdf({
     file: me,
@@ -18,13 +19,28 @@ function About() {
   });
 
   useEffect(() => {
-    isPc() ? setScale(1.3) : setScale(0.75);
+    const updateInitialScale = () => {
+      setScale((currentScale) => {
+        if (currentScale !== 0.7 && currentScale !== 1.3) {
+          return currentScale;
+        }
+
+        return window.innerWidth <= 768 ? 0.7 : 1.3;
+      });
+    };
+
+    updateInitialScale();
+    window.addEventListener('resize', updateInitialScale);
+
+    return () => {
+      window.removeEventListener('resize', updateInitialScale);
+    };
   }, []);
 
   const prevPage = () => page > 1 && setPage(p => p - 1);
   const nextPage = () => pdfDocument && page < pdfDocument.numPages && setPage(p => p + 1);
-  const zoomIn = () => setScale(s => Math.min(s + 0.15, 2.5));
-  const zoomOut = () => setScale(s => Math.max(s - 0.15, 0.5));
+  const zoomIn = () => setScale(s => Math.min(Number((s + 0.15).toFixed(2)), 2.5));
+  const zoomOut = () => setScale(s => Math.max(Number((s - 0.15).toFixed(2)), 0.4));
 
   return (
     <div className="about-reader">

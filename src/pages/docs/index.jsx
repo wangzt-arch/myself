@@ -44,6 +44,11 @@ const getReadingMinutes = (markdown) => {
   return Math.max(1, Math.ceil(text.length / 500));
 };
 
+const isWindowScrollMode = () => {
+  const container = document.querySelector(".docs-content");
+  return !container || window.innerWidth <= 760 || container.scrollHeight <= container.clientHeight;
+};
+
 function Docs() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [keyword, setKeyword] = useState("");
@@ -86,10 +91,10 @@ function Docs() {
   const readingMinutes = useMemo(() => getReadingMinutes(doc.value), [doc]);
 
   useEffect(() => {
-    document.querySelector(".docs-content")?.scrollTo({
-      top: 0,
-      behavior: "auto",
-    });
+    const container = document.querySelector(".docs-content");
+
+    container?.scrollTo({ top: 0, behavior: "auto" });
+    window.scrollTo({ top: 0, behavior: "auto" });
   }, [currentIndex]);
 
   const copyCode = async (code) => {
@@ -106,7 +111,19 @@ function Docs() {
     const container = document.querySelector(".docs-content");
     const target = document.getElementById(id);
 
-    if (!container || !target) return;
+    if (!target) return;
+
+    if (isWindowScrollMode()) {
+      const targetTop = target.getBoundingClientRect().top + window.scrollY;
+
+      window.scrollTo({
+        top: Math.max(targetTop - 72, 0),
+        behavior: "smooth",
+      });
+      return;
+    }
+
+    if (!container) return;
 
     const containerTop = container.getBoundingClientRect().top;
     const targetTop = target.getBoundingClientRect().top;
@@ -118,10 +135,10 @@ function Docs() {
   };
 
   const scrollToTop = () => {
-    document.querySelector(".docs-content")?.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    const container = document.querySelector(".docs-content");
+
+    container?.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const changeDoc = (index) => {
