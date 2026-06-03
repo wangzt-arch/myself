@@ -85,6 +85,13 @@ function Docs() {
   const headings = useMemo(() => getHeadings(doc.value), [doc]);
   const readingMinutes = useMemo(() => getReadingMinutes(doc.value), [doc]);
 
+  useEffect(() => {
+    document.querySelector(".docs-content")?.scrollTo({
+      top: 0,
+      behavior: "auto",
+    });
+  }, [currentIndex]);
+
   const copyCode = async (code) => {
     try {
       await navigator.clipboard.writeText(code);
@@ -110,6 +117,18 @@ function Docs() {
     });
   };
 
+  const scrollToTop = () => {
+    document.querySelector(".docs-content")?.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
+  const changeDoc = (index) => {
+    if (index === currentIndex) return;
+    setCurrentIndex(index);
+  };
+
   return (
     <div className="docs-page">
       <Header />
@@ -133,7 +152,7 @@ function Docs() {
                       className={currentIndex === item.index ? "docs-title_item docs-title_item--active" : "docs-title_item"}
                       key={item.title}
                       type="button"
-                      onClick={() => setCurrentIndex(item.index)}
+                      onClick={() => changeDoc(item.index)}
                     >
                       <span>{item.title}</span>
                       <small>{(item.tags || []).join(" / ")}</small>
@@ -201,6 +220,9 @@ function Docs() {
               }}
             />
           </article>
+          <button className="docs-back-top" type="button" onClick={scrollToTop}>
+            回到顶部
+          </button>
         </main>
 
         <aside className="docs-toc">

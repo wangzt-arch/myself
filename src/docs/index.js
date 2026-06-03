@@ -9,6 +9,7 @@ import openlayers from "./openlayers-func.md";
 import cesium from "./cesium.md";
 import ai from "./ai.md";
 import codexStart from "./codex-start.md";
+import aiPrompts from "./ai-prompts.md";
 
 const docs = [
   {
@@ -22,6 +23,12 @@ const docs = [
     category: "AI 工具",
     tags: ["Codex", "安装", "登录"],
     value: codexStart,
+  },
+  {
+    title: "AI 提示语最佳实践",
+    category: "AI 工具",
+    tags: ["AI", "Prompt", "最佳实践"],
+    value: aiPrompts,
   },
   {
     title: "常用正则",

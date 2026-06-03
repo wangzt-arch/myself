@@ -105,11 +105,34 @@
 }
 
 .docs-content {
+    position: relative;
     height: 100%;
     overflow: auto;
     padding: 34px 44px 80px;
     background: #fff;
     box-sizing: border-box;
+}
+
+.docs-back-top {
+    position: fixed;
+    right: 264px;
+    bottom: 24px;
+    z-index: 10;
+    height: 38px;
+    padding: 0 14px;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.94);
+    color: #263241;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+
+    &:hover {
+        color: #b91c1c;
+        border-color: rgba(185, 28, 28, 0.28);
+    }
 }
 
 .docs-article-meta {
@@ -273,6 +296,10 @@
     .docs-toc {
         display: none;
     }
+
+    .docs-back-top {
+        right: 24px;
+    }
 }
 
 @media (max-width: 760px) {
@@ -298,5 +325,10 @@
 
     .docs-article-title {
         font-size: 28px;
+    }
+
+    .docs-back-top {
+        right: 16px;
+        bottom: 16px;
     }
 }
