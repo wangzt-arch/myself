@@ -117,7 +117,6 @@ const createSatelliteModel = (viewer, position) => {
       outlineWidth: 2,
       style: Cesium.LabelStyle.FILL_AND_OUTLINE,
       pixelOffset: new Cesium.Cartesian2(0, -18),
-      disableDepthTestDistance: Number.POSITIVE_INFINITY,
     },
   });
 

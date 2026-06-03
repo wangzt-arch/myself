@@ -5,6 +5,9 @@ import Header from "../../components/Header";
 import CityPopup from "./components/CityPopup";
 import { CITIES_DATA } from "./cityData";
 import { CESIUM_TOKEN, INITIAL_CAMERA, STATS, VIEWER_OPTIONS } from "./constants";
+import { EFFECT_TYPES, createWebGLEffect, removeWebGLEffect } from "./effects";
+import EmberSphereEffect from './effect/EmberSphereEffect'
+
 import {
   INITIAL_LAYERS,
   createCoverageAreas,
@@ -33,10 +36,20 @@ function createMouseMoveHandler(viewer, updateCoordinates) {
   return handler;
 }
 
-// 点击城市点时打开城市信息弹窗，点击空白位置时关闭弹窗。
-function createCityClickHandler(viewer, updateSelectedCity, updatePopupPosition) {
+// 点击地图时优先处理 WebGL 特效落点，否则继续处理城市信息弹窗。
+function createCityClickHandler(
+  viewer,
+  updateSelectedCity,
+  updatePopupPosition,
+  getActiveEffectType
+) {
   const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
   handler.setInputAction((click) => {
+    if (getActiveEffectType()) {
+      updateSelectedCity(null);
+      return;
+    }
+
     const picked = viewer.scene.pick(click.position);
     if (!Cesium.defined(picked) || !Cesium.defined(picked.id)) {
       updateSelectedCity(null);
@@ -52,6 +65,15 @@ function createCityClickHandler(viewer, updateSelectedCity, updatePopupPosition)
   }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
   return handler;
+}
+
+// 从屏幕点击位置换算地球表面的 Cartesian 坐标，供特效落点使用。
+function getMapClickPosition(viewer, screenPosition) {
+  const ray = viewer.camera.getPickRay(screenPosition);
+  const globePosition = ray ? viewer.scene.globe.pick(ray, viewer.scene) : null;
+  if (Cesium.defined(globePosition)) return globePosition;
+
+  return viewer.camera.pickEllipsoid(screenPosition, viewer.scene.globe.ellipsoid);
 }
 
 // 从点击到的 Cesium 实体中读取城市名称，兼容普通 Entity 和 GeoJSON 属性。
@@ -99,11 +121,14 @@ async function loadIonImagery(viewerRef) {
 }
 
 // 加载中国行政区划 GeoJSON，并为省份中心点创建标签。
-async function loadChinaBoundary(viewerRef, provinceLabelEntitiesRef, updateLoading) {
+async function loadChinaBoundary(viewerRef, provinceLabelEntitiesRef, updateLoading, applyProvinceVisibility) {
   try {
     await new Promise((resolve) => setTimeout(resolve, 2000));
     const viewer = viewerRef.current;
     if (!viewer) return;
+
+    // 防止 React StrictMode 重复调用
+    if (provinceLabelEntitiesRef.current.length > 0) return;
 
     const res = await fetch("/myself/china.json");
     const geojson = await res.json();
@@ -116,6 +141,10 @@ async function loadChinaBoundary(viewerRef, provinceLabelEntitiesRef, updateLoad
     await viewer.dataSources.add(dataSource);
 
     provinceLabelEntitiesRef.current = createProvinceLabels(viewer, geojson);
+    // 省份标签加载完成后，应用初始显隐状态
+    if (applyProvinceVisibility) {
+      applyProvinceVisibility();
+    }
     updateLoading(false);
   } catch (error) {
     console.error("Failed to load China boundary:", error);
@@ -144,7 +173,6 @@ function createProvinceLabels(viewer, geojson) {
           horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
           heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
           scaleByDistance: new Cesium.NearFarScalar(1000000, 1.0, 50000000, 0.5),
-          translucencyByDistance: new Cesium.NearFarScalar(1000000, 1.0, 20000000, 0.0),
         },
       });
       labelEntity.show = INITIAL_LAYERS.provinceLabels;
@@ -180,7 +208,6 @@ function createCityMarkers(viewer) {
         outlineColor: Cesium.Color.WHITE,
         outlineWidth: 2,
         heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-        disableDepthTestDistance: Number.POSITIVE_INFINITY,
         scaleByDistance: new Cesium.NearFarScalar(1.0, 1.0, 50000000, 0.6),
       },
       label: {
@@ -193,7 +220,6 @@ function createCityMarkers(viewer) {
         verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
         pixelOffset: new Cesium.Cartesian2(0, -12),
         heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-        disableDepthTestDistance: Number.POSITIVE_INFINITY,
       },
     })
   );
@@ -270,10 +296,14 @@ function CesiumPage() {
   const satelliteEntitiesRef = useRef([]);
   const flightLineEntitiesRef = useRef([]);
   const coverageEntitiesRef = useRef([]);
+  const webGLEffectsRef = useRef([]);
+  const activeEffectTypeRef = useRef(null);
   const isFollowingSatelliteRef = useRef(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isInfoPanelOpen, setIsInfoPanelOpen] = useState(false);
   const [isToolPanelOpen, setIsToolPanelOpen] = useState(false);
+  const [activeEffectType, setActiveEffectType] = useState(null);
+  const [webGLEffects, setWebGLEffects] = useState([]);
   const [layers, setLayers] = useState(INITIAL_LAYERS);
   const [coordinates, setCoordinates] = useState({ lon: "105.0000", lat: "35.0000", height: 8000000 });
   const [selectedCity, setSelectedCity] = useState(null);
@@ -286,6 +316,51 @@ function CesiumPage() {
   const handleDragPopup = useCallback((dx, dy) => {
     setPopupPosition((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
   }, []);
+
+  // 在地图点击位置添加当前选择的 WebGL 特效。
+  const addWebGLEffect = useCallback((type, position) => {
+    const viewer = viewerRef.current;
+    if (!viewer || !position) return;
+
+    const effect = createWebGLEffect(viewer, type, position, webGLEffectsRef.current.length + 1);
+    webGLEffectsRef.current = [effect, ...webGLEffectsRef.current];
+    setWebGLEffects(webGLEffectsRef.current);
+  }, []);
+
+  // 删除指定 WebGL 特效，并同步右侧列表。
+  const deleteWebGLEffect = useCallback((id) => {
+    const viewer = viewerRef.current;
+    if (!viewer) return;
+
+    const target = webGLEffectsRef.current.find((effect) => effect.id === id);
+    removeWebGLEffect(viewer, target);
+    webGLEffectsRef.current = webGLEffectsRef.current.filter((effect) => effect.id !== id);
+    setWebGLEffects(webGLEffectsRef.current);
+  }, []);
+
+  // 清空地图上所有手动添加的 WebGL 特效。
+  const clearWebGLEffects = useCallback(() => {
+    const viewer = viewerRef.current;
+    if (!viewer) return;
+
+    webGLEffectsRef.current.forEach((effect) => removeWebGLEffect(viewer, effect));
+    webGLEffectsRef.current = [];
+    setWebGLEffects([]);
+  }, []);
+
+  // 将当前选择的 WebGL 特效添加到视图中心，作为快速演示入口。
+  const addEffectAtViewCenter = useCallback(() => {
+    const viewer = viewerRef.current;
+    const type = activeEffectTypeRef.current;
+    if (!viewer || !type) return;
+
+    const canvas = viewer.scene.canvas;
+    const center = new Cesium.Cartesian2(canvas.clientWidth / 2, canvas.clientHeight / 2);
+    const effectPosition = getMapClickPosition(viewer, center);
+    if (!effectPosition) return;
+
+    addWebGLEffect(type, effectPosition);
+  }, [addWebGLEffect]);
 
   // 切换功能面板中的图层开关状态。
   const toggleLayer = useCallback((key) => {
@@ -359,15 +434,39 @@ function CesiumPage() {
     viewer.trackedEntity = undefined;
     viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
   }, []);
+  //添加太阳特效（固定在地球左上方）
+  const addSun=(viewer)=>{
+    new EmberSphereEffect(viewer, {
+      longitude: -60,    // 西经60度，地球左上方
+      latitude: 45,      // 北纬45度
+      height: 8000000,   // 抬高高度
+      radius: 1500000,   // 太阳大小
+      speed: 0.3,        // 较慢的流动速度
+      autoAnimate: true,
+      Cesium:Cesium
+    })
+  }
 
   // 当图层开关变化时，同步控制对应 Cesium 实体的显示隐藏。
   useEffect(() => {
     cityEntitiesRef.current.forEach((entity) => {
       entity.show = layers.cityMarkers;
     });
-    provinceLabelEntitiesRef.current.forEach((entity) => {
-      entity.show = layers.provinceLabels;
-    });
+    // 省份标签：优先使用 ref 缓存，如果为空则直接从 viewer.entities 中查找
+    const viewer = viewerRef.current;
+    if (viewer && provinceLabelEntitiesRef.current.length > 0) {
+      provinceLabelEntitiesRef.current.forEach((entity) => {
+        if (entity) entity.show = layers.provinceLabels;
+      });
+    } else if (viewer) {
+      // ref 为空时，直接遍历 viewer.entities 设置
+      const entities = viewer.entities.values;
+      entities.forEach((entity) => {
+        if (entity.label && entity.name && !entity.name.includes('Satellite')) {
+          entity.show = layers.provinceLabels;
+        }
+      });
+    }
     satelliteEntitiesRef.current.forEach((entity) => {
       entity.show = layers.satellite;
     });
@@ -379,23 +478,54 @@ function CesiumPage() {
     });
   }, [layers]);
 
+  useEffect(() => {
+    activeEffectTypeRef.current = activeEffectType;
+  }, [activeEffectType]);
+
   // 初始化 Cesium Viewer、地图底图、行政区划、城市点和演示图层。
   useEffect(() => {
     if (!cesiumContainerRef.current) return;
+    // 防止 React StrictMode 重复初始化
+    if (viewerRef.current) return;
 
     const viewer = new Cesium.Viewer(cesiumContainerRef.current, VIEWER_OPTIONS);
     viewerRef.current = viewer;
 
     const mouseMoveHandler = createMouseMoveHandler(viewer, setCoordinates);
-    const clickHandler = createCityClickHandler(viewer, setSelectedCity, setPopupPosition);
+    const effectClickHandler = (event) => {
+      const type = activeEffectTypeRef.current;
+      if (!type) return;
+      if (event.button != null && event.button !== 0) return;
+
+      const rect = viewer.scene.canvas.getBoundingClientRect();
+      const screenPosition = new Cesium.Cartesian2(event.clientX - rect.left, event.clientY - rect.top);
+      const effectPosition = getMapClickPosition(viewer, screenPosition);
+      if (!effectPosition) return;
+
+      event.stopPropagation();
+      addWebGLEffect(type, effectPosition);
+      setSelectedCity(null);
+    };
+    const clickHandler = createCityClickHandler(
+      viewer,
+      setSelectedCity,
+      setPopupPosition,
+      () => activeEffectTypeRef.current
+    );
     const removeFollowTick = viewer.clock.onTick.addEventListener(() => {
       if (isFollowingSatelliteRef.current) {
         updateSatelliteFollowCamera(viewer, satelliteEntitiesRef.current);
       }
     });
+    viewer.scene.canvas.addEventListener("mousedown", effectClickHandler, true);
 
     loadIonImagery(viewerRef);
-    loadChinaBoundary(viewerRef, provinceLabelEntitiesRef, setIsLoading);
+    loadChinaBoundary(viewerRef, provinceLabelEntitiesRef, setIsLoading, () => {
+      // 省份标签加载完成后应用初始显隐状态
+      provinceLabelEntitiesRef.current.forEach((entity) => {
+        if (entity) entity.show = INITIAL_LAYERS.provinceLabels;
+      });
+    });
     flyToInitialCamera(viewer);
     cityEntitiesRef.current = createCityMarkers(viewer);
     satelliteEntitiesRef.current = createSatelliteTrack(viewer);
@@ -407,11 +537,13 @@ function CesiumPage() {
       flightLine: flightLineEntitiesRef,
       coverage: coverageEntitiesRef,
     });
+    addSun(viewer)
 
     // 组件卸载时销毁 Cesium 事件和 Viewer，避免 WebGL 资源泄漏。
     return () => {
       isFollowingSatelliteRef.current = false;
       removeFollowTick();
+      viewer.scene.canvas.removeEventListener("mousedown", effectClickHandler, true);
       mouseMoveHandler.destroy();
       clickHandler.destroy();
       cityEntitiesRef.current = [];
@@ -419,12 +551,14 @@ function CesiumPage() {
       satelliteEntitiesRef.current = [];
       flightLineEntitiesRef.current = [];
       coverageEntitiesRef.current = [];
+      webGLEffectsRef.current.forEach((effect) => removeWebGLEffect(viewer, effect));
+      webGLEffectsRef.current = [];
       if (viewerRef.current) {
         viewerRef.current.destroy();
         viewerRef.current = null;
       }
     };
-  }, []);
+  }, [addWebGLEffect]);
 
   return (
     <div className="cesium-page">
@@ -500,6 +634,59 @@ function CesiumPage() {
                     <i>{layers[key] ? "ON" : "OFF"}</i>
                   </button>
                 ))}
+              </div>
+
+              <div className="effects-panel">
+                <div className="effects-panel__title">
+                  <span>WebGL Effects</span>
+                  <div>
+                    {activeEffectType && (
+                      <button type="button" onClick={() => setActiveEffectType(null)}>
+                        取消
+                      </button>
+                    )}
+                    <button type="button" onClick={addEffectAtViewCenter} disabled={!activeEffectType}>
+                      添加中心
+                    </button>
+                    <button type="button" onClick={clearWebGLEffects} disabled={!webGLEffects.length}>
+                      清空
+                    </button>
+                  </div>
+                </div>
+
+                <div className="effect-types">
+                  {EFFECT_TYPES.map((effect) => (
+                    <button
+                      className={activeEffectType === effect.key ? "effect-type effect-type--active" : "effect-type"}
+                      key={effect.key}
+                      type="button"
+                      onClick={() => setActiveEffectType(effect.key)}
+                    >
+                      <i style={{ backgroundColor: effect.color }}></i>
+                      <span>{effect.label}</span>
+                    </button>
+                  ))}
+                </div>
+
+                <p className="effects-panel__hint">
+                  {activeEffectType ? "点击地图添加当前特效" : "选择一种特效后点击地图添加"}
+                </p>
+
+                <div className="effect-list">
+                  {webGLEffects.length ? (
+                    webGLEffects.map((effect) => (
+                      <div className="effect-item" key={effect.id}>
+                        <div>
+                          <strong>{effect.label}</strong>
+                          <span>{effect.lon}, {effect.lat}</span>
+                        </div>
+                        <button type="button" onClick={() => deleteWebGLEffect(effect.id)}>删除</button>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="effect-empty">暂无特效</div>
+                  )}
+                </div>
               </div>
             </>
           )}
