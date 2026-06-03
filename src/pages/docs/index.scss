@@ -239,12 +239,17 @@
 }
 
 .toc-link {
+    width: 100%;
     display: block;
     padding: 6px 0;
+    border: 0;
+    background: transparent;
     color: #52606f;
+    cursor: pointer;
     font-size: 13px;
     line-height: 1.4;
     text-decoration: none;
+    text-align: left;
 
     &:hover {
         color: #b91c1c;

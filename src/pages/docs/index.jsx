@@ -95,6 +95,21 @@ function Docs() {
     }
   };
 
+  const scrollToHeading = (id) => {
+    const container = document.querySelector(".docs-content");
+    const target = document.getElementById(id);
+
+    if (!container || !target) return;
+
+    const containerTop = container.getBoundingClientRect().top;
+    const targetTop = target.getBoundingClientRect().top;
+
+    container.scrollTo({
+      top: container.scrollTop + targetTop - containerTop - 18,
+      behavior: "smooth",
+    });
+  };
+
   return (
     <div className="docs-page">
       <Header />
@@ -192,9 +207,14 @@ function Docs() {
           <h3>目录</h3>
           {headings.length ? (
             headings.map((item) => (
-              <a className={`toc-link toc-link--${item.level}`} href={`#${item.id}`} key={`${item.id}-${item.text}`}>
+              <button
+                className={`toc-link toc-link--${item.level}`}
+                key={`${item.id}-${item.text}`}
+                type="button"
+                onClick={() => scrollToHeading(item.id)}
+              >
                 {item.text}
-              </a>
+              </button>
             ))
           ) : (
             <span className="toc-empty">暂无目录</span>
