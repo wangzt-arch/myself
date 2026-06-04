@@ -5,6 +5,7 @@ import Header from "../../components/Header";
 import CityPopup from "./components/CityPopup";
 import { CITIES_DATA } from "./cityData";
 import { CESIUM_TOKEN, INITIAL_CAMERA, STATS, VIEWER_OPTIONS } from "./constants";
+import { DRONE_ROUTE_OPTIONS, createDronePatrol, updateDroneFollowCamera } from "./drone";
 import { EFFECT_TYPES, createWebGLEffect, removeWebGLEffect } from "./effects";
 import EmberSphereEffect from './effect/EmberSphereEffect'
 
@@ -112,7 +113,7 @@ async function loadIonImagery(viewerRef) {
     if (!viewer) return;
 
     const provider = await Cesium.IonImageryProvider.fromAssetId(2);
-    if (!viewerRef.current) return;
+    if (!viewerRef.current || viewerRef.current !== viewer || viewer.isDestroyed?.()) return;
     viewer.imageryLayers.removeAll();
     viewer.imageryLayers.addImageryProvider(provider);
   } catch (error) {
@@ -297,6 +298,7 @@ function CesiumPage() {
   const flightLineEntitiesRef = useRef([]);
   const coverageEntitiesRef = useRef([]);
   const webGLEffectsRef = useRef([]);
+  const droneControllerRef = useRef(null);
   const activeEffectTypeRef = useRef(null);
   const isFollowingSatelliteRef = useRef(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -304,6 +306,16 @@ function CesiumPage() {
   const [isToolPanelOpen, setIsToolPanelOpen] = useState(false);
   const [activeEffectType, setActiveEffectType] = useState(null);
   const [webGLEffects, setWebGLEffects] = useState([]);
+  const [droneState, setDroneState] = useState({
+    status: "ready",
+    routeKey: "city",
+    routeLabel: "城市巡检",
+    height: 260,
+    speed: "42km/h",
+    progress: 0,
+    visible: true,
+    following: false,
+  });
   const [layers, setLayers] = useState(INITIAL_LAYERS);
   const [coordinates, setCoordinates] = useState({ lon: "105.0000", lat: "35.0000", height: 8000000 });
   const [selectedCity, setSelectedCity] = useState(null);
@@ -326,6 +338,84 @@ function CesiumPage() {
     webGLEffectsRef.current = [effect, ...webGLEffectsRef.current];
     setWebGLEffects(webGLEffectsRef.current);
   }, []);
+
+  const syncDroneState = useCallback(() => {
+    const controller = droneControllerRef.current;
+    if (!controller) return;
+
+    setDroneState(controller.getSnapshot());
+  }, []);
+
+  const setDroneFollowing = useCallback((following) => {
+    const viewer = viewerRef.current;
+    const controller = droneControllerRef.current;
+    if (!viewer || !controller) return;
+
+    controller.following = following;
+    if (following) {
+      isFollowingSatelliteRef.current = false;
+      viewer.trackedEntity = undefined;
+      viewer.clock.shouldAnimate = true;
+      controller.start();
+      updateDroneFollowCamera(viewer, controller);
+    } else {
+      viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+    }
+    syncDroneState();
+  }, [syncDroneState]);
+
+  const startDroneFlight = useCallback(() => {
+    const viewer = viewerRef.current;
+    const controller = droneControllerRef.current;
+    if (!viewer || !controller) return;
+
+    controller.start();
+    viewer.clock.shouldAnimate = true;
+    syncDroneState();
+  }, [syncDroneState]);
+
+  const pauseDroneFlight = useCallback(() => {
+    const controller = droneControllerRef.current;
+    if (!controller) return;
+
+    controller.pause();
+    syncDroneState();
+  }, [syncDroneState]);
+
+  const resetDroneFlight = useCallback(() => {
+    const controller = droneControllerRef.current;
+    if (!controller) return;
+
+    controller.reset();
+    syncDroneState();
+  }, [syncDroneState]);
+
+  const toggleDroneVisible = useCallback(() => {
+    const controller = droneControllerRef.current;
+    if (!controller) return;
+
+    controller.setVisible(!controller.visible);
+    syncDroneState();
+  }, [syncDroneState]);
+
+  const changeDroneRoute = useCallback((routeKey) => {
+    const viewer = viewerRef.current;
+    const controller = droneControllerRef.current;
+    if (!viewer || !controller || controller.routeKey === routeKey) return;
+
+    const wasFollowing = controller.following;
+    const shouldKeepFlying = controller.status === "flying" || wasFollowing;
+    controller.setRoute(routeKey);
+    controller.following = wasFollowing;
+    if (shouldKeepFlying) {
+      controller.start();
+      viewer.clock.shouldAnimate = true;
+    }
+    if (wasFollowing) {
+      updateDroneFollowCamera(viewer, controller);
+    }
+    syncDroneState();
+  }, [syncDroneState]);
 
   // 删除指定 WebGL 特效，并同步右侧列表。
   const deleteWebGLEffect = useCallback((id) => {
@@ -374,6 +464,10 @@ function CesiumPage() {
     if (!viewer) return;
 
     isFollowingSatelliteRef.current = false;
+    if (droneControllerRef.current) {
+      droneControllerRef.current.following = false;
+      syncDroneState();
+    }
     viewer.trackedEntity = undefined;
     viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
     viewer.camera.flyTo({
@@ -385,7 +479,7 @@ function CesiumPage() {
       },
       duration: 1.4,
     });
-  }, []);
+  }, [syncDroneState]);
 
   // 开启卫星图层并让相机跟随卫星实体运动。
   const flyToSatellite = useCallback(() => {
@@ -401,6 +495,10 @@ function CesiumPage() {
     viewer.trackedEntity = undefined;
     viewer.camera.cancelFlight();
     isFollowingSatelliteRef.current = true;
+    if (droneControllerRef.current) {
+      droneControllerRef.current.following = false;
+      syncDroneState();
+    }
 
     const satellitePosition = satellite.position.getValue(viewer.clock.currentTime);
     if (!satellitePosition) {
@@ -423,7 +521,7 @@ function CesiumPage() {
         updateSatelliteFollowCamera(viewer, satelliteEntitiesRef.current);
       },
     });
-  }, []);
+  }, [syncDroneState]);
 
   // 取消相机跟随，恢复用户自由旋转缩放地球。
   const stopTracking = useCallback(() => {
@@ -431,9 +529,13 @@ function CesiumPage() {
     if (!viewer) return;
 
     isFollowingSatelliteRef.current = false;
+    if (droneControllerRef.current) {
+      droneControllerRef.current.following = false;
+      syncDroneState();
+    }
     viewer.trackedEntity = undefined;
     viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
-  }, []);
+  }, [syncDroneState]);
   //添加太阳特效（固定在地球左上方）
   const addSun=(viewer)=>{
     new EmberSphereEffect(viewer, {
@@ -516,7 +618,15 @@ function CesiumPage() {
       if (isFollowingSatelliteRef.current) {
         updateSatelliteFollowCamera(viewer, satelliteEntitiesRef.current);
       }
+      if (droneControllerRef.current?.following) {
+        updateDroneFollowCamera(viewer, droneControllerRef.current);
+      }
     });
+    const droneStateTimer = window.setInterval(() => {
+      if (droneControllerRef.current) {
+        setDroneState(droneControllerRef.current.getSnapshot());
+      }
+    }, 600);
     viewer.scene.canvas.addEventListener("mousedown", effectClickHandler, true);
 
     loadIonImagery(viewerRef);
@@ -531,6 +641,8 @@ function CesiumPage() {
     satelliteEntitiesRef.current = createSatelliteTrack(viewer);
     flightLineEntitiesRef.current = createFlightLines(viewer);
     coverageEntitiesRef.current = createCoverageAreas(viewer);
+    droneControllerRef.current = createDronePatrol(viewer, "city");
+    setDroneState(droneControllerRef.current.getSnapshot());
     applyInitialLayerVisibility({
       city: cityEntitiesRef,
       satellite: satelliteEntitiesRef,
@@ -542,6 +654,7 @@ function CesiumPage() {
     // 组件卸载时销毁 Cesium 事件和 Viewer，避免 WebGL 资源泄漏。
     return () => {
       isFollowingSatelliteRef.current = false;
+      window.clearInterval(droneStateTimer);
       removeFollowTick();
       viewer.scene.canvas.removeEventListener("mousedown", effectClickHandler, true);
       mouseMoveHandler.destroy();
@@ -551,6 +664,8 @@ function CesiumPage() {
       satelliteEntitiesRef.current = [];
       flightLineEntitiesRef.current = [];
       coverageEntitiesRef.current = [];
+      droneControllerRef.current?.remove();
+      droneControllerRef.current = null;
       webGLEffectsRef.current.forEach((effect) => removeWebGLEffect(viewer, effect));
       webGLEffectsRef.current = [];
       if (viewerRef.current) {
@@ -609,13 +724,24 @@ function CesiumPage() {
           </div>
 
           {isToolPanelOpen && (
-            <>
+            <div className="feature-panel__body">
+              <section className="feature-section">
+                <div className="feature-section__title">
+                  <span>View</span>
+                  <strong>视角控制</strong>
+                </div>
               <div className="feature-panel__actions">
                 <button type="button" onClick={flyToChina}>回到中国</button>
                 <button type="button" onClick={flyToSatellite}>跟随卫星</button>
                 <button type="button" onClick={stopTracking}>自由视角</button>
               </div>
+              </section>
 
+              <section className="feature-section">
+                <div className="feature-section__title">
+                  <span>Layers</span>
+                  <strong>图层显示</strong>
+                </div>
               <div className="feature-panel__toggles">
                 {[
                   ["satellite", "卫星轨迹"],
@@ -636,7 +762,66 @@ function CesiumPage() {
                 ))}
               </div>
 
-              <div className="effects-panel">
+              </section>
+
+              <section className="feature-section drone-panel">
+                <div className="drone-panel__title">
+                  <div>
+                    <span>Low Altitude UAV</span>
+                    <strong>{droneState.routeLabel}</strong>
+                  </div>
+                  <i>{droneState.status === "flying" ? "FLYING" : droneState.status === "paused" ? "PAUSED" : "READY"}</i>
+                </div>
+
+                <div className="drone-routes">
+                  {DRONE_ROUTE_OPTIONS.map((route) => (
+                    <button
+                      className={droneState.routeKey === route.key ? "drone-route drone-route--active" : "drone-route"}
+                      key={route.key}
+                      type="button"
+                      onClick={() => changeDroneRoute(route.key)}
+                    >
+                      {route.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="drone-stats">
+                  <div>
+                    <span>高度</span>
+                    <strong>{droneState.height}m</strong>
+                  </div>
+                  <div>
+                    <span>速度</span>
+                    <strong>{droneState.speed}</strong>
+                  </div>
+                  <div>
+                    <span>进度</span>
+                    <strong>{droneState.progress}%</strong>
+                  </div>
+                </div>
+
+                <div className="drone-progress" aria-label="drone flight progress">
+                  <span style={{ width: `${droneState.progress}%` }}></span>
+                </div>
+
+                <div className="drone-actions">
+                  <button type="button" onClick={startDroneFlight}>开始</button>
+                  <button type="button" onClick={pauseDroneFlight}>暂停</button>
+                  <button type="button" onClick={resetDroneFlight}>重置</button>
+                </div>
+
+                <div className="drone-actions drone-actions--secondary">
+                  <button type="button" onClick={toggleDroneVisible}>
+                    {droneState.visible ? "隐藏航线" : "显示航线"}
+                  </button>
+                  <button type="button" onClick={() => setDroneFollowing(!droneState.following)}>
+                    {droneState.following ? "退出跟随" : "跟随无人机"}
+                  </button>
+                </div>
+              </section>
+
+              <section className="feature-section effects-panel">
                 <div className="effects-panel__title">
                   <span>WebGL Effects</span>
                   <div>
@@ -687,8 +872,8 @@ function CesiumPage() {
                     <div className="effect-empty">暂无特效</div>
                   )}
                 </div>
-              </div>
-            </>
+              </section>
+            </div>
           )}
         </div>
 

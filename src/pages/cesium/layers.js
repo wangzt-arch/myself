@@ -11,6 +11,17 @@ const SCAN_SURFACE_OFFSET = 1200;
 const SCAN_SEGMENTS = 96;
 const SCAN_UPDATE_INTERVAL = 0.12;
 
+const getLoopedClockTime = (clock) => {
+  const totalSeconds = Cesium.JulianDate.secondsDifference(clock.stopTime, clock.startTime);
+  const elapsedSeconds = Cesium.JulianDate.secondsDifference(clock.currentTime, clock.startTime);
+  const loopedSeconds = ((elapsedSeconds % totalSeconds) + totalSeconds) % totalSeconds;
+
+  return {
+    seconds: loopedSeconds,
+    time: Cesium.JulianDate.addSeconds(clock.startTime, loopedSeconds, new Cesium.JulianDate()),
+  };
+};
+
 const COVERAGE_STATIONS = [
   { name: "Beijing Station", lon: 116.41, lat: 39.92 },
   { name: "Shanghai Station", lon: 121.47, lat: 31.23 },
@@ -238,15 +249,18 @@ const createScanConePrimitive = (viewer, position, orbitPoints, scan) => {
       return;
     }
 
-    const currentSecond = Cesium.JulianDate.secondsDifference(clock.currentTime, clock.startTime);
+    const { seconds: currentSecond, time: loopedTime } = getLoopedClockTime(clock);
+    if (currentSecond < lastUpdateSecond) {
+      lastUpdateSecond = Number.NEGATIVE_INFINITY;
+    }
     if (currentSecond - lastUpdateSecond < SCAN_UPDATE_INTERVAL) return;
     lastUpdateSecond = currentSecond;
 
-    const satellitePosition = position.getValue(clock.currentTime) || orbitPoints[0];
+    const satellitePosition = position.getValue(loopedTime) || position.getValue(clock.startTime) || orbitPoints[0];
     const groundPosition = getSatelliteGroundPoint(
       position,
       orbitPoints,
-      clock.currentTime,
+      loopedTime,
       scan.lonOffset,
       scan.latOffset
     );
