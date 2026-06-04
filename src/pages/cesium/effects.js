@@ -1,7 +1,9 @@
 import * as Cesium from "cesium";
+import EmberSphereEffect from "./effect/EmberSphereEffect";
+import ExplosionSphereEffect from "./effect/ExplosionSphereEffect";
 
 export const EFFECT_TYPES = [
-  { key: "flame", label: "火焰", color: "#ff7a18" },
+  { key: "flame", label: "火球", color: "#ff7a18" },
   { key: "explosion", label: "爆炸", color: "#ffce45" },
   { key: "energyWall", label: "能量墙", color: "#00f5ff" },
   { key: "alarmWall", label: "警戒墙", color: "#ff4d6d" },
@@ -18,127 +20,177 @@ const createPulse = (viewer, duration, from = 0, to = 1) => {
   }, false);
 };
 
-const createCirclePositions = (center, radius, count = 72, height = 0) => {
+const createOpenWallPositions = (center, halfWidth, halfDepth, height = 0) => {
   const transform = Cesium.Transforms.eastNorthUpToFixedFrame(center);
-  const positions = [];
+  const corners = [
+    new Cesium.Cartesian3(-halfWidth, -halfDepth, height),
+    new Cesium.Cartesian3(halfWidth, -halfDepth, height),
+    new Cesium.Cartesian3(halfWidth, halfDepth, height),
+    new Cesium.Cartesian3(-halfWidth * 0.35, halfDepth, height),
+  ];
 
-  for (let i = 0; i <= count; i += 1) {
-    const angle = (i / count) * Cesium.Math.TWO_PI;
-    const tangentPoint = Cesium.Matrix4.multiplyByPoint(
-      transform,
-      new Cesium.Cartesian3(Math.cos(angle) * radius, Math.sin(angle) * radius, height),
-      new Cesium.Cartesian3()
-    );
-    const cartographic = Cesium.Cartographic.fromCartesian(tangentPoint);
-    positions.push(Cesium.Cartesian3.fromRadians(cartographic.longitude, cartographic.latitude, height));
+  return corners.map((corner) => {
+    const point = Cesium.Matrix4.multiplyByPoint(transform, corner, new Cesium.Cartesian3());
+    const cartographic = Cesium.Cartographic.fromCartesian(point);
+    return Cesium.Cartesian3.fromRadians(cartographic.longitude, cartographic.latitude, height);
+  });
+};
+
+const createAlarmWallTexture = () => {
+  if (typeof document === "undefined") return "";
+
+  const canvas = document.createElement("canvas");
+  canvas.width = 256;
+  canvas.height = 128;
+  const ctx = canvas.getContext("2d");
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#6d0014";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.save();
+  ctx.translate(-80, 0);
+  for (let index = 0; index < 12; index += 1) {
+    ctx.fillStyle = index % 2 === 0 ? "#ffd326" : "#151515";
+    ctx.beginPath();
+    ctx.moveTo(index * 42, 0);
+    ctx.lineTo(index * 42 + 26, 0);
+    ctx.lineTo(index * 42 - 22, canvas.height);
+    ctx.lineTo(index * 42 - 48, canvas.height);
+    ctx.closePath();
+    ctx.fill();
   }
+  ctx.restore();
 
-  return positions;
+  ctx.fillStyle = "#b30026";
+  ctx.fillRect(0, 38, canvas.width, 52);
+
+  [128].forEach((x) => {
+    ctx.beginPath();
+    ctx.moveTo(x, 24);
+    ctx.lineTo(x + 36, 92);
+    ctx.lineTo(x - 36, 92);
+    ctx.closePath();
+    ctx.fillStyle = "#ffdc2a";
+    ctx.fill();
+    ctx.lineWidth = 6;
+    ctx.strokeStyle = "#121212";
+    ctx.stroke();
+
+    ctx.fillStyle = "#141414";
+    ctx.fillRect(x - 4, 45, 8, 25);
+    ctx.beginPath();
+    ctx.arc(x, 80, 5, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.34)";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
+
+  return canvas.toDataURL("image/png");
+};
+
+const createSingleWallPositions = (center, halfWidth, height = 0) => {
+  const transform = Cesium.Transforms.eastNorthUpToFixedFrame(center);
+  const corners = [
+    new Cesium.Cartesian3(-halfWidth, 0, height),
+    new Cesium.Cartesian3(halfWidth, 0, height),
+  ];
+
+  return corners.map((corner) => {
+    const point = Cesium.Matrix4.multiplyByPoint(transform, corner, new Cesium.Cartesian3());
+    const cartographic = Cesium.Cartographic.fromCartesian(point);
+    return Cesium.Cartesian3.fromRadians(cartographic.longitude, cartographic.latitude, height);
+  });
 };
 
 const addFlameEffect = (viewer, position, color) => {
-  const glowColor = Cesium.Color.fromCssColorString(color);
-  const hotColor = Cesium.Color.fromCssColorString("#ffd36a");
-  const pulse = createPulse(viewer, 1.2, 0.35, 1);
+  const cartographic = Cesium.Cartographic.fromCartesian(position);
+  const emberSphere = new EmberSphereEffect(viewer, {
+    longitude: Cesium.Math.toDegrees(cartographic.longitude),
+    latitude: Cesium.Math.toDegrees(cartographic.latitude),
+    height: 95000,
+    radius: 110000,
+    speed: 0.55,
+    baseColor: Cesium.Color.fromCssColorString(color),
+    autoAnimate: true,
+    Cesium,
+  });
 
-  return [
-    viewer.entities.add({
-      name: "WebGL Flame Core",
-      position,
-      cylinder: {
-        length: 90000,
-        topRadius: 18000,
-        bottomRadius: 52000,
-        material: new Cesium.ColorMaterialProperty(new Cesium.CallbackProperty(() => (
-          hotColor.withAlpha(0.22 + pulse.getValue() * 0.28)
-        ), false)),
-        outline: true,
-        outlineColor: glowColor.withAlpha(0.72),
-      },
-    }),
-    viewer.entities.add({
-      name: "WebGL Flame Glow",
-      position,
-      ellipse: {
-        semiMajorAxis: new Cesium.CallbackProperty(() => 70000 + pulse.getValue() * 26000, false),
-        semiMinorAxis: new Cesium.CallbackProperty(() => 70000 + pulse.getValue() * 26000, false),
-        height: 800,
-        material: new Cesium.ColorMaterialProperty(new Cesium.CallbackProperty(() => (
-          glowColor.withAlpha(0.16 + pulse.getValue() * 0.16)
-        ), false)),
-        outline: true,
-        outlineColor: glowColor.withAlpha(0.55),
-      },
-    }),
-  ];
+  return [emberSphere];
 };
 
 const addExplosionEffect = (viewer, position, color) => {
-  const coreColor = Cesium.Color.fromCssColorString(color);
-  const ringColor = Cesium.Color.fromCssColorString("#ff6b35");
-  const pulse = createPulse(viewer, 1.8, 0, 1);
+  const cartographic = Cesium.Cartographic.fromCartesian(position);
+  const explosionSphere = new ExplosionSphereEffect(viewer, {
+    longitude: Cesium.Math.toDegrees(cartographic.longitude),
+    latitude: Cesium.Math.toDegrees(cartographic.latitude),
+    height: 115000,
+    radius: 175000,
+    speed: 0.62,
+    baseColor: Cesium.Color.fromCssColorString(color),
+    shockColor: Cesium.Color.fromCssColorString("#ff6b35"),
+    smokeColor: Cesium.Color.fromCssColorString("#3f1a08"),
+    autoAnimate: true,
+    Cesium,
+  });
 
-  return [
-    viewer.entities.add({
-      name: "WebGL Explosion Sphere",
-      position,
-      ellipsoid: {
-        radii: new Cesium.CallbackProperty(() => {
-          const size = 52000 + pulse.getValue() * 110000;
-          return new Cesium.Cartesian3(size, size, size * 0.65);
-        }, false),
-        material: new Cesium.ColorMaterialProperty(new Cesium.CallbackProperty(() => (
-          coreColor.withAlpha(0.1 + (1 - pulse.getValue()) * 0.36)
-        ), false)),
-        outline: true,
-        outlineColor: ringColor.withAlpha(0.7),
-      },
-    }),
-    viewer.entities.add({
-      name: "WebGL Explosion Wave",
-      position,
-      ellipse: {
-        semiMajorAxis: new Cesium.CallbackProperty(() => 85000 + pulse.getValue() * 260000, false),
-        semiMinorAxis: new Cesium.CallbackProperty(() => 85000 + pulse.getValue() * 260000, false),
-        height: 1200,
-        material: new Cesium.ColorMaterialProperty(new Cesium.CallbackProperty(() => (
-          ringColor.withAlpha(0.24 * (1 - pulse.getValue()))
-        ), false)),
-        outline: true,
-        outlineColor: ringColor.withAlpha(0.8),
-      },
-    }),
-  ];
+  return [explosionSphere];
 };
 
 const addWallEffect = (viewer, position, color, isAlarm = false) => {
   const wallColor = Cesium.Color.fromCssColorString(color);
-  const pulse = createPulse(viewer, isAlarm ? 1 : 2.4, 0.2, 1);
-  const positions = createCirclePositions(position, isAlarm ? 220000 : 260000);
+  const pulse = isAlarm ? null : createPulse(viewer, 2.4, 0.2, 1);
+  const halfWidth = isAlarm ? 320000 : 220000;
+  const halfDepth = isAlarm ? 130000 : 170000;
+  const wallHeight = isAlarm ? 150000 : 270000;
+  const positions = isAlarm
+    ? createSingleWallPositions(position, halfWidth)
+    : createOpenWallPositions(position, halfWidth, halfDepth);
+  const topPositions = isAlarm
+    ? createSingleWallPositions(position, halfWidth, wallHeight)
+    : createOpenWallPositions(position, halfWidth, halfDepth, wallHeight);
+  const wallMaterial = isAlarm
+    ? new Cesium.ImageMaterialProperty({
+      image: createAlarmWallTexture(),
+      transparent: false,
+      repeat: new Cesium.Cartesian2(3, 1),
+      color: Cesium.Color.WHITE,
+    })
+    : new Cesium.ColorMaterialProperty(new Cesium.CallbackProperty(() => (
+      wallColor.withAlpha(0.16 + pulse.getValue() * 0.15)
+    ), false));
 
   return [
     viewer.entities.add({
-      name: isAlarm ? "WebGL Alarm Wall" : "WebGL Energy Wall",
+      name: isAlarm ? "WebGL Alarm Prism Wall" : "WebGL Energy Prism Wall",
       wall: {
         positions,
         minimumHeights: positions.map(() => 0),
-        maximumHeights: positions.map((_, index) => {
-          const wave = Math.sin((index / positions.length) * Cesium.Math.TWO_PI * 3);
-          return (isAlarm ? 220000 : 280000) + wave * 26000;
-        }),
-        material: new Cesium.ColorMaterialProperty(new Cesium.CallbackProperty(() => (
-          wallColor.withAlpha(isAlarm ? 0.22 + pulse.getValue() * 0.22 : 0.14 + pulse.getValue() * 0.16)
-        ), false)),
+        maximumHeights: positions.map(() => wallHeight),
+        material: wallMaterial,
         outline: true,
         outlineColor: wallColor.withAlpha(0.8),
       },
     }),
     viewer.entities.add({
-      name: isAlarm ? "WebGL Alarm Ring" : "WebGL Energy Ring",
+      name: isAlarm ? "WebGL Alarm Base" : "WebGL Energy Base",
       polyline: {
         positions,
-        width: isAlarm ? 3 : 2,
+        width: isAlarm ? 4 : 2,
         material: wallColor.withAlpha(0.85),
+      },
+    }),
+    viewer.entities.add({
+      name: isAlarm ? "WebGL Alarm Top" : "WebGL Energy Top",
+      polyline: {
+        positions: topPositions,
+        width: isAlarm ? 4 : 3,
+        material: new Cesium.PolylineGlowMaterialProperty({
+          glowPower: isAlarm ? 0.12 : 0.22,
+          color: wallColor.withAlpha(0.92),
+        }),
       },
     }),
   ];
@@ -204,6 +256,10 @@ export const createWebGLEffect = (viewer, type, position, index) => {
 export const removeWebGLEffect = (viewer, effect) => {
   if (!viewer || !effect) return;
   effect.entities.forEach((entity) => {
+    if (typeof entity.destroy === "function") {
+      entity.destroy();
+      return;
+    }
     viewer.entities.remove(entity);
   });
 };

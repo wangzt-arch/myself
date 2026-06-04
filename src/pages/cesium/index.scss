@@ -669,19 +669,26 @@
   }
 
   div {
-    display: flex;
+    display: grid;
+    grid-template-columns: 42px 76px 42px;
     gap: 6px;
+    flex: 0 0 auto;
   }
 
   button {
     height: 26px;
-    padding: 0 9px;
+    min-width: 0;
+    padding: 0 6px;
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 5px;
     background: rgba(255, 255, 255, 0.05);
     color: rgba(255, 255, 255, 0.72);
     cursor: pointer;
-    font-size: 12px;
+    font-size: 11px;
+    line-height: 24px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
 
     &:disabled {
       cursor: not-allowed;

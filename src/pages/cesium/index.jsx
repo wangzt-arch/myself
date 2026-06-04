@@ -42,11 +42,17 @@ function createCityClickHandler(
   viewer,
   updateSelectedCity,
   updatePopupPosition,
-  getActiveEffectType
+  getActiveEffectType,
+  addEffect
 ) {
   const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
   handler.setInputAction((click) => {
-    if (getActiveEffectType()) {
+    const activeEffectType = getActiveEffectType();
+    if (activeEffectType) {
+      const effectPosition = getMapClickPosition(viewer, click.position);
+      if (effectPosition) {
+        addEffect(activeEffectType, effectPosition);
+      }
       updateSelectedCity(null);
       return;
     }
@@ -594,25 +600,12 @@ function CesiumPage() {
     viewerRef.current = viewer;
 
     const mouseMoveHandler = createMouseMoveHandler(viewer, setCoordinates);
-    const effectClickHandler = (event) => {
-      const type = activeEffectTypeRef.current;
-      if (!type) return;
-      if (event.button != null && event.button !== 0) return;
-
-      const rect = viewer.scene.canvas.getBoundingClientRect();
-      const screenPosition = new Cesium.Cartesian2(event.clientX - rect.left, event.clientY - rect.top);
-      const effectPosition = getMapClickPosition(viewer, screenPosition);
-      if (!effectPosition) return;
-
-      event.stopPropagation();
-      addWebGLEffect(type, effectPosition);
-      setSelectedCity(null);
-    };
     const clickHandler = createCityClickHandler(
       viewer,
       setSelectedCity,
       setPopupPosition,
-      () => activeEffectTypeRef.current
+      () => activeEffectTypeRef.current,
+      addWebGLEffect
     );
     const removeFollowTick = viewer.clock.onTick.addEventListener(() => {
       if (isFollowingSatelliteRef.current) {
@@ -627,7 +620,6 @@ function CesiumPage() {
         setDroneState(droneControllerRef.current.getSnapshot());
       }
     }, 600);
-    viewer.scene.canvas.addEventListener("mousedown", effectClickHandler, true);
 
     loadIonImagery(viewerRef);
     loadChinaBoundary(viewerRef, provinceLabelEntitiesRef, setIsLoading, () => {
@@ -656,7 +648,6 @@ function CesiumPage() {
       isFollowingSatelliteRef.current = false;
       window.clearInterval(droneStateTimer);
       removeFollowTick();
-      viewer.scene.canvas.removeEventListener("mousedown", effectClickHandler, true);
       mouseMoveHandler.destroy();
       clickHandler.destroy();
       cityEntitiesRef.current = [];
@@ -825,13 +816,11 @@ function CesiumPage() {
                 <div className="effects-panel__title">
                   <span>WebGL Effects</span>
                   <div>
-                    {activeEffectType && (
-                      <button type="button" onClick={() => setActiveEffectType(null)}>
-                        取消
-                      </button>
-                    )}
+                    <button type="button" onClick={() => setActiveEffectType(null)} disabled={!activeEffectType}>
+                      取消
+                    </button>
                     <button type="button" onClick={addEffectAtViewCenter} disabled={!activeEffectType}>
-                      添加中心
+                      在中心添加
                     </button>
                     <button type="button" onClick={clearWebGLEffects} disabled={!webGLEffects.length}>
                       清空
