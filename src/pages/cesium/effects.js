@@ -1,9 +1,11 @@
 import * as Cesium from "cesium";
+import BallOfFireEffect from "./effect/BallOfFireEffect";
 import EmberSphereEffect from "./effect/EmberSphereEffect";
 import ExplosionSphereEffect from "./effect/ExplosionSphereEffect";
 
 export const EFFECT_TYPES = [
   { key: "flame", label: "火球", color: "#ff7a18" },
+  { key: "fireball", label: "火焰", color: "#ff9d1c" },
   { key: "explosion", label: "爆炸", color: "#ffce45" },
   { key: "energyWall", label: "能量墙", color: "#00f5ff" },
   { key: "alarmWall", label: "警戒墙", color: "#ff4d6d" },
@@ -121,6 +123,23 @@ const addFlameEffect = (viewer, position, color) => {
   return [emberSphere];
 };
 
+const addFireballEffect = (viewer, position, color) => {
+  const cartographic = Cesium.Cartographic.fromCartesian(position);
+  const fireball = new BallOfFireEffect(viewer, {
+    longitude: Cesium.Math.toDegrees(cartographic.longitude),
+    latitude: Cesium.Math.toDegrees(cartographic.latitude),
+    height: 5000,
+    radius: 135000,
+    speed: 0.9,
+    baseColor: Cesium.Color.fromCssColorString(color),
+    coreColor: Cesium.Color.fromCssColorString("#ffe76a"),
+    autoAnimate: true,
+    Cesium,
+  });
+
+  return [fireball];
+};
+
 const addExplosionEffect = (viewer, position, color) => {
   const cartographic = Cesium.Cartographic.fromCartesian(position);
   const explosionSphere = new ExplosionSphereEffect(viewer, {
@@ -235,6 +254,7 @@ export const createWebGLEffect = (viewer, type, position, index) => {
   const effectType = getEffectType(type);
   const entityFactories = {
     flame: () => addFlameEffect(viewer, position, effectType.color),
+    fireball: () => addFireballEffect(viewer, position, effectType.color),
     explosion: () => addExplosionEffect(viewer, position, effectType.color),
     energyWall: () => addWallEffect(viewer, position, effectType.color, false),
     alarmWall: () => addWallEffect(viewer, position, effectType.color, true),
