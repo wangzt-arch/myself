@@ -2,10 +2,12 @@ import * as Cesium from "cesium";
 import BallOfFireEffect from "./effect/BallOfFireEffect";
 import EmberSphereEffect from "./effect/EmberSphereEffect";
 import ExplosionSphereEffect from "./effect/ExplosionSphereEffect";
+import VolumeSmokeEffect from "./effect/VolumeSmokeEffect";
 
 export const EFFECT_TYPES = [
   { key: "flame", label: "火球", color: "#ff7a18" },
   { key: "fireball", label: "火焰", color: "#ff9d1c" },
+  { key: "volumeSmoke", label: "\u4f53\u79ef\u70df", color: "#b6b0a8" },
   { key: "explosion", label: "爆炸", color: "#ffce45" },
   { key: "energyWall", label: "能量墙", color: "#00f5ff" },
   { key: "alarmWall", label: "警戒墙", color: "#ff4d6d" },
@@ -158,6 +160,22 @@ const addExplosionEffect = (viewer, position, color) => {
   return [explosionSphere];
 };
 
+const addVolumeSmokeEffect = (viewer, position, color) => {
+  const cartographic = Cesium.Cartographic.fromCartesian(position);
+  const volumeSmoke = new VolumeSmokeEffect(viewer, {
+    longitude: Cesium.Math.toDegrees(cartographic.longitude),
+    latitude: Cesium.Math.toDegrees(cartographic.latitude),
+    height: cartographic.height,
+    radius: 170,
+    speed: 3.0,
+    color: Cesium.Color.fromCssColorString(color).withAlpha(0.82),
+    autoAnimate: true,
+    Cesium,
+  });
+
+  return [volumeSmoke];
+};
+
 const addWallEffect = (viewer, position, color, isAlarm = false) => {
   const wallColor = Cesium.Color.fromCssColorString(color);
   const pulse = isAlarm ? null : createPulse(viewer, 2.4, 0.2, 1);
@@ -255,6 +273,7 @@ export const createWebGLEffect = (viewer, type, position, index) => {
   const entityFactories = {
     flame: () => addFlameEffect(viewer, position, effectType.color),
     fireball: () => addFireballEffect(viewer, position, effectType.color),
+    volumeSmoke: () => addVolumeSmokeEffect(viewer, position, effectType.color),
     explosion: () => addExplosionEffect(viewer, position, effectType.color),
     energyWall: () => addWallEffect(viewer, position, effectType.color, false),
     alarmWall: () => addWallEffect(viewer, position, effectType.color, true),
