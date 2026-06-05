@@ -1,12 +1,13 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import * as Cesium from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import Header from "../../components/Header";
 import CityPopup from "./components/CityPopup";
+import EffectLibraryPanel from "./components/EffectLibraryPanel";
 import { CITIES_DATA } from "./cityData";
 import { CESIUM_TOKEN, INITIAL_CAMERA, STATS, VIEWER_OPTIONS } from "./constants";
 import { DRONE_ROUTE_OPTIONS, createDronePatrol, updateDroneFollowCamera } from "./drone";
-import { EFFECT_TYPES, createWebGLEffect, removeWebGLEffect } from "./effects";
+import { createWebGLEffect, removeWebGLEffect } from "./effects";
 import EmberSphereEffect from './effect/EmberSphereEffect'
 
 import {
@@ -310,6 +311,7 @@ function CesiumPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isInfoPanelOpen, setIsInfoPanelOpen] = useState(false);
   const [isToolPanelOpen, setIsToolPanelOpen] = useState(false);
+  const [isEffectPanelOpen, setIsEffectPanelOpen] = useState(false);
   const [activeEffectType, setActiveEffectType] = useState(null);
   const [webGLEffects, setWebGLEffects] = useState([]);
   const [droneState, setDroneState] = useState({
@@ -812,59 +814,21 @@ function CesiumPage() {
                 </div>
               </section>
 
-              <section className="feature-section effects-panel">
-                <div className="effects-panel__title">
-                  <span>WebGL Effects</span>
-                  <div>
-                    <button type="button" onClick={() => setActiveEffectType(null)} disabled={!activeEffectType}>
-                      取消
-                    </button>
-                    <button type="button" onClick={addEffectAtViewCenter} disabled={!activeEffectType}>
-                      在中心添加
-                    </button>
-                    <button type="button" onClick={clearWebGLEffects} disabled={!webGLEffects.length}>
-                      清空
-                    </button>
-                  </div>
-                </div>
-
-                <div className="effect-types">
-                  {EFFECT_TYPES.map((effect) => (
-                    <button
-                      className={activeEffectType === effect.key ? "effect-type effect-type--active" : "effect-type"}
-                      key={effect.key}
-                      type="button"
-                      onClick={() => setActiveEffectType(effect.key)}
-                    >
-                      <i style={{ backgroundColor: effect.color }}></i>
-                      <span>{effect.label}</span>
-                    </button>
-                  ))}
-                </div>
-
-                <p className="effects-panel__hint">
-                  {activeEffectType ? "点击地图添加当前特效" : "选择一种特效后点击地图添加"}
-                </p>
-
-                <div className="effect-list">
-                  {webGLEffects.length ? (
-                    webGLEffects.map((effect) => (
-                      <div className="effect-item" key={effect.id}>
-                        <div>
-                          <strong>{effect.label}</strong>
-                          <span>{effect.lon}, {effect.lat}</span>
-                        </div>
-                        <button type="button" onClick={() => deleteWebGLEffect(effect.id)}>删除</button>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="effect-empty">暂无特效</div>
-                  )}
-                </div>
-              </section>
             </div>
           )}
         </div>
+
+        <EffectLibraryPanel
+          isOpen={isEffectPanelOpen}
+          activeEffectType={activeEffectType}
+          webGLEffects={webGLEffects}
+          onToggle={() => setIsEffectPanelOpen((value) => !value)}
+          onSelectEffect={setActiveEffectType}
+          onCancel={() => setActiveEffectType(null)}
+          onAddAtViewCenter={addEffectAtViewCenter}
+          onClearEffects={clearWebGLEffects}
+          onDeleteEffect={deleteWebGLEffect}
+        />
 
         <div className="coordinates-display">
           <span>LON: {coordinates.lon} deg</span>
