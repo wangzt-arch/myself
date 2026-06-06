@@ -44,9 +44,9 @@ const docs = [
     value: regex,
   },
   {
-    title: "变量声明",
+    title: "ES6+ 新特性概览",
     category: "前端基础",
-    tags: ["ES6", "JavaScript"],
+    tags: ["ES6", "JavaScript", "ES2020", "ES2022"],
     value: lets,
   },
   {
