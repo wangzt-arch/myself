@@ -11,6 +11,8 @@ import ai from "./ai.md";
 import codexStart from "./codex-start.md";
 import aiPrompts from "./ai-prompts.md";
 import aiHotTerms from "./ai-hot-terms.md";
+import jsInterview from "./js-interview.md";
+import htmlInterview from "./html-interview.md";
 
 const docs = [
   {
@@ -90,6 +92,18 @@ const docs = [
     category: "GIS 可视化",
     tags: ["Cesium", "3D GIS"],
     value: cesium,
+  },
+  {
+    title: "JS 面试题",
+    category: "面试相关",
+    tags: ["JavaScript", "面试", "基础", "进阶"],
+    value: jsInterview,
+  },
+  {
+    title: "HTML 面试题",
+    category: "面试相关",
+    tags: ["HTML", "面试", "基础", "进阶"],
+    value: htmlInterview,
   },
 ];
 
