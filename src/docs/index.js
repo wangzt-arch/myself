@@ -10,6 +10,7 @@ import cesium from "./cesium.md";
 import ai from "./ai.md";
 import codexStart from "./codex-start.md";
 import aiPrompts from "./ai-prompts.md";
+import aiHotTerms from "./ai-hot-terms.md";
 
 const docs = [
   {
@@ -29,6 +30,12 @@ const docs = [
     category: "AI 工具",
     tags: ["AI", "Prompt", "最佳实践"],
     value: aiPrompts,
+  },
+  {
+    title: "AI 圈子热词百科",
+    category: "AI 工具",
+    tags: ["AI", "术语", "百科"],
+    value: aiHotTerms,
   },
   {
     title: "常用正则",
