@@ -13,6 +13,7 @@ import aiPrompts from "./ai-prompts.md";
 import aiHotTerms from "./ai-hot-terms.md";
 import jsInterview from "./js-interview.md";
 import htmlInterview from "./html-interview.md";
+import cssInterview from "./css-interview.md";
 
 const docs = [
   {
@@ -104,6 +105,12 @@ const docs = [
     category: "面试相关",
     tags: ["HTML", "面试", "基础", "进阶"],
     value: htmlInterview,
+  },
+  {
+    title: "CSS 面试题",
+    category: "面试相关",
+    tags: ["CSS", "SCSS", "Less", "面试", "基础", "进阶"],
+    value: cssInterview,
   },
 ];
 
