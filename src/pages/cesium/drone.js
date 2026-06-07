@@ -422,8 +422,8 @@ export const updateDroneFollowCamera = (viewer, controller) => {
   viewer.camera.lookAt(
     controller.getPosition(),
     new Cesium.HeadingPitchRange(
-      Cesium.Math.toRadians(25),
-      Cesium.Math.toRadians(-28),
+      Cesium.Math.toRadians(0),
+      Cesium.Math.toRadians(-90),
       5200
     )
   );

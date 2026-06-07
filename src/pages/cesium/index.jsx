@@ -337,7 +337,7 @@ function CesiumPage() {
     setPopupPosition((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
   }, []);
 
-  // 在地图点击位置添加当前选择的 WebGL 特效。
+  // 在地图点击位置添加当前选择的 WebGL 特效，添加成功后自动取消选中状态。
   const addWebGLEffect = useCallback((type, position) => {
     const viewer = viewerRef.current;
     if (!viewer || !position) return;
@@ -345,6 +345,9 @@ function CesiumPage() {
     const effect = createWebGLEffect(viewer, type, position, webGLEffectsRef.current.length + 1);
     webGLEffectsRef.current = [effect, ...webGLEffectsRef.current];
     setWebGLEffects(webGLEffectsRef.current);
+
+    // 添加成功后清除当前特效选中状态
+    setActiveEffectType(null);
   }, []);
 
   const syncDroneState = useCallback(() => {
@@ -379,6 +382,25 @@ function CesiumPage() {
 
     controller.start();
     viewer.clock.shouldAnimate = true;
+
+    // 启动时将视角飞到无人机上方俯视
+    const dronePos = controller.getPosition();
+    if (dronePos) {
+      viewer.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(
+          Cesium.Math.toDegrees(Cesium.Cartographic.fromCartesian(dronePos).longitude),
+          Cesium.Math.toDegrees(Cesium.Cartographic.fromCartesian(dronePos).latitude),
+          Cesium.Cartographic.fromCartesian(dronePos).height + 5200
+        ),
+        orientation: {
+          heading: 0,
+          pitch: Cesium.Math.toRadians(-90),
+          roll: 0,
+        },
+        duration: 1.5,
+      });
+    }
+
     syncDroneState();
   }, [syncDroneState]);
 
