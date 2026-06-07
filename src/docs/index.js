@@ -14,6 +14,10 @@ import aiHotTerms from "./ai-hot-terms.md";
 import jsInterview from "./js-interview.md";
 import htmlInterview from "./html-interview.md";
 import cssInterview from "./css-interview.md";
+import engineeringInterview from "./engineering-interview.md";
+import vueInterview from "./vue-interview.md";
+import reactInterview from "./react-interview.md";
+import tsInterview from "./ts-interview.md";
 
 const docs = [
   {
@@ -111,6 +115,30 @@ const docs = [
     category: "面试相关",
     tags: ["CSS", "SCSS", "Less", "面试", "基础", "进阶"],
     value: cssInterview,
+  },
+  {
+    title: "Vue 面试题",
+    category: "面试相关",
+    tags: ["Vue", "Vue2", "Vue3", "面试", "基础", "进阶"],
+    value: vueInterview,
+  },
+  {
+    title: "React 面试题",
+    category: "面试相关",
+    tags: ["React", "Hooks", "面试", "基础", "进阶"],
+    value: reactInterview,
+  },
+  {
+    title: "TypeScript 面试题",
+    category: "面试相关",
+    tags: ["TypeScript", "泛型", "面试", "基础", "进阶"],
+    value: tsInterview,
+  },
+    {
+    title: "前端工程化面试题",
+    category: "面试相关",
+    tags: ["Webpack", "Vite", "Rollup", "面试", "工程化", "CI/CD"],
+    value: engineeringInterview,
   },
 ];
 
