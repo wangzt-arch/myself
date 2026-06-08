@@ -1,5 +1,6 @@
 .yq-distribution {
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   color: #edf7ff;
   background:
     radial-gradient(circle at 18% 8%, rgba(72, 226, 255, 0.24), transparent 26%),
@@ -8,9 +9,10 @@
 }
 
 .chart-dashboard {
-  position: relative;
-  min-height: calc(100vh - 64px);
-  padding: 28px 32px 40px;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 56px);
+  padding: 10px 16px 12px;
   overflow: hidden;
 
   &::before {
@@ -26,110 +28,68 @@
   }
 }
 
-.chart-hero,
-.chart-metrics,
-.chart-grid {
-  position: relative;
-  z-index: 1;
-  max-width: 1440px;
-  margin: 0 auto;
-}
-
-.chart-hero {
+/* 顶部栏 */
+.dash-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  padding: 10px 0 24px;
+  flex-shrink: 0;
+  height: 40px;
+  margin-bottom: 10px;
+  padding: 0 4px;
+
+  h1 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: 1px;
+    text-shadow: 0 0 18px rgba(91, 244, 255, 0.36);
+  }
 }
 
-.chart-eyebrow {
-  margin: 0 0 8px;
-  color: #6df3ff;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0;
-  text-transform: uppercase;
-}
-
-.chart-hero h1 {
-  margin: 0;
-  color: #ffffff;
-  font-size: 36px;
-  line-height: 1.2;
-  letter-spacing: 0;
-  text-shadow: 0 0 28px rgba(91, 244, 255, 0.36);
-}
-
-.chart-hero__desc {
-  max-width: 720px;
-  margin: 12px 0 0;
+.dash-time {
   color: rgba(226, 236, 255, 0.72);
-  font-size: 15px;
-  line-height: 1.8;
+  font-size: 13px;
+  font-family: "Courier New", monospace;
+  letter-spacing: 0.5px;
 }
 
-.chart-pulse {
-  position: relative;
-  width: 132px;
-  height: 132px;
-  flex: 0 0 auto;
-
-  span {
-    position: absolute;
-    inset: 18px;
-    border: 1px solid rgba(91, 244, 255, 0.48);
-    border-radius: 50%;
-    animation: chart-pulse 2.8s ease-out infinite;
-  }
-
-  span:nth-child(2) {
-    animation-delay: 0.65s;
-  }
-
-  span:nth-child(3) {
-    animation-delay: 1.3s;
-  }
-
-  &::after {
-    position: absolute;
-    inset: 48px;
-    content: "";
-    border-radius: 50%;
-    background: #6df3ff;
-    box-shadow: 0 0 34px rgba(109, 243, 255, 0.9);
-  }
-}
-
+/* 指标行 */
 .chart-metrics {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-  margin-bottom: 18px;
+  gap: 10px;
+  flex-shrink: 0;
+  margin-bottom: 10px;
 }
 
 .metric-card {
   position: relative;
-  min-height: 112px;
-  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 72px;
+  padding: 10px 14px;
   overflow: hidden;
   border: 1px solid rgba(126, 195, 255, 0.2);
   border-radius: 8px;
   background:
     linear-gradient(135deg, rgba(45, 95, 166, 0.34), rgba(8, 26, 56, 0.72)),
     rgba(11, 28, 58, 0.8);
-  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
 
   &::after {
     position: absolute;
-    right: -26px;
-    bottom: -42px;
-    width: 112px;
-    height: 112px;
+    right: -18px;
+    bottom: -28px;
+    width: 72px;
+    height: 72px;
     content: "";
     border: 1px solid rgba(109, 243, 255, 0.28);
     border-radius: 50%;
-    box-shadow: inset 0 0 32px rgba(109, 243, 255, 0.12);
+    box-shadow: inset 0 0 24px rgba(109, 243, 255, 0.12);
   }
 
   span,
@@ -137,32 +97,76 @@
     display: block;
     color: rgba(226, 236, 255, 0.68);
     font-style: normal;
-    font-size: 13px;
+    font-size: 12px;
   }
 
   strong {
     display: block;
-    margin: 10px 0 8px;
+    margin: 4px 0 2px;
     color: #ffffff;
-    font-size: 30px;
+    font-size: 22px;
     line-height: 1;
   }
 
   em {
     color: #8fffca;
+    font-size: 11px;
   }
 }
 
-.chart-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.85fr) minmax(280px, 0.85fr);
-  gap: 18px;
+/* 主体内容区 */
+.dash-body {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
-.chart-card {
-  position: relative;
-  min-height: 310px;
-  padding: 18px;
+/* 左右两侧：3 行网格 */
+.dash-left {
+  display: grid;
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  flex: 0.75;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* 中间地图 */
+.dash-map {
+  display: flex;
+  flex-direction: column;
+  flex: 1.2;
+  min-width: 0;
+  padding: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(122, 202, 255, 0.22);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(68, 218, 255, 0.16), transparent 42%),
+    linear-gradient(145deg, rgba(17, 43, 88, 0.84), rgba(6, 17, 36, 0.9));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 22px 52px rgba(0, 0, 0, 0.22);
+
+  &::before {
+    position: absolute;
+    top: 0;
+    left: 12px;
+    right: 12px;
+    height: 1px;
+    content: "";
+    background: linear-gradient(90deg, transparent, rgba(91, 244, 255, 0.78), transparent);
+  }
+}
+
+.dash-grid-item {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  padding: 10px 12px;
   overflow: hidden;
   border: 1px solid rgba(122, 202, 255, 0.22);
   border-radius: 8px;
@@ -176,122 +180,136 @@
   &::before {
     position: absolute;
     top: 0;
-    left: 18px;
-    right: 18px;
+    left: 12px;
+    right: 12px;
     height: 1px;
     content: "";
     background: linear-gradient(90deg, transparent, rgba(91, 244, 255, 0.78), transparent);
   }
 }
 
-.chart-card--wide {
-  grid-row: span 2;
-  min-height: 638px;
-}
-
-.chart-card--map {
-  background:
-    radial-gradient(circle at 50% 45%, rgba(68, 218, 255, 0.16), transparent 42%),
-    linear-gradient(145deg, rgba(17, 43, 88, 0.84), rgba(6, 17, 36, 0.9));
-}
-
+/* 卡片头部 */
 .chart-card__head {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
-  min-height: 48px;
+  gap: 8px;
+  flex-shrink: 0;
+  min-height: 36px;
+  margin-bottom: 6px;
 
   h2 {
     margin: 0;
     color: #ffffff;
-    font-size: 18px;
+    font-size: 14px;
     line-height: 1.25;
   }
 
   p {
-    margin: 6px 0 0;
+    margin: 2px 0 0;
     color: rgba(226, 236, 255, 0.58);
-    font-size: 12px;
+    font-size: 11px;
   }
 
   i {
-    width: 42px;
-    height: 10px;
+    width: 32px;
+    height: 6px;
     margin-top: 4px;
     border-radius: 999px;
     background: linear-gradient(90deg, #5bf4ff, #8fffca);
-    box-shadow: 0 0 18px rgba(91, 244, 255, 0.45);
+    box-shadow: 0 0 12px rgba(91, 244, 255, 0.45);
   }
 }
 
+/* 图表画布 */
 .chart-canvas {
+  flex: 1;
+  min-height: 0;
   width: 100%;
-  height: calc(100% - 48px);
-  min-height: 238px;
 }
 
-.chart-card--wide .chart-canvas {
-  min-height: 548px;
-}
-
-@keyframes chart-pulse {
-  0% {
-    opacity: 0.88;
-    transform: scale(0.45);
+/* ========== 移动端适配 ========== */
+@media (max-width: 768px) {
+  .yq-distribution {
+    height: auto;
+    overflow: auto;
   }
 
-  100% {
-    opacity: 0;
-    transform: scale(1.35);
+  .chart-dashboard {
+    height: auto;
+    min-height: calc(100vh - 56px);
+    padding: 12px;
+    overflow: visible;
+  }
+
+  .dash-header {
+    h1 {
+      font-size: 16px;
+    }
+  }
+
+  .dash-time {
+    font-size: 11px;
+  }
+
+  .chart-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .metric-card {
+    min-height: 60px;
+    padding: 8px 10px;
+
+    strong {
+      font-size: 18px;
+    }
+  }
+
+  .dash-body {
+    flex-direction: column;
+    gap: 8px;
+    overflow: visible;
+  }
+
+  .dash-map {
+    flex: none;
+    height: 320px;
+  }
+
+  .dash-left {
+    grid-template-rows: repeat(3, 160px);
+    gap: 8px;
+    overflow: visible;
+  }
+
+  .dash-left {
+    grid-template-rows: repeat(3, 140px);
+  }
+
+  .dash-grid-item {
+    height: 140px;
   }
 }
 
-@media (max-width: 1180px) {
-  .chart-grid {
+@media (max-width: 480px) {
+  .chart-metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .chart-card--wide {
-    grid-column: span 2;
-    grid-row: auto;
-  }
-}
-
-@media (max-width: 860px) {
-  .chart-dashboard {
-    padding: 22px 16px 32px;
-  }
-
-  .chart-hero {
+  .dash-header {
+    flex-direction: column;
     align-items: flex-start;
+    height: auto;
+    gap: 4px;
+    margin-bottom: 8px;
   }
 
-  .chart-pulse {
-    display: none;
+  .dash-map {
+    height: 260px;
   }
 
-  .chart-metrics,
-  .chart-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .chart-card--wide {
-    grid-column: auto;
-  }
-
-  .chart-card--wide .chart-canvas {
-    min-height: 420px;
-  }
-}
-
-@media (max-width: 520px) {
-  .chart-hero h1 {
-    font-size: 28px;
-  }
-
-  .chart-card,
-  .metric-card {
-    padding: 16px;
+  .dash-grid-item {
+    height: 160px;
   }
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as echarts from "echarts";
 import china from "./china.json";
 import Header from "../../components/Header";
@@ -23,43 +23,10 @@ const deviceData = [
   { name: "API", value: 8 },
 ];
 
-const chartConfigs = [
-  {
-    key: "map",
-    title: "全国热力分布",
-    subtitle: "实时城市活跃度",
-    className: "chart-card chart-card--wide chart-card--map",
-  },
-  {
-    key: "line",
-    title: "访问趋势",
-    subtitle: "近 7 月增长曲线",
-    className: "chart-card",
-  },
-  {
-    key: "bar",
-    title: "渠道贡献",
-    subtitle: "核心来源排名",
-    className: "chart-card",
-  },
-  {
-    key: "pie",
-    title: "终端占比",
-    subtitle: "访问设备结构",
-    className: "chart-card",
-  },
-  {
-    key: "radar",
-    title: "能力雷达",
-    subtitle: "综合表现评估",
-    className: "chart-card",
-  },
-  {
-    key: "gauge",
-    title: "转化效率",
-    subtitle: "当前目标完成度",
-    className: "chart-card",
-  },
+const scatterData = [
+  [10, 8.04, "A"], [8, 6.95, "B"], [13, 7.58, "C"], [9, 8.81, "D"],
+  [11, 8.33, "E"], [14, 9.96, "F"], [6, 7.24, "G"], [4, 4.26, "H"],
+  [12, 10.84, "I"], [7, 4.82, "J"], [5, 5.68, "K"],
 ];
 
 const metrics = [
@@ -144,7 +111,7 @@ function buildMapOption() {
 
 function buildLineOption() {
   return {
-    grid: { top: 30, right: 16, bottom: 28, left: 38 },
+    grid: { top: 28, right: 12, bottom: 22, left: 36 },
     tooltip: { trigger: "axis" },
     xAxis: {
       type: "category",
@@ -163,9 +130,9 @@ function buildLineOption() {
         name: "访问量",
         type: "line",
         smooth: true,
-        symbolSize: 8,
+        symbolSize: 6,
         data: monthlyTrend,
-        lineStyle: { width: 4, color: "#4de3ff" },
+        lineStyle: { width: 3, color: "#4de3ff" },
         itemStyle: { color: "#ffffff", borderColor: "#4de3ff", borderWidth: 2 },
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
@@ -180,7 +147,7 @@ function buildLineOption() {
 
 function buildBarOption() {
   return {
-    grid: { top: 22, right: 18, bottom: 28, left: 42 },
+    grid: { top: 18, right: 12, bottom: 22, left: 38 },
     tooltip: { trigger: "axis" },
     xAxis: {
       type: "category",
@@ -197,10 +164,10 @@ function buildBarOption() {
       {
         name: "贡献值",
         type: "bar",
-        barWidth: 18,
+        barWidth: 14,
         data: channelData,
         itemStyle: {
-          borderRadius: [8, 8, 0, 0],
+          borderRadius: [6, 6, 0, 0],
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
             { offset: 0, color: "#8fffca" },
             { offset: 0.5, color: "#3fdcff" },
@@ -217,19 +184,20 @@ function buildPieOption() {
     tooltip: { trigger: "item" },
     legend: {
       bottom: 0,
-      textStyle: { color: "rgba(226, 236, 255, 0.78)" },
-      itemWidth: 10,
-      itemHeight: 10,
+      textStyle: { color: "rgba(226, 236, 255, 0.78)", fontSize: 11 },
+      itemWidth: 8,
+      itemHeight: 8,
     },
     series: [
       {
         name: "终端占比",
         type: "pie",
-        radius: ["42%", "68%"],
-        center: ["50%", "44%"],
+        radius: ["38%", "62%"],
+        center: ["50%", "42%"],
         avoidLabelOverlap: true,
         label: {
           color: "#eaf7ff",
+          fontSize: 11,
           formatter: "{b}\n{d}%",
         },
         labelLine: {
@@ -237,7 +205,7 @@ function buildPieOption() {
         },
         itemStyle: {
           borderColor: "rgba(9, 22, 48, 0.95)",
-          borderWidth: 3,
+          borderWidth: 2,
         },
         data: deviceData,
       },
@@ -249,7 +217,7 @@ function buildPieOption() {
 function buildRadarOption() {
   return {
     radar: {
-      radius: "64%",
+      radius: "58%",
       indicator: [
         { name: "性能", max: 100 },
         { name: "体验", max: 100 },
@@ -257,7 +225,7 @@ function buildRadarOption() {
         { name: "稳定", max: 100 },
         { name: "扩展", max: 100 },
       ],
-      axisName: { color: "rgba(226, 236, 255, 0.82)" },
+      axisName: { color: "rgba(226, 236, 255, 0.82)", fontSize: 11 },
       splitLine,
       splitArea: {
         areaStyle: {
@@ -292,15 +260,15 @@ function buildGaugeOption() {
         endAngle: -30,
         min: 0,
         max: 100,
-        radius: "88%",
+        radius: "82%",
         progress: {
           show: true,
-          width: 16,
+          width: 12,
           itemStyle: { color: "#5bf4ff" },
         },
         axisLine: {
           lineStyle: {
-            width: 16,
+            width: 12,
             color: [[1, "rgba(114, 154, 215, 0.18)"]],
           },
         },
@@ -308,23 +276,66 @@ function buildGaugeOption() {
         splitLine: { show: false },
         axisLabel: { show: false },
         pointer: {
-          length: "58%",
-          width: 5,
+          length: "52%",
+          width: 4,
           itemStyle: { color: "#ffffff" },
         },
         anchor: {
           show: true,
-          size: 12,
+          size: 10,
           itemStyle: { color: "#ffffff" },
         },
         detail: {
           valueAnimation: true,
           formatter: "{value}%",
           color: "#f4fbff",
-          fontSize: 28,
+          fontSize: 22,
           offsetCenter: [0, "48%"],
         },
         data: [{ value: 74 }],
+      },
+    ],
+  };
+}
+
+function buildScatterOption() {
+  return {
+    grid: { top: 22, right: 14, bottom: 28, left: 36 },
+    tooltip: {
+      trigger: "item",
+      formatter: (params) => {
+        return `类别 ${params.data[2]}<br/>X: ${params.data[0]}<br/>Y: ${params.data[1]}`;
+      },
+    },
+    xAxis: {
+      type: "value",
+      axisLabel,
+      splitLine,
+      axisLine: { lineStyle: { color: "rgba(142, 181, 230, 0.28)" } },
+    },
+    yAxis: {
+      type: "value",
+      axisLabel,
+      splitLine,
+      axisLine: { lineStyle: { color: "rgba(142, 181, 230, 0.28)" } },
+    },
+    series: [
+      {
+        type: "scatter",
+        symbolSize: 14,
+        data: scatterData,
+        itemStyle: {
+          color: "#ff7bbd",
+          shadowBlur: 12,
+          shadowColor: "rgba(255, 123, 189, 0.6)",
+        },
+        emphasis: {
+          itemStyle: {
+            color: "#ff4da6",
+            borderColor: "#fff",
+            borderWidth: 2,
+          },
+        },
       },
     ],
   };
@@ -337,43 +348,59 @@ const optionBuilders = {
   pie: buildPieOption,
   radar: buildRadarOption,
   gauge: buildGaugeOption,
+  scatter: buildScatterOption,
 };
 
 function YqDistribution() {
   const chartRefs = useRef({});
+  const [currentTime, setCurrentTime] = useState("");
+
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      setCurrentTime(
+        now.toLocaleString("zh-CN", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        })
+      );
+    };
+    updateTime();
+    const timer = setInterval(updateTime, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     echarts.registerMap("china", china);
 
-    const charts = chartConfigs
-      .map(({ key }) => {
+    const charts = Object.keys(optionBuilders)
+      .map((key) => {
         const element = chartRefs.current[key];
-        if (!element) {
-          return null;
-        }
-
+        if (!element) return null;
         const chart = echarts.init(element);
         chart.setOption(optionBuilders[key]());
-        return chart;
+        return { key, chart };
       })
       .filter(Boolean);
 
     const resizeCharts = () => {
-      charts.forEach((chart) => chart.resize());
+      charts.forEach(({ chart }) => chart.resize());
     };
 
     window.addEventListener("resize", resizeCharts);
     const resizeObserver = new ResizeObserver(resizeCharts);
     Object.values(chartRefs.current).forEach((element) => {
-      if (element) {
-        resizeObserver.observe(element);
-      }
+      if (element) resizeObserver.observe(element);
     });
 
     return () => {
       window.removeEventListener("resize", resizeCharts);
       resizeObserver.disconnect();
-      charts.forEach((chart) => chart.dispose());
+      charts.forEach(({ chart }) => chart.dispose());
     };
   }, []);
 
@@ -381,21 +408,13 @@ function YqDistribution() {
     <div className="yq-distribution">
       <Header />
       <main className="chart-dashboard">
-        <section className="chart-hero">
-          <div>
-            <p className="chart-eyebrow">ECharts Dashboard</p>
-            <h1>数据可视化驾驶舱</h1>
-            <p className="chart-hero__desc">
-              以地图为核心，组合趋势、渠道、占比与能力评估，让页面从单一图表升级为可浏览的动态分析面板。
-            </p>
-          </div>
-          <div className="chart-pulse" aria-hidden="true">
-            <span />
-            <span />
-            <span />
-          </div>
-        </section>
+        {/* 顶部栏 */}
+        <header className="dash-header">
+          <h1>数据可视化驾驶舱</h1>
+          <span className="dash-time">{currentTime}</span>
+        </header>
 
+        {/* 指标行 */}
         <section className="chart-metrics" aria-label="关键指标">
           {metrics.map((item) => (
             <article className="metric-card" key={item.label}>
@@ -406,24 +425,108 @@ function YqDistribution() {
           ))}
         </section>
 
-        <section className="chart-grid">
-          {chartConfigs.map((item) => (
-            <article className={item.className} key={item.key}>
+        {/* 主体内容区：左3 | 中地图 | 右3 */}
+        <section className="dash-body">
+          {/* 左侧 3 个图表 */}
+          <div className="dash-left">
+            <article className="dash-grid-item">
               <div className="chart-card__head">
                 <div>
-                  <h2>{item.title}</h2>
-                  <p>{item.subtitle}</p>
+                  <h2>访问趋势</h2>
+                  <p>近 7 月增长曲线</p>
                 </div>
                 <i />
               </div>
               <div
                 className="chart-canvas"
-                ref={(element) => {
-                  chartRefs.current[item.key] = element;
-                }}
+                ref={(el) => { chartRefs.current.line = el; }}
               />
             </article>
-          ))}
+            <article className="dash-grid-item">
+              <div className="chart-card__head">
+                <div>
+                  <h2>渠道贡献</h2>
+                  <p>核心来源排名</p>
+                </div>
+                <i />
+              </div>
+              <div
+                className="chart-canvas"
+                ref={(el) => { chartRefs.current.bar = el; }}
+              />
+            </article>
+            <article className="dash-grid-item">
+              <div className="chart-card__head">
+                <div>
+                  <h2>终端占比</h2>
+                  <p>访问设备结构</p>
+                </div>
+                <i />
+              </div>
+              <div
+                className="chart-canvas"
+                ref={(el) => { chartRefs.current.pie = el; }}
+              />
+            </article>
+          </div>
+
+          {/* 中间地图 */}
+          <article className="dash-map">
+            <div className="chart-card__head">
+              <div>
+                <h2>全国热力分布</h2>
+                <p>实时城市活跃度</p>
+              </div>
+              <i />
+            </div>
+            <div
+              className="chart-canvas"
+              ref={(el) => { chartRefs.current.map = el; }}
+            />
+          </article>
+
+          {/* 右侧 3 个图表 */}
+          <div className="dash-left">
+            <article className="dash-grid-item">
+              <div className="chart-card__head">
+                <div>
+                  <h2>能力雷达</h2>
+                  <p>综合表现评估</p>
+                </div>
+                <i />
+              </div>
+              <div
+                className="chart-canvas"
+                ref={(el) => { chartRefs.current.radar = el; }}
+              />
+            </article>
+            <article className="dash-grid-item">
+              <div className="chart-card__head">
+                <div>
+                  <h2>转化效率</h2>
+                  <p>当前目标完成度</p>
+                </div>
+                <i />
+              </div>
+              <div
+                className="chart-canvas"
+                ref={(el) => { chartRefs.current.gauge = el; }}
+              />
+            </article>
+            <article className="dash-grid-item">
+              <div className="chart-card__head">
+                <div>
+                  <h2>分布散点</h2>
+                  <p>样本相关性分析</p>
+                </div>
+                <i />
+              </div>
+              <div
+                className="chart-canvas"
+                ref={(el) => { chartRefs.current.scatter = el; }}
+              />
+            </article>
+          </div>
         </section>
       </main>
     </div>
