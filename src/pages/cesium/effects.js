@@ -25,6 +25,7 @@ import VolumeDiffuseFireEffect from "./effect/VolumeDiffuseFireEffect";
 import VolumeDisturbLineEffect from "./effect/VolumeDisturbLineEffect";
 import AreaRainEffect from "./effect/AreaRainEffect";
 import AreaSnowEffect from "./effect/AreaSnowEffect";
+import FireworkEffect from "./effect/FireworkEffect";
 
 export const EFFECT_TYPES = [
   { key: "flame", label: "火球", color: "#ff7a18" },
@@ -56,6 +57,7 @@ export const EFFECT_TYPES = [
   { key: "glow", label: "发光", color: "#8fff6a" },
   { key: "areaRain", label: "区域下雨", color: "#88bbff" },
   { key: "areaSnow", label: "区域下雪", color: "#ffffff" },
+  { key: "firework", label: "烟花", color: "#ffaa44" },
 ];
 
 const getEffectType = (type) => EFFECT_TYPES.find((item) => item.key === type) || EFFECT_TYPES[0];
@@ -569,6 +571,21 @@ const addAreaSnowEffect = (viewer, position, color) => {
   return [snow];
 };
 
+const addFireworkEffect = (viewer, position, color) => {
+  const cartographic = Cesium.Cartographic.fromCartesian(position);
+  const firework = new FireworkEffect(viewer, {
+    longitude: Cesium.Math.toDegrees(cartographic.longitude),
+    latitude: Cesium.Math.toDegrees(cartographic.latitude),
+    height: cartographic.height + 85,
+    radius: 300000,
+    speed: 1.0,
+    color: Cesium.Color.fromCssColorString(color).withAlpha(0.9),
+    autoAnimate: true,
+    Cesium,
+  });
+  return [firework];
+};
+
 const addWallEffect = (viewer, position, color, isAlarm = false) => {
   const wallColor = Cesium.Color.fromCssColorString(color);
   const pulse = isAlarm ? null : createPulse(viewer, 2.4, 0.2, 1);
@@ -693,6 +710,7 @@ export const createWebGLEffect = (viewer, type, position, index) => {
     glow: () => addGlowEffect(viewer, position, effectType.color),
     areaRain: () => addAreaRainEffect(viewer, position, effectType.color),
     areaSnow: () => addAreaSnowEffect(viewer, position, effectType.color),
+    firework: () => addFireworkEffect(viewer, position, effectType.color),
   };
   const entities = (entityFactories[type] || entityFactories.flame)();
   const cartographic = Cesium.Cartographic.fromCartesian(position);
