@@ -11,7 +11,7 @@ const EFFECT_FILTERS = [
 ];
 
 const EFFECT_GROUPS = [
-  { key: "fire", label: "火焰", effects: ["flame", "fireball", "circleDiffuseFire"] },
+  { key: "fire", label: "火焰", effects: ["flame", "fireball", "circleDiffuseFire","volumeDiffuseFire"] },
   { key: "blast", label: "爆炸", effects: ["explosion", "circleBlast", "circleGif"] },
   { key: "smoke", label: "烟雾", effects: ["volumeSmoke"] },
   {
@@ -29,6 +29,11 @@ const EFFECT_GROUPS = [
       "circleRotateGarland",
       "circleRotateHalo",
       "circleTyphoon",
+      "circleWrapFire",
+      "electricSphere",
+      "volumeAreaLightning",
+      "volumeArrowAttack",
+      "volumeDisturbLine"
     ],
   },
   {

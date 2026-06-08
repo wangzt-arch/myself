@@ -17,6 +17,12 @@ import CircleRotateColorLineEffect from "./effect/CircleRotateColorLineEffect";
 import CircleRotateGarlandEffect from "./effect/CircleRotateGarlandEffect";
 import CircleRotateHaloEffect from "./effect/CircleRotateHaloEffect";
 import CircleTyphoonEffect from "./effect/CircleTyphoonEffect";
+import CircleWrapFireEffect from "./effect/CircleWrapFireEffect";
+import ElectricSphereEffect from "./effect/ElectricSphereEffect";
+import VolumeAreaLightningEffect from "./effect/VolumeAreaLightningEffect";
+import VolumeArrowAttackEffect from "./effect/VolumeArrowAttackEffect";
+import VolumeDiffuseFireEffect from "./effect/VolumeDiffuseFireEffect";
+import VolumeDisturbLineEffect from "./effect/VolumeDisturbLineEffect";
 
 export const EFFECT_TYPES = [
   { key: "flame", label: "火球", color: "#ff7a18" },
@@ -35,6 +41,12 @@ export const EFFECT_TYPES = [
   { key: "circleRotateGarland", label: "旋转花环", color: "#ff9d1c" },
   { key: "circleRotateHalo", label: "旋转光圈", color: "#40b7ff" },
   { key: "circleTyphoon", label: "台风云团", color: "#ff4d4d" },
+  { key: "circleWrapFire", label: "环绕火环", color: "#ff4d00" },
+  { key: "electricSphere", label: "电磁弧", color: "#00e5ff" },
+  { key: "volumeAreaLightning", label: "区域闪电", color: "#aabbff" },
+  { key: "volumeArrowAttack", label: "万箭穿心", color: "#ff3333" },
+  { key: "volumeDiffuseFire", label: "体散射火", color: "#ff6600" },
+  { key: "volumeDisturbLine", label: "干扰线域", color: "#00ff88" },
   { key: "circleFlash", label: "圆形闪烁", color: "#ffd326" },
   { key: "explosion", label: "爆炸", color: "#ffce45" },
   { key: "energyWall", label: "能量墙", color: "#00f5ff" },
@@ -427,6 +439,102 @@ const addCircleTyphoonEffect = (viewer, position, color) => {
   return [typhoon];
 };
 
+const addCircleWrapFireEffect = (viewer, position, color) => {
+  const cartographic = Cesium.Cartographic.fromCartesian(position);
+  const wrapFire = new CircleWrapFireEffect(viewer, {
+    longitude: Cesium.Math.toDegrees(cartographic.longitude),
+    latitude: Cesium.Math.toDegrees(cartographic.latitude),
+    height: cartographic.height + 75,
+    radius: 300000,
+    speed: 3.0,
+    color: Cesium.Color.fromCssColorString(color).withAlpha(0.9),
+    autoAnimate: true,
+    Cesium,
+  });
+
+  return [wrapFire];
+};
+
+const addElectricSphereEffect = (viewer, position, color) => {
+  const cartographic = Cesium.Cartographic.fromCartesian(position);
+  const electric = new ElectricSphereEffect(viewer, {
+    longitude: Cesium.Math.toDegrees(cartographic.longitude),
+    latitude: Cesium.Math.toDegrees(cartographic.latitude),
+    height: cartographic.height + 80,
+    radius: 300000,
+    speed: 3.0,
+    color: Cesium.Color.fromCssColorString(color).withAlpha(0.9),
+    autoAnimate: true,
+    Cesium,
+  });
+
+  return [electric];
+};
+
+const addVolumeAreaLightningEffect = (viewer, position, color) => {
+  const cartographic = Cesium.Cartographic.fromCartesian(position);
+  const lightning = new VolumeAreaLightningEffect(viewer, {
+    longitude: Cesium.Math.toDegrees(cartographic.longitude),
+    latitude: Cesium.Math.toDegrees(cartographic.latitude),
+    height: cartographic.height + 85,
+    radius: 300000,
+    speed: 3.0,
+    color: Cesium.Color.fromCssColorString(color).withAlpha(0.9),
+    autoAnimate: true,
+    Cesium,
+  });
+
+  return [lightning];
+};
+
+const addVolumeArrowAttackEffect = (viewer, position, color) => {
+  const cartographic = Cesium.Cartographic.fromCartesian(position);
+  const arrow = new VolumeArrowAttackEffect(viewer, {
+    longitude: Cesium.Math.toDegrees(cartographic.longitude),
+    latitude: Cesium.Math.toDegrees(cartographic.latitude),
+    height: cartographic.height + 85,
+    radius: 300000,
+    speed: 3.0,
+    color: Cesium.Color.fromCssColorString(color).withAlpha(0.9),
+    autoAnimate: true,
+    Cesium,
+  });
+
+  return [arrow];
+};
+
+const addVolumeDiffuseFireEffect = (viewer, position, color) => {
+  const cartographic = Cesium.Cartographic.fromCartesian(position);
+  const fire = new VolumeDiffuseFireEffect(viewer, {
+    longitude: Cesium.Math.toDegrees(cartographic.longitude),
+    latitude: Cesium.Math.toDegrees(cartographic.latitude),
+    height: cartographic.height + 85,
+    radius: 300000,
+    speed: 3.0,
+    color: Cesium.Color.fromCssColorString(color).withAlpha(0.9),
+    autoAnimate: true,
+    Cesium,
+  });
+
+  return [fire];
+};
+
+const addVolumeDisturbLineEffect = (viewer, position, color) => {
+  const cartographic = Cesium.Cartographic.fromCartesian(position);
+  const disturb = new VolumeDisturbLineEffect(viewer, {
+    longitude: Cesium.Math.toDegrees(cartographic.longitude),
+    latitude: Cesium.Math.toDegrees(cartographic.latitude),
+    height: cartographic.height + 85,
+    radius: 300000,
+    speed: 3.0,
+    color: Cesium.Color.fromCssColorString(color).withAlpha(0.9),
+    autoAnimate: true,
+    Cesium,
+  });
+
+  return [disturb];
+};
+
 const addWallEffect = (viewer, position, color, isAlarm = false) => {
   const wallColor = Cesium.Color.fromCssColorString(color);
   const pulse = isAlarm ? null : createPulse(viewer, 2.4, 0.2, 1);
@@ -538,6 +646,12 @@ export const createWebGLEffect = (viewer, type, position, index) => {
     circleRotateGarland: () => addCircleRotateGarlandEffect(viewer, position, effectType.color),
     circleRotateHalo: () => addCircleRotateHaloEffect(viewer, position, effectType.color),
     circleTyphoon: () => addCircleTyphoonEffect(viewer, position, effectType.color),
+    circleWrapFire: () => addCircleWrapFireEffect(viewer, position, effectType.color),
+    electricSphere: () => addElectricSphereEffect(viewer, position, effectType.color),
+    volumeAreaLightning: () => addVolumeAreaLightningEffect(viewer, position, effectType.color),
+    volumeArrowAttack: () => addVolumeArrowAttackEffect(viewer, position, effectType.color),
+    volumeDiffuseFire: () => addVolumeDiffuseFireEffect(viewer, position, effectType.color),
+    volumeDisturbLine: () => addVolumeDisturbLineEffect(viewer, position, effectType.color),
     circleFlash: () => addCircleFlashEffect(viewer, position, effectType.color),
     explosion: () => addExplosionEffect(viewer, position, effectType.color),
     energyWall: () => addWallEffect(viewer, position, effectType.color, false),
