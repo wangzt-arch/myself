@@ -4,12 +4,14 @@ import EmberSphereEffect from "./effect/EmberSphereEffect";
 import ExplosionSphereEffect from "./effect/ExplosionSphereEffect";
 import VolumeSmokeEffect from "./effect/VolumeSmokeEffect";
 import CircleBlastEffect from "./effect/CircleBlastEffect";
+import CircleWarnEffect from "./effect/CircleWarnEffect";
 
 export const EFFECT_TYPES = [
   { key: "flame", label: "火球", color: "#ff7a18" },
   { key: "fireball", label: "火焰", color: "#ff9d1c" },
   { key: "volumeSmoke", label: "\u4f53\u79ef\u70df", color: "#b6b0a8" },
   { key: "circleBlast", label: "\u5706\u5f62\u7206\u70b8", color: "#ff7a1a" },
+  { key: "circleWarn", label: "圆形预警", color: "#ff2a1f" },
   { key: "explosion", label: "爆炸", color: "#ffce45" },
   { key: "energyWall", label: "能量墙", color: "#00f5ff" },
   { key: "alarmWall", label: "警戒墙", color: "#ff4d6d" },
@@ -195,6 +197,22 @@ const addCircleBlastEffect = (viewer, position, color) => {
   return [circleBlast];
 };
 
+const addCircleWarnEffect = (viewer, position, color) => {
+  const cartographic = Cesium.Cartographic.fromCartesian(position);
+  const circleWarn = new CircleWarnEffect(viewer, {
+    longitude: Cesium.Math.toDegrees(cartographic.longitude),
+    latitude: Cesium.Math.toDegrees(cartographic.latitude),
+    height: cartographic.height + 40,
+    radius: 300000,
+    speed: 3.0,
+    color: Cesium.Color.fromCssColorString(color).withAlpha(0.95),
+    autoAnimate: true,
+    Cesium,
+  });
+
+  return [circleWarn];
+};
+
 const addWallEffect = (viewer, position, color, isAlarm = false) => {
   const wallColor = Cesium.Color.fromCssColorString(color);
   const pulse = isAlarm ? null : createPulse(viewer, 2.4, 0.2, 1);
@@ -294,6 +312,7 @@ export const createWebGLEffect = (viewer, type, position, index) => {
     fireball: () => addFireballEffect(viewer, position, effectType.color),
     volumeSmoke: () => addVolumeSmokeEffect(viewer, position, effectType.color),
     circleBlast: () => addCircleBlastEffect(viewer, position, effectType.color),
+    circleWarn: () => addCircleWarnEffect(viewer, position, effectType.color),
     explosion: () => addExplosionEffect(viewer, position, effectType.color),
     energyWall: () => addWallEffect(viewer, position, effectType.color, false),
     alarmWall: () => addWallEffect(viewer, position, effectType.color, true),

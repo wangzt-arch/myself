@@ -13,7 +13,7 @@ const EFFECT_GROUPS = [
   { key: "fire", label: "火焰", effects: ["flame", "fireball"] },
   { key: "blast", label: "爆炸", effects: ["explosion", "circleBlast"] },
   { key: "smoke", label: "烟雾", effects: ["volumeSmoke"] },
-  { key: "assist", label: "辅助", effects: ["energyWall", "alarmWall", "glow"] },
+  { key: "assist", label: "辅助", effects: ["circleWarn", "energyWall", "alarmWall", "glow"] },
 ];
 
 const EFFECT_GROUP_LABELS = EFFECT_GROUPS.reduce((labels, group) => {
