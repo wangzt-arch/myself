@@ -13,6 +13,9 @@ import CircleDiffusionEffect from "./effect/CircleDiffusionEffect";
 import CircleGifEffect from "./effect/CircleGifEffect";
 import CircleHelicalLineEffect from "./effect/CircleHelicalLineEffect";
 import CircleFlashEffect from "./effect/CircleFlashEffect";
+import CircleRotateColorLineEffect from "./effect/CircleRotateColorLineEffect";
+import CircleRotateGarlandEffect from "./effect/CircleRotateGarlandEffect";
+import CircleRotateHaloEffect from "./effect/CircleRotateHaloEffect";
 
 export const EFFECT_TYPES = [
   { key: "flame", label: "火球", color: "#ff7a18" },
@@ -27,6 +30,9 @@ export const EFFECT_TYPES = [
   { key: "circleDiffusion", label: "圆形扩散", color: "#00f5ff" },
   { key: "circleGif", label: "圆形 GIF", color: "#ff8a24" },
   { key: "circleHelicalLine", label: "螺旋线", color: "#8fff6a" },
+  { key: "circleRotateColorLine", label: "旋转彩线", color: "#8b5cff" },
+  { key: "circleRotateGarland", label: "旋转花环", color: "#ff9d1c" },
+  { key: "circleRotateHalo", label: "旋转光圈", color: "#40b7ff" },
   { key: "circleFlash", label: "圆形闪烁", color: "#ffd326" },
   { key: "explosion", label: "爆炸", color: "#ffce45" },
   { key: "energyWall", label: "能量墙", color: "#00f5ff" },
@@ -355,6 +361,54 @@ const addCircleFlashEffect = (viewer, position, color) => {
   return [circleFlash];
 };
 
+const addCircleRotateColorLineEffect = (viewer, position, color) => {
+  const cartographic = Cesium.Cartographic.fromCartesian(position);
+  const rotateColorLine = new CircleRotateColorLineEffect(viewer, {
+    longitude: Cesium.Math.toDegrees(cartographic.longitude),
+    latitude: Cesium.Math.toDegrees(cartographic.latitude),
+    height: cartographic.height + 75,
+    radius: 300000,
+    speed: 3.0,
+    color: Cesium.Color.fromCssColorString(color).withAlpha(0.95),
+    autoAnimate: true,
+    Cesium,
+  });
+
+  return [rotateColorLine];
+};
+
+const addCircleRotateGarlandEffect = (viewer, position, color) => {
+  const cartographic = Cesium.Cartographic.fromCartesian(position);
+  const rotateGarland = new CircleRotateGarlandEffect(viewer, {
+    longitude: Cesium.Math.toDegrees(cartographic.longitude),
+    latitude: Cesium.Math.toDegrees(cartographic.latitude),
+    height: cartographic.height + 80,
+    radius: 300000,
+    speed: 3.0,
+    color: Cesium.Color.fromCssColorString(color).withAlpha(0.92),
+    autoAnimate: true,
+    Cesium,
+  });
+
+  return [rotateGarland];
+};
+
+const addCircleRotateHaloEffect = (viewer, position, color) => {
+  const cartographic = Cesium.Cartographic.fromCartesian(position);
+  const rotateHalo = new CircleRotateHaloEffect(viewer, {
+    longitude: Cesium.Math.toDegrees(cartographic.longitude),
+    latitude: Cesium.Math.toDegrees(cartographic.latitude),
+    height: cartographic.height + 85,
+    radius: 300000,
+    speed: 3.0,
+    color: Cesium.Color.fromCssColorString(color).withAlpha(0.9),
+    autoAnimate: true,
+    Cesium,
+  });
+
+  return [rotateHalo];
+};
+
 const addWallEffect = (viewer, position, color, isAlarm = false) => {
   const wallColor = Cesium.Color.fromCssColorString(color);
   const pulse = isAlarm ? null : createPulse(viewer, 2.4, 0.2, 1);
@@ -462,6 +516,9 @@ export const createWebGLEffect = (viewer, type, position, index) => {
     circleDiffusion: () => addCircleDiffusionEffect(viewer, position, effectType.color),
     circleGif: () => addCircleGifEffect(viewer, position),
     circleHelicalLine: () => addCircleHelicalLineEffect(viewer, position, effectType.color),
+    circleRotateColorLine: () => addCircleRotateColorLineEffect(viewer, position, effectType.color),
+    circleRotateGarland: () => addCircleRotateGarlandEffect(viewer, position, effectType.color),
+    circleRotateHalo: () => addCircleRotateHaloEffect(viewer, position, effectType.color),
     circleFlash: () => addCircleFlashEffect(viewer, position, effectType.color),
     explosion: () => addExplosionEffect(viewer, position, effectType.color),
     energyWall: () => addWallEffect(viewer, position, effectType.color, false),

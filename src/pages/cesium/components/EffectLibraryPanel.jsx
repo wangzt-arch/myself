@@ -27,6 +27,9 @@ const EFFECT_GROUPS = [
       "energyWall",
       "alarmWall",
       "glow",
+      "circleRotateColorLine",
+      "circleRotateGarland",
+      "circleRotateHalo"
     ],
   },
 ];
