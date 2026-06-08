@@ -38,7 +38,7 @@ export const EFFECT_TYPES = [
   { key: "circleDisturb", label: "干扰圈", color: "#54d7ff" },
   { key: "circleElectricArea", label: "电域", color: "#40b7ff" },
   { key: "circleDiffusion", label: "圆形扩散", color: "#00f5ff" },
-  { key: "circleGif", label: "圆形 GIF", color: "#ff8a24" },
+  { key: "circleGif", label: "静态爆炸", color: "#ff8a24" },
   { key: "circleHelicalLine", label: "螺旋线", color: "#8fff6a" },
   { key: "circleRotateColorLine", label: "旋转彩线", color: "#8b5cff" },
   { key: "circleRotateGarland", label: "旋转花环", color: "#ff9d1c" },
@@ -54,7 +54,7 @@ export const EFFECT_TYPES = [
   { key: "explosion", label: "爆炸", color: "#ffce45" },
   { key: "energyWall", label: "能量墙", color: "#00f5ff" },
   { key: "alarmWall", label: "警戒墙", color: "#ff4d6d" },
-  { key: "glow", label: "发光", color: "#8fff6a" },
+  { key: "glow", label: "彩虹墙", color: "#8fff6a" },
   { key: "areaRain", label: "区域下雨", color: "#88bbff" },
   { key: "areaSnow", label: "区域下雪", color: "#ffffff" },
   { key: "firework", label: "烟花", color: "#ffaa44" },
@@ -644,35 +644,57 @@ const addWallEffect = (viewer, position, color, isAlarm = false) => {
 };
 
 const addGlowEffect = (viewer, position, color) => {
-  const glowColor = Cesium.Color.fromCssColorString(color);
-  const pulse = createPulse(viewer, 1.6, 0.2, 1);
+  // color parameter kept for API consistency, rainbow gradient used internally
+  void color;
+  const halfWidth = 220000;
+  const wallHeight = 270000;
+  const positions = createSingleWallPositions(position, halfWidth);
+
+  // Rainbow gradient: red -> orange -> yellow -> green -> cyan -> blue -> purple (top to bottom)
+  const rainbowColors = [
+    { r: 255, g: 0, b: 0 },      // red (top)
+    { r: 255, g: 127, b: 0 },    // orange
+    { r: 255, g: 255, b: 0 },    // yellow
+    { r: 0, g: 255, b: 0 },      // green
+    { r: 0, g: 255, b: 255 },    // cyan
+    { r: 0, g: 0, b: 255 },      // blue
+    { r: 128, g: 0, b: 128 },    // purple (bottom)
+  ];
+
+  // Create gradient texture for wall material
+  const createGradientTexture = () => {
+    if (typeof document === "undefined") return "";
+    const canvas = document.createElement("canvas");
+    canvas.width = 64;
+    canvas.height = 512;
+    const ctx = canvas.getContext("2d");
+
+    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    const step = 1.0 / (rainbowColors.length - 1);
+    for (let i = 0; i < rainbowColors.length; i++) {
+      const c = rainbowColors[i];
+      gradient.addColorStop(i * step, `rgba(${c.r}, ${c.g}, ${c.b}, 0.7)`);
+    }
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    return canvas.toDataURL("image/png");
+  };
 
   return [
     viewer.entities.add({
-      name: "WebGL Glow Point",
-      position,
-      point: {
-        pixelSize: new Cesium.CallbackProperty(() => 16 + pulse.getValue() * 18, false),
-        color: new Cesium.CallbackProperty(() => (
-          glowColor.withAlpha(0.55 + pulse.getValue() * 0.35)
-        ), false),
-        outlineColor: Cesium.Color.WHITE.withAlpha(0.82),
-        outlineWidth: 2,
-        disableDepthTestDistance: Number.POSITIVE_INFINITY,
-      },
-    }),
-    viewer.entities.add({
-      name: "WebGL Glow Disc",
-      position,
-      ellipse: {
-        semiMajorAxis: new Cesium.CallbackProperty(() => 90000 + pulse.getValue() * 150000, false),
-        semiMinorAxis: new Cesium.CallbackProperty(() => 90000 + pulse.getValue() * 150000, false),
-        height: 900,
-        material: new Cesium.ColorMaterialProperty(new Cesium.CallbackProperty(() => (
-          glowColor.withAlpha(0.1 + pulse.getValue() * 0.18)
-        ), false)),
-        outline: true,
-        outlineColor: glowColor.withAlpha(0.7),
+      name: "WebGL Gradient Wall",
+      wall: {
+        positions,
+        minimumHeights: positions.map(() => 0),
+        maximumHeights: positions.map(() => wallHeight),
+        material: new Cesium.ImageMaterialProperty({
+          image: createGradientTexture(),
+          transparent: true,
+          repeat: new Cesium.Cartesian2(1, 1),
+        }),
+        outline: false,
       },
     }),
   ];
