@@ -16,6 +16,7 @@ import CircleFlashEffect from "./effect/CircleFlashEffect";
 import CircleRotateColorLineEffect from "./effect/CircleRotateColorLineEffect";
 import CircleRotateGarlandEffect from "./effect/CircleRotateGarlandEffect";
 import CircleRotateHaloEffect from "./effect/CircleRotateHaloEffect";
+import CircleTyphoonEffect from "./effect/CircleTyphoonEffect";
 
 export const EFFECT_TYPES = [
   { key: "flame", label: "火球", color: "#ff7a18" },
@@ -33,6 +34,7 @@ export const EFFECT_TYPES = [
   { key: "circleRotateColorLine", label: "旋转彩线", color: "#8b5cff" },
   { key: "circleRotateGarland", label: "旋转花环", color: "#ff9d1c" },
   { key: "circleRotateHalo", label: "旋转光圈", color: "#40b7ff" },
+  { key: "circleTyphoon", label: "台风云团", color: "#ff4d4d" },
   { key: "circleFlash", label: "圆形闪烁", color: "#ffd326" },
   { key: "explosion", label: "爆炸", color: "#ffce45" },
   { key: "energyWall", label: "能量墙", color: "#00f5ff" },
@@ -409,6 +411,22 @@ const addCircleRotateHaloEffect = (viewer, position, color) => {
   return [rotateHalo];
 };
 
+const addCircleTyphoonEffect = (viewer, position, color) => {
+  const cartographic = Cesium.Cartographic.fromCartesian(position);
+  const typhoon = new CircleTyphoonEffect(viewer, {
+    longitude: Cesium.Math.toDegrees(cartographic.longitude),
+    latitude: Cesium.Math.toDegrees(cartographic.latitude),
+    height: cartographic.height + 90,
+    radius: 300000,
+    speed: 3.0,
+    color: Cesium.Color.fromCssColorString(color).withAlpha(0.9),
+    autoAnimate: true,
+    Cesium,
+  });
+
+  return [typhoon];
+};
+
 const addWallEffect = (viewer, position, color, isAlarm = false) => {
   const wallColor = Cesium.Color.fromCssColorString(color);
   const pulse = isAlarm ? null : createPulse(viewer, 2.4, 0.2, 1);
@@ -519,6 +537,7 @@ export const createWebGLEffect = (viewer, type, position, index) => {
     circleRotateColorLine: () => addCircleRotateColorLineEffect(viewer, position, effectType.color),
     circleRotateGarland: () => addCircleRotateGarlandEffect(viewer, position, effectType.color),
     circleRotateHalo: () => addCircleRotateHaloEffect(viewer, position, effectType.color),
+    circleTyphoon: () => addCircleTyphoonEffect(viewer, position, effectType.color),
     circleFlash: () => addCircleFlashEffect(viewer, position, effectType.color),
     explosion: () => addExplosionEffect(viewer, position, effectType.color),
     energyWall: () => addWallEffect(viewer, position, effectType.color, false),

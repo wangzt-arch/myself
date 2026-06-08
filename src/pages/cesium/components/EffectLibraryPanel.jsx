@@ -6,7 +6,8 @@ const EFFECT_FILTERS = [
   { key: "fire", label: "火焰" },
   { key: "blast", label: "爆炸" },
   { key: "smoke", label: "烟雾" },
-  { key: "assist", label: "辅助" },
+  { key: "circle", label: "光环" },
+  { key: "wall", label: "墙体" },
 ];
 
 const EFFECT_GROUPS = [
@@ -14,23 +15,26 @@ const EFFECT_GROUPS = [
   { key: "blast", label: "爆炸", effects: ["explosion", "circleBlast", "circleGif"] },
   { key: "smoke", label: "烟雾", effects: ["volumeSmoke"] },
   {
-    key: "assist",
-    label: "辅助",
+    key: "circle",
+    label: "光环",
     effects: [
       "circleWarn",
       "circleBlur",
+      "circleDiffusion",
       "circleDisturb",
       "circleElectricArea",
-      "circleDiffusion",
       "circleHelicalLine",
       "circleFlash",
-      "energyWall",
-      "alarmWall",
-      "glow",
       "circleRotateColorLine",
       "circleRotateGarland",
-      "circleRotateHalo"
+      "circleRotateHalo",
+      "circleTyphoon",
     ],
+  },
+  {
+    key: "wall",
+    label: "墙体",
+    effects: ["energyWall", "alarmWall", "glow"],
   },
 ];
 
