@@ -62,14 +62,15 @@ class VolumeAreaLightningEffect {
       }
 
       float lightningBolt(float x, float y, float t) {
-        float n = fbm(vec2(t * 3.0, y * 4.0));
-        float lx = n * 0.4 - 0.2;
+        // More curved: use higher frequency noise with larger amplitude
+        float n1 = fbm(vec2(t * 5.0, y * 6.0));
+        float n2 = fbm(vec2(t * 3.0 + 100.0, y * 8.0 + 50.0));
+        float lx = (n1 * 0.5 + n2 * 0.3) - 0.4;
         float d = abs(x - lx);
-        float mainBolt = smoothstep(0.05, 0.0, d);
-        float branch = smoothstep(0.025, 0.0, abs(x - lx * 0.6 + 0.15)) * 0.4;
-        float branch2 = smoothstep(0.02, 0.0, abs(x - lx * 1.4 - 0.1)) * 0.25;
-        float edgeFade = smoothstep(0.0, 0.15, y) * smoothstep(1.0, 0.85, y);
-        return (mainBolt + branch + branch2) * edgeFade;
+        // Thinner line
+        float mainBolt = smoothstep(0.025, 0.0, d);
+        float edgeFade = smoothstep(0.0, 0.1, y) * smoothstep(1.0, 0.9, y);
+        return mainBolt * edgeFade;
       }
 
       czm_material czm_getMaterial(czm_materialInput materialInput) {
@@ -87,8 +88,8 @@ class VolumeAreaLightningEffect {
         // Lightning bolt
         float l = lightningBolt(x, y, t);
 
-        // Flash effect - high frequency
-        float flash = step(0.82, hash(vec2(floor(t * 8.0), 0.0)));
+        // Flash effect - high frequency, almost always on
+        float flash = step(0.5, hash(vec2(floor(t * 8.0), 0.0)));
         l *= flash;
 
         // Edge glow fade
@@ -150,12 +151,14 @@ class VolumeAreaLightningEffect {
     const { longitude, latitude, height } = this.options;
     this.position = CesiumRef.Cartesian3.fromDegrees(longitude, latitude, height);
 
-    // BoxGeometry with MaterialAppearance - NO custom vertex/fragment shaders
-    // Use default POSITION_NORMAL_AND_ST vertexFormat which is fully compatible
+    // BoxGeometry generates 'position', 'normal', 'st' attributes.
+    // MaterialAppearance's default vertex shader expects 'position3DHigh'/'position3DLow'
+    // which BoxGeometry does NOT provide. So we MUST provide custom vertex/fragment shaders
+    // that use 'position' instead, and set vertexFormat to POSITION_NORMAL_AND_ST.
     this.primitive = new CesiumRef.Primitive({
       geometryInstances: new CesiumRef.GeometryInstance({
         geometry: CesiumRef.BoxGeometry.fromDimensions({
-          vertexFormat: CesiumRef.MaterialAppearance.VERTEX_FORMAT,
+          vertexFormat: CesiumRef.VertexFormat.POSITION_NORMAL_AND_ST,
           dimensions: new CesiumRef.Cartesian3(1.0, 1.0, 1.0),
         }),
       }),
@@ -163,6 +166,55 @@ class VolumeAreaLightningEffect {
         material: this.material,
         translucent: true,
         closed: true,
+        vertexFormat: CesiumRef.VertexFormat.POSITION_NORMAL_AND_ST,
+        vertexShaderSource: `
+          in vec3 position3DHigh;
+          in vec3 position3DLow;
+          in vec3 normal;
+          in vec2 st;
+          in float batchId;
+
+          out vec3 v_positionEC;
+          out vec3 v_normalEC;
+          out vec2 v_st;
+          out vec3 v_normalMC;
+
+          void main()
+          {
+              vec4 p = czm_computePosition();
+              v_positionEC = (czm_modelViewRelativeToEye * p).xyz;
+              v_normalEC = czm_normal * normal;
+              v_normalMC = normal;
+              v_st = st;
+              gl_Position = czm_modelViewProjectionRelativeToEye * p;
+          }
+        `,
+        fragmentShaderSource: `
+          in vec3 v_positionEC;
+          in vec3 v_normalEC;
+          in vec2 v_st;
+          in vec3 v_normalMC;
+
+          void main()
+          {
+              vec3 positionToEyeEC = -v_positionEC;
+              vec3 normalEC = normalize(v_normalEC);
+
+              // Only show lightning on one vertical face (+X face, normal = (1,0,0))
+              float isTargetFace = step(0.9, v_normalMC.x);
+
+              czm_materialInput materialInput;
+              materialInput.normalEC = normalEC;
+              materialInput.positionToEyeEC = positionToEyeEC;
+              materialInput.st = v_st;
+
+              czm_material material = czm_getMaterial(materialInput);
+
+              // Only render lightning on target face, other faces are transparent
+              float alpha = material.alpha * isTargetFace;
+              out_FragColor = vec4(material.diffuse + material.emission, alpha);
+          }
+        `,
       }),
       asynchronous: false,
       show: true,
