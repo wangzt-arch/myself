@@ -154,39 +154,15 @@ class BallOfFireEffect {
     const { longitude, latitude, height, radius, heightOffset } = this.options;
     const targetHeight = height !== undefined ? height : radius * heightOffset;
     const flameHeight = radius * 1.48;
-    const flameWidth = radius * 1.58;
-    const position = CesiumRef.Cartesian3.fromDegrees(longitude, latitude, targetHeight + flameHeight * 0.5);
-    const modelMatrix = CesiumRef.Transforms.eastNorthUpToFixedFrame(position);
+    void flameHeight;
+    this.position = CesiumRef.Cartesian3.fromDegrees(longitude, latitude, targetHeight + radius * 1.58 * 0.5);
 
-    const createPlaneInstance = (angle) => {
-      const verticalRotation = CesiumRef.Matrix3.fromRotationX(CesiumRef.Math.PI_OVER_TWO);
-      const spinRotation = CesiumRef.Matrix3.fromRotationZ(angle);
-      const rotation = CesiumRef.Matrix3.multiply(spinRotation, verticalRotation, new CesiumRef.Matrix3());
-      const rotationMatrix = CesiumRef.Matrix4.fromRotationTranslation(rotation);
-      const scaleMatrix = CesiumRef.Matrix4.fromScale(new CesiumRef.Cartesian3(flameWidth, flameHeight, 1.0));
-      const localMatrix = CesiumRef.Matrix4.multiply(rotationMatrix, scaleMatrix, new CesiumRef.Matrix4());
-      const instanceMatrix = CesiumRef.Matrix4.multiply(modelMatrix, localMatrix, new CesiumRef.Matrix4());
-
-      return new CesiumRef.GeometryInstance({
+    this.primitive = new CesiumRef.Primitive({
+      geometryInstances: new CesiumRef.GeometryInstance({
         geometry: new CesiumRef.PlaneGeometry({
           vertexFormat: CesiumRef.MaterialAppearance.MaterialSupport.TEXTURED.vertexFormat,
         }),
-        modelMatrix: instanceMatrix,
-      });
-    };
-
-    const createConeInstance = () => new CesiumRef.GeometryInstance({
-      geometry: this._createFlameConeGeometry(CesiumRef, flameWidth * 0.78, flameHeight),
-      modelMatrix,
-    });
-
-    this.primitive = new CesiumRef.Primitive({
-      geometryInstances: [
-        ...Array.from({ length: 8 }, (_, index) => (
-          createPlaneInstance(index * CesiumRef.Math.PI / 8.0)
-        )),
-        createConeInstance(),
-      ],
+      }),
       appearance: new CesiumRef.MaterialAppearance({
         material: this.material,
         translucent: true,
@@ -200,7 +176,63 @@ class BallOfFireEffect {
       asynchronous: false,
     });
 
+    this._syncPrimitive();
     this.viewer.scene.primitives.add(this.primitive);
+  }
+
+  _syncPrimitive() {
+    if (!this.primitive || !this.position) return;
+
+    const CesiumRef = this._getCesium();
+    const { radius } = this.options;
+    const flameHeight = radius * 1.48;
+    const flameWidth = radius * 1.58;
+
+    // Get camera position and compute direction to face camera
+    const camera = this.viewer.camera;
+    const cameraPos = camera.positionWC;
+
+    // Compute vector from position to camera
+    const toCamera = CesiumRef.Cartesian3.subtract(cameraPos, this.position, new CesiumRef.Cartesian3());
+    CesiumRef.Cartesian3.normalize(toCamera, toCamera);
+
+    // Build rotation matrix that makes plane face the camera
+    // Plane normal (Z axis) should point to camera
+    const zAxis = toCamera;
+
+    // Choose up vector
+    const up = CesiumRef.Cartesian3.normalize(this.position, new CesiumRef.Cartesian3());
+
+    // Compute xAxis = up × zAxis
+    const xAxis = CesiumRef.Cartesian3.cross(up, zAxis, new CesiumRef.Cartesian3());
+    if (CesiumRef.Cartesian3.magnitude(xAxis) < 0.001) {
+      CesiumRef.Cartesian3.clone(CesiumRef.Cartesian3.UNIT_X, xAxis);
+    }
+    CesiumRef.Cartesian3.normalize(xAxis, xAxis);
+
+    // Compute yAxis = zAxis × xAxis
+    const yAxis = CesiumRef.Cartesian3.cross(zAxis, xAxis, new CesiumRef.Cartesian3());
+    CesiumRef.Cartesian3.normalize(yAxis, yAxis);
+
+    // Build rotation matrix (plane faces camera)
+    const rotationMatrix = CesiumRef.Matrix4.fromRotationTranslation(
+      new CesiumRef.Matrix3(
+        xAxis.x, yAxis.x, zAxis.x,
+        xAxis.y, yAxis.y, zAxis.y,
+        xAxis.z, yAxis.z, zAxis.z
+      )
+    );
+
+    // Translation to position
+    const translationMatrix = CesiumRef.Matrix4.fromTranslation(this.position);
+
+    // Scale
+    const scaleMatrix = CesiumRef.Matrix4.fromScale(new CesiumRef.Cartesian3(flameWidth, flameHeight, 1.0));
+
+    // Combine: translation * rotation * scale
+    let modelMatrix = CesiumRef.Matrix4.multiply(translationMatrix, rotationMatrix, new CesiumRef.Matrix4());
+    modelMatrix = CesiumRef.Matrix4.multiply(modelMatrix, scaleMatrix, modelMatrix);
+    this.primitive.modelMatrix = modelMatrix;
   }
 
   _createFlameConeGeometry(CesiumRef, diameter, height) {
@@ -312,6 +344,7 @@ class BallOfFireEffect {
     this.animationListener = this.viewer.scene.preRender.addEventListener(() => {
       if (this.isDestroyed) return;
       this.material.uniforms.time = (Date.now() - this.startTime) / 1000;
+      this._syncPrimitive();
     });
   }
 
