@@ -11,7 +11,7 @@ const EFFECT_FILTERS = [
 
 const EFFECT_GROUPS = [
   { key: "fire", label: "火焰", effects: ["flame", "fireball", "circleDiffuseFire"] },
-  { key: "blast", label: "爆炸", effects: ["explosion", "circleBlast"] },
+  { key: "blast", label: "爆炸", effects: ["explosion", "circleBlast", "circleGif"] },
   { key: "smoke", label: "烟雾", effects: ["volumeSmoke"] },
   {
     key: "assist",
@@ -22,6 +22,8 @@ const EFFECT_GROUPS = [
       "circleDisturb",
       "circleElectricArea",
       "circleDiffusion",
+      "circleHelicalLine",
+      "circleFlash",
       "energyWall",
       "alarmWall",
       "glow",

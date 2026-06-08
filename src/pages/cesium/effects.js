@@ -10,6 +10,9 @@ import CircleDiffuseFireEffect from "./effect/CircleDiffuseFireEffect";
 import CircleDisturbEffect from "./effect/CircleDisturbEffect";
 import CircleElectricAreaEffect from "./effect/CircleElectricAreaEffect";
 import CircleDiffusionEffect from "./effect/CircleDiffusionEffect";
+import CircleGifEffect from "./effect/CircleGifEffect";
+import CircleHelicalLineEffect from "./effect/CircleHelicalLineEffect";
+import CircleFlashEffect from "./effect/CircleFlashEffect";
 
 export const EFFECT_TYPES = [
   { key: "flame", label: "火球", color: "#ff7a18" },
@@ -22,6 +25,9 @@ export const EFFECT_TYPES = [
   { key: "circleDisturb", label: "干扰圈", color: "#54d7ff" },
   { key: "circleElectricArea", label: "电域", color: "#40b7ff" },
   { key: "circleDiffusion", label: "圆形扩散", color: "#00f5ff" },
+  { key: "circleGif", label: "圆形 GIF", color: "#ff8a24" },
+  { key: "circleHelicalLine", label: "螺旋线", color: "#8fff6a" },
+  { key: "circleFlash", label: "圆形闪烁", color: "#ffd326" },
   { key: "explosion", label: "爆炸", color: "#ffce45" },
   { key: "energyWall", label: "能量墙", color: "#00f5ff" },
   { key: "alarmWall", label: "警戒墙", color: "#ff4d6d" },
@@ -303,6 +309,52 @@ const addCircleDiffusionEffect = (viewer, position, color) => {
   return [diffusion];
 };
 
+const addCircleGifEffect = (viewer, position) => {
+  const cartographic = Cesium.Cartographic.fromCartesian(position);
+  const circleGif = new CircleGifEffect(viewer, {
+    longitude: Cesium.Math.toDegrees(cartographic.longitude),
+    latitude: Cesium.Math.toDegrees(cartographic.latitude),
+    height: cartographic.height + 60,
+    radius: 300000,
+    speed: 1.0,
+    Cesium,
+  });
+
+  return [circleGif];
+};
+
+const addCircleHelicalLineEffect = (viewer, position, color) => {
+  const cartographic = Cesium.Cartographic.fromCartesian(position);
+  const helicalLine = new CircleHelicalLineEffect(viewer, {
+    longitude: Cesium.Math.toDegrees(cartographic.longitude),
+    latitude: Cesium.Math.toDegrees(cartographic.latitude),
+    height: cartographic.height + 65,
+    radius: 300000,
+    speed: 3.0,
+    color: Cesium.Color.fromCssColorString(color).withAlpha(0.9),
+    autoAnimate: true,
+    Cesium,
+  });
+
+  return [helicalLine];
+};
+
+const addCircleFlashEffect = (viewer, position, color) => {
+  const cartographic = Cesium.Cartographic.fromCartesian(position);
+  const circleFlash = new CircleFlashEffect(viewer, {
+    longitude: Cesium.Math.toDegrees(cartographic.longitude),
+    latitude: Cesium.Math.toDegrees(cartographic.latitude),
+    height: cartographic.height + 70,
+    radius: 300000,
+    speed: 3.0,
+    color: Cesium.Color.fromCssColorString(color).withAlpha(0.9),
+    autoAnimate: true,
+    Cesium,
+  });
+
+  return [circleFlash];
+};
+
 const addWallEffect = (viewer, position, color, isAlarm = false) => {
   const wallColor = Cesium.Color.fromCssColorString(color);
   const pulse = isAlarm ? null : createPulse(viewer, 2.4, 0.2, 1);
@@ -408,6 +460,9 @@ export const createWebGLEffect = (viewer, type, position, index) => {
     circleDisturb: () => addCircleDisturbEffect(viewer, position, effectType.color),
     circleElectricArea: () => addCircleElectricAreaEffect(viewer, position, effectType.color),
     circleDiffusion: () => addCircleDiffusionEffect(viewer, position, effectType.color),
+    circleGif: () => addCircleGifEffect(viewer, position),
+    circleHelicalLine: () => addCircleHelicalLineEffect(viewer, position, effectType.color),
+    circleFlash: () => addCircleFlashEffect(viewer, position, effectType.color),
     explosion: () => addExplosionEffect(viewer, position, effectType.color),
     energyWall: () => addWallEffect(viewer, position, effectType.color, false),
     alarmWall: () => addWallEffect(viewer, position, effectType.color, true),
