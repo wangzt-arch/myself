@@ -2,7 +2,7 @@ import * as Cesium from "cesium";
 import explosionNoise from "./explosion_noise.png";
 
 /**
- * CircleBlastEffect - circular volumetric explosion burst.
+ * CircleBlastEffect - circular volumetric explosion burst. [trigger-rebuild]
  *
  * Adapted from the referenced CircleBlast primitive: screen-space raymarching,
  * pixel-radius scaling, and a timed blast cycle.
@@ -306,10 +306,7 @@ class CircleBlastEffect {
 
   _getWindowCoordinates() {
     const CesiumRef = this._getCesium();
-    if (CesiumRef.SceneTransforms.wgs84ToWindowCoordinates) {
-      return CesiumRef.SceneTransforms.wgs84ToWindowCoordinates(this.viewer.scene, this.position);
-    }
-    if (CesiumRef.SceneTransforms.worldToWindowCoordinates) {
+    if (CesiumRef.SceneTransforms && CesiumRef.SceneTransforms.worldToWindowCoordinates) {
       return CesiumRef.SceneTransforms.worldToWindowCoordinates(this.viewer.scene, this.position);
     }
     return undefined;

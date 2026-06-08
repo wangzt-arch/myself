@@ -2,7 +2,7 @@ import * as Cesium from "cesium";
 import smokeNoise from "./smoke_noise.png";
 
 /**
- * VolumeSmokeEffect - Shadertoy-style volumetric smoke primitive.
+ * VolumeSmokeEffect - Shadertoy-style volumetric smoke primitive. [trigger-rebuild]
  *
  * Ported from the referenced VolumeSmoke implementation: it renders an
  * ellipsoid with a screen-space raymarching material and keeps its world size
@@ -307,10 +307,7 @@ class VolumeSmokeEffect {
 
   _getWindowCoordinates() {
     const CesiumRef = this._getCesium();
-    if (CesiumRef.SceneTransforms.wgs84ToWindowCoordinates) {
-      return CesiumRef.SceneTransforms.wgs84ToWindowCoordinates(this.viewer.scene, this.position);
-    }
-    if (CesiumRef.SceneTransforms.worldToWindowCoordinates) {
+    if (CesiumRef.SceneTransforms && CesiumRef.SceneTransforms.worldToWindowCoordinates) {
       return CesiumRef.SceneTransforms.worldToWindowCoordinates(this.viewer.scene, this.position);
     }
     return undefined;

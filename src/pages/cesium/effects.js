@@ -40,7 +40,7 @@ export const EFFECT_TYPES = [
   { key: "circleRotateColorLine", label: "旋转彩线", color: "#8b5cff" },
   { key: "circleRotateGarland", label: "旋转花环", color: "#ff9d1c" },
   { key: "circleRotateHalo", label: "旋转光圈", color: "#40b7ff" },
-  { key: "circleTyphoon", label: "台风云团", color: "#ff4d4d" },
+  { key: "circleTyphoon", label: "台风云团", color: "#8d8b8b" },
   { key: "circleWrapFire", label: "环绕火环", color: "#ff4d00" },
   { key: "electricSphere", label: "电磁弧", color: "#00e5ff" },
   { key: "volumeAreaLightning", label: "区域闪电", color: "#aabbff" },

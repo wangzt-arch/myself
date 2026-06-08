@@ -176,9 +176,7 @@ class VolumeDisturbLineEffect {
       if (this.isDestroyed || !this.material) return;
       const CesiumRef = this._getCesium();
       let px;
-      if (CesiumRef.SceneTransforms.wgs84ToWindowCoordinates) {
-        px = CesiumRef.SceneTransforms.wgs84ToWindowCoordinates(this.viewer.scene, this.position);
-      } else if (CesiumRef.SceneTransforms.worldToWindowCoordinates) {
+      if (CesiumRef.SceneTransforms && CesiumRef.SceneTransforms.worldToWindowCoordinates) {
         px = CesiumRef.SceneTransforms.worldToWindowCoordinates(this.viewer.scene, this.position);
       }
       if (px) {
