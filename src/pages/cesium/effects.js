@@ -23,6 +23,8 @@ import VolumeAreaLightningEffect from "./effect/VolumeAreaLightningEffect";
 import VolumeArrowAttackEffect from "./effect/VolumeArrowAttackEffect";
 import VolumeDiffuseFireEffect from "./effect/VolumeDiffuseFireEffect";
 import VolumeDisturbLineEffect from "./effect/VolumeDisturbLineEffect";
+import AreaRainEffect from "./effect/AreaRainEffect";
+import AreaSnowEffect from "./effect/AreaSnowEffect";
 
 export const EFFECT_TYPES = [
   { key: "flame", label: "火球", color: "#ff7a18" },
@@ -52,6 +54,8 @@ export const EFFECT_TYPES = [
   { key: "energyWall", label: "能量墙", color: "#00f5ff" },
   { key: "alarmWall", label: "警戒墙", color: "#ff4d6d" },
   { key: "glow", label: "发光", color: "#8fff6a" },
+  { key: "areaRain", label: "区域下雨", color: "#88bbff" },
+  { key: "areaSnow", label: "区域下雪", color: "#ffffff" },
 ];
 
 const getEffectType = (type) => EFFECT_TYPES.find((item) => item.key === type) || EFFECT_TYPES[0];
@@ -535,6 +539,36 @@ const addVolumeDisturbLineEffect = (viewer, position, color) => {
   return [disturb];
 };
 
+const addAreaRainEffect = (viewer, position, color) => {
+  const cartographic = Cesium.Cartographic.fromCartesian(position);
+  const rain = new AreaRainEffect(viewer, {
+    longitude: Cesium.Math.toDegrees(cartographic.longitude),
+    latitude: Cesium.Math.toDegrees(cartographic.latitude),
+    height: cartographic.height + 85,
+    radius: 300000,
+    speed: 2.0,
+    color: Cesium.Color.fromCssColorString(color).withAlpha(0.7),
+    autoAnimate: true,
+    Cesium,
+  });
+  return [rain];
+};
+
+const addAreaSnowEffect = (viewer, position, color) => {
+  const cartographic = Cesium.Cartographic.fromCartesian(position);
+  const snow = new AreaSnowEffect(viewer, {
+    longitude: Cesium.Math.toDegrees(cartographic.longitude),
+    latitude: Cesium.Math.toDegrees(cartographic.latitude),
+    height: cartographic.height + 85,
+    radius: 300000,
+    speed: 1.0,
+    color: Cesium.Color.fromCssColorString(color).withAlpha(0.8),
+    autoAnimate: true,
+    Cesium,
+  });
+  return [snow];
+};
+
 const addWallEffect = (viewer, position, color, isAlarm = false) => {
   const wallColor = Cesium.Color.fromCssColorString(color);
   const pulse = isAlarm ? null : createPulse(viewer, 2.4, 0.2, 1);
@@ -657,6 +691,8 @@ export const createWebGLEffect = (viewer, type, position, index) => {
     energyWall: () => addWallEffect(viewer, position, effectType.color, false),
     alarmWall: () => addWallEffect(viewer, position, effectType.color, true),
     glow: () => addGlowEffect(viewer, position, effectType.color),
+    areaRain: () => addAreaRainEffect(viewer, position, effectType.color),
+    areaSnow: () => addAreaSnowEffect(viewer, position, effectType.color),
   };
   const entities = (entityFactories[type] || entityFactories.flame)();
   const cartographic = Cesium.Cartographic.fromCartesian(position);

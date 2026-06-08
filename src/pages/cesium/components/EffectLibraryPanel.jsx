@@ -7,6 +7,7 @@ const EFFECT_FILTERS = [
   { key: "blast", label: "爆炸" },
   { key: "smoke", label: "烟雾" },
   { key: "circle", label: "光环" },
+  { key: "weather", label: "天气" },
   { key: "wall", label: "墙体" },
 ];
 
@@ -28,13 +29,16 @@ const EFFECT_GROUPS = [
       "circleRotateColorLine",
       "circleRotateGarland",
       "circleRotateHalo",
-      "circleTyphoon",
       "circleWrapFire",
       "electricSphere",
-      "volumeAreaLightning",
       "volumeArrowAttack",
-      "volumeDisturbLine"
+      "volumeDisturbLine",
     ],
+  },
+  {
+    key: "weather",
+    label: "天气",
+    effects: ["circleTyphoon", "volumeAreaLightning", "areaRain", "areaSnow"],
   },
   {
     key: "wall",
