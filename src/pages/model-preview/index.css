@@ -1,35 +1,552 @@
 .model-preview {
   width: 100%;
-  height: calc(100vh - 60px);
+  height: 100vh;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: #0a0e1a;
+}
+
+/* ===== Tab 切换栏 ===== */
+.model-preview__tabs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: rgba(10, 14, 26, 0.95);
+  border-bottom: 1px solid rgba(0, 212, 255, 0.15);
+  z-index: 100;
+}
+
+.model-preview__tab-btn {
+  padding: 8px 24px;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 8px;
+  background: transparent;
+  color: #88aacc;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.5px;
+}
+
+.model-preview__tab-btn:hover {
+  border-color: rgba(0, 212, 255, 0.6);
+  color: #00d4ff;
+  background: rgba(0, 212, 255, 0.05);
+}
+
+.model-preview__tab-btn--active {
+  border-color: #00d4ff;
+  color: #00d4ff;
+  background: rgba(0, 212, 255, 0.12);
+  box-shadow: 0 0 16px rgba(0, 212, 255, 0.15);
+}
+
+/* ===== 内容区域 ===== */
+.model-preview__content {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ===== 模型预览 Tab ===== */
+.model-preview__tab {
+  width: 100%;
+  height: 100%;
   position: relative;
 }
-.model-preview__area{
-  height: 100%;
+
+.model-preview__canvas-area {
   width: 100%;
-  /* border: 1px solid red; */
+  height: 100%;
 }
-.choose-model{
-  margin: auto;
-  position: fixed;
-  top: 80px;
-  right: 80px;
+
+.choose-model {
+  position: absolute;
+  top: 20px;
+  right: 20px;
   width: 100px;
-  height: 40px;
-  border: 1px solid #000;
+  height: 36px;
+  border: 1px solid rgba(0, 212, 255, 0.4);
+  border-radius: 6px;
+  background: rgba(10, 14, 26, 0.85);
+  backdrop-filter: blur(10px);
+  color: #00d4ff;
+  font-size: 14px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 5px;
-  font-size: 16px;
+  transition: all 0.3s ease;
+  z-index: 10;
 }
-.input-model{
+
+.choose-model:hover {
+  background: rgba(0, 212, 255, 0.15);
+  border-color: #00d4ff;
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.2);
+}
+
+.input-model {
   position: absolute;
   top: -100px;
   z-index: -999;
 }
-.select-model{
-  position: fixed;
-  top: 80px;
-  left: 80px;
+
+.select-model {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 6px 12px;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 6px;
+  background: rgba(10, 14, 26, 0.85);
+  backdrop-filter: blur(10px);
+  color: #88aacc;
+  font-size: 13px;
+  cursor: pointer;
+  z-index: 10;
+  outline: none;
+}
+
+.select-model:focus {
+  border-color: #00d4ff;
+}
+
+.select-model option {
+  background: #0a0e1a;
+  color: #88aacc;
+}
+
+/* ===== 智慧园区 Tab ===== */
+.smart-park__tab {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.smart-park__canvas-area {
+  width: 100%;
+  height: 100%;
+}
+
+/* 标题 */.smart-park__title {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.smart-park__title-main {
+  font-size: 22px;
+  font-weight: 700;
+  color: #00d4ff;
+  text-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+  letter-spacing: 4px;
+}
+
+.smart-park__title-sub {
+  font-size: 11px;
+  color: #4a6a8a;
+  margin-top: 4px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* 数据面板 */
+.smart-park__data-panel {
+  position: absolute;
+  top: 30px;
+  right: 16px;
+  width: 260px;
+  max-height: calc(100% - 140px);
+  overflow-y: auto;
+  background: rgba(10, 14, 26, 0.88);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 212, 255, 0.15);
+  border-radius: 12px;
+  padding: 16px;
+  z-index: 10;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 212, 255, 0.2) transparent;
+}
+
+.smart-park__data-panel::-webkit-scrollbar {
+  width: 4px;
+}
+
+.smart-park__data-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.smart-park__data-panel::-webkit-scrollbar-thumb {
+  background: rgba(0, 212, 255, 0.2);
+  border-radius: 2px;
+}
+
+.data-panel__section {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(0, 212, 255, 0.08);
+}
+
+.data-panel__section:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.data-panel__section--highlight {
+  background: rgba(0, 212, 255, 0.05);
+  border-radius: 8px;
+  padding: 12px;
+  margin: 0 -4px 16px;
+  border: 1px solid rgba(0, 212, 255, 0.15);
+}
+
+.data-panel__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #00d4ff;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+
+/* 统计网格 */
+.data-panel__stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 8px 4px;
+  background: rgba(0, 212, 255, 0.04);
+  border-radius: 6px;
+  border: 1px solid rgba(0, 212, 255, 0.08);
+}
+
+.stat-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #00d4ff;
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: #4a6a8a;
+  margin-top: 2px;
+}
+
+/* 建筑列表 */
+.building-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.building-item {
+  padding: 8px 10px;
+  background: rgba(0, 212, 255, 0.03);
+  border-radius: 6px;
+  border: 1px solid rgba(0, 212, 255, 0.06);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.building-item:hover {
+  background: rgba(0, 212, 255, 0.08);
+  border-color: rgba(0, 212, 255, 0.2);
+}
+
+.building-item--active {
+  background: rgba(0, 212, 255, 0.1);
+  border-color: rgba(0, 212, 255, 0.3);
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.1);
+}
+
+.building-item__name {
+  font-size: 12px;
+  font-weight: 500;
+  color: #aaccdd;
+}
+
+.building-item__info {
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.building-item__info span {
+  font-size: 10px;
+  color: #4a6a8a;
+}
+
+/* 建筑详情 */
+.building-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.detail-label {
+  font-size: 11px;
+  color: #4a6a8a;
+}
+
+.detail-value {
+  font-size: 11px;
+  color: #88aacc;
+  font-weight: 500;
+}
+
+.detail-value--online {
+  color: #4ade80;
+}
+
+/* 环境信息 */
+.env-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.env-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  background: rgba(0, 212, 255, 0.03);
+  border-radius: 6px;
+}
+
+.env-icon {
+  font-size: 14px;
+}
+
+.env-value {
+  font-size: 12px;
+  color: #88aacc;
+  font-weight: 500;
+}
+
+/* 左上角环境监测 */
+.env-monitor {
+  position: absolute;
+  top: 20px;
+  left: 16px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 8px 16px;
+  background: rgba(10, 14, 26, 0.88);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 212, 255, 0.15);
+  border-radius: 10px;
+  z-index: 10;
+}
+
+.env-monitor__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+}
+
+.env-monitor__icon {
+  font-size: 14px;
+}
+
+.env-monitor__value {
+  font-size: 13px;
+  color: #88aacc;
+  font-weight: 500;
+  min-width: 36px;
+}
+
+.env-monitor__divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(0, 212, 255, 0.12);
+}
+
+/* 底部工具栏 */
+.smart-park__toolbar {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 20px;
+  background: rgba(10, 14, 26, 0.88);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 212, 255, 0.15);
+  border-radius: 12px;
+  z-index: 10;
+}
+
+/* 左侧建筑详情弹窗 */
+.building-popup {
+  position: absolute;
+  top: 70px;
+  left: 16px;
+  width: 260px;
+  background: rgba(10, 14, 26, 0.92);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 12px;
+  z-index: 20;
+  animation: popupSlideIn 0.3s ease;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4), 0 0 16px rgba(0, 212, 255, 0.08);
+}
+
+@keyframes popupSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.building-popup__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+}
+
+.building-popup__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #00d4ff;
+  letter-spacing: 1px;
+}
+
+.building-popup__close {
+  width: 24px;
+  height: 24px;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 4px;
+  background: transparent;
+  color: #4a6a8a;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.building-popup__close:hover {
+  border-color: #ff4466;
+  color: #ff4466;
+  background: rgba(255, 68, 102, 0.1);
+}
+
+.building-popup__body {
+  padding: 16px;
+}
+
+.popup__name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #e0f0ff;
+  margin-bottom: 12px;
+}
+
+.building-popup__divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.3), transparent);
+  margin-bottom: 12px;
+}
+
+.toolbar__group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.toolbar__label {
+  font-size: 11px;
+  color: #4a6a8a;
+  margin-right: 4px;
+  white-space: nowrap;
+}
+
+.toolbar__buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.toolbar__btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 6px;
+  background: transparent;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.toolbar__btn:hover {
+  border-color: rgba(0, 212, 255, 0.5);
+  background: rgba(0, 212, 255, 0.08);
+}
+
+.toolbar__btn--active {
+  border-color: #00d4ff;
+  background: rgba(0, 212, 255, 0.15);
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.15);
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 768px) {
+  .smart-park__data-panel {
+    width: 200px;
+    right: 8px;
+    padding: 12px;
+  }
+
+  .smart-park__toolbar {
+    gap: 8px;
+    padding: 8px 12px;
+  }
+
+  .toolbar__label {
+    display: none;
+  }
+
+  .model-preview__tabs {
+    padding: 8px 16px;
+  }
+
+  .model-preview__tab-btn {
+    padding: 6px 16px;
+    font-size: 12px;
+  }
 }
