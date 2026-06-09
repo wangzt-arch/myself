@@ -24,15 +24,15 @@ function Preview() {
             className={`model-preview__tab-btn ${activeTab === tab.id ? 'model-preview__tab-btn--active' : ''}`}
             onClick={() => setActiveTab(tab.id)}
           >
-            {tab.label}
+            {tab.label}{activeTab}
           </button>
         ))}
       </div>
 
       {/* 内容区域 */}
       <div className="model-preview__content">
-        {activeTab === 'model' && <ModelPreviewTab key="model-canvas" />}
-        {activeTab === 'park' && <SmartParkTab key="park-canvas" />}
+        <div style={{ display: activeTab === 'park' ? 'block' : 'none', width: '100%', height: '100%' }} ><SmartParkTab /></div>
+        <div style={{ display: activeTab === 'model' ? 'block' : 'none', width: '100%', height: '100%' }} ><ModelPreviewTab /></div>
       </div>
     </div>
   );
