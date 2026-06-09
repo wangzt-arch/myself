@@ -121,6 +121,253 @@
   color: #88aacc;
 }
 
+/* ===== 场景参数工具条 ===== */
+.toolbar-toggle {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 8px;
+  background: rgba(10, 14, 26, 0.85);
+  backdrop-filter: blur(10px);
+  color: #88aacc;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  transition: all 0.3s ease;
+}
+
+.toolbar-toggle:hover {
+  border-color: #00d4ff;
+  color: #00d4ff;
+  background: rgba(0, 212, 255, 0.1);
+}
+
+.toolbar-toggle--active {
+  border-color: #00d4ff;
+  color: #00d4ff;
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.2);
+}
+
+.scene-toolbar {
+  position: absolute;
+  top: 70px;
+  right: 16px;
+  width: 260px;
+  max-height: calc(100% - 90px);
+  overflow-y: auto;
+  background: rgba(10, 14, 26, 0.92);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 212, 255, 0.15);
+  border-radius: 12px;
+  z-index: 20;
+  animation: toolbarSlideIn 0.25s ease;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 212, 255, 0.2) transparent;
+}
+
+.scene-toolbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scene-toolbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 212, 255, 0.2);
+  border-radius: 2px;
+}
+
+@keyframes toolbarSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.scene-toolbar__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+  font-size: 13px;
+  font-weight: 600;
+  color: #00d4ff;
+  letter-spacing: 1px;
+  position: sticky;
+  top: 0;
+  background: rgba(10, 14, 26, 0.95);
+  backdrop-filter: blur(16px);
+  border-radius: 12px 12px 0 0;
+  z-index: 1;
+}
+
+.scene-toolbar__close {
+  width: 22px;
+  height: 22px;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 4px;
+  background: transparent;
+  color: #4a6a8a;
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.scene-toolbar__close:hover {
+  border-color: #ff4466;
+  color: #ff4466;
+  background: rgba(255, 68, 102, 0.1);
+}
+
+.scene-toolbar__body {
+  padding: 10px 14px;
+}
+
+.toolbar-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.toolbar-item label {
+  font-size: 11px;
+  color: #6a8aaa;
+  min-width: 60px;
+  flex-shrink: 0;
+}
+
+.toolbar-item input[type="range"] {
+  flex: 1;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(0, 212, 255, 0.15);
+  border-radius: 2px;
+  outline: none;
+}
+
+.toolbar-item input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #00d4ff;
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(0, 212, 255, 0.4);
+}
+
+.toolbar-item input[type="range"]::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #00d4ff;
+  cursor: pointer;
+  border: none;
+}
+
+.toolbar-item input[type="color"] {
+  width: 28px;
+  height: 22px;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.toolbar-item input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 1px;
+}
+
+.toolbar-item input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: 2px;
+}
+
+.toolbar-item input[type="text"] {
+  flex: 1;
+  padding: 3px 6px;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 4px;
+  background: rgba(0, 212, 255, 0.05);
+  color: #88aacc;
+  font-size: 11px;
+  outline: none;
+}
+
+.toolbar-item input[type="text"]:focus {
+  border-color: #00d4ff;
+}
+
+.toolbar-value {
+  font-size: 11px;
+  color: #00d4ff;
+  min-width: 28px;
+  text-align: right;
+  font-weight: 500;
+}
+
+.toolbar-item--row {
+  justify-content: space-between;
+}
+
+.toolbar-switch {
+  padding: 2px 10px;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 4px;
+  background: transparent;
+  color: #4a6a8a;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toolbar-switch--on {
+  border-color: #00d4ff;
+  color: #00d4ff;
+  background: rgba(0, 212, 255, 0.15);
+}
+
+.toolbar-switch:hover {
+  border-color: rgba(0, 212, 255, 0.6);
+}
+
+.toolbar-divider {
+  height: 1px;
+  background: rgba(0, 212, 255, 0.08);
+  margin: 8px 0;
+}
+
+.toolbar-reset {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 6px;
+  background: transparent;
+  color: #6a8aaa;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toolbar-reset:hover {
+  border-color: #00d4ff;
+  color: #00d4ff;
+  background: rgba(0, 212, 255, 0.08);
+}
+
 /* ===== 智慧园区 Tab ===== */
 .smart-park__tab {
   width: 100%;
