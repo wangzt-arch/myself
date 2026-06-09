@@ -3,10 +3,11 @@ import { useLoader } from '@react-three/fiber';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import * as THREE from 'three';
 import superMarcket from '../models/supermarket.glb';
+import xiaomisu7 from '../models/xiaomi_su7_max.glb';
 
 // 小米 SU7 外部模型组件
 function XiaomiSU7({ position, rotation = 0, scale = 1 }) {
-  const gltf = useLoader(GLTFLoader, '/myself/models/xiaomi_su7.glb');
+  const gltf = useLoader(GLTFLoader, xiaomisu7);
   const scene = useMemo(() => {
     const cloned = gltf.scene.clone(true);
     cloned.rotation.y = rotation;
