@@ -1,12 +1,12 @@
 import * as Cesium from "cesium";
 
 /**
- * ExplosionSphereEffect - Cesium 自定义 GLSL 爆炸云团特效
+ * ExplosionSphereEffect - Cesium 自定义 GLSL 爆炸特效
  *
- * 一个可复用的 CesiumJS Primitive 特效模块，使用立体球形 Primitive 和
- * 自定义 GLSL 绘制从中心向各方向发散的白黄热核心、橙红火焰、烟尘暗边和碎星扰动。
+ * 单面平面爆炸效果，随视角转动（billboard），隐藏立体/圆形部分。
+ * 使用自定义 GLSL 绘制圆形爆炸冲击波效果。
  *
- * 适用场景：爆炸点、冲击波、能量爆发、告警热点等三维地球可视化效果。
+ * 适用场景：爆炸点、冲击波、能量爆发等三维地球可视化效果。
  *
  * 基础用法：
  * const effect = new ExplosionSphereEffect(viewer, {
@@ -32,7 +32,7 @@ class ExplosionSphereEffect {
    * @param {number} options.longitude - 爆炸中心经度，单位：度。
    * @param {number} options.latitude - 爆炸中心纬度，单位：度。
    * @param {number} [options.height] - 爆炸中心高度，单位：米；未传时使用 radius * heightOffset。
-   * @param {number} [options.radius=120000] - 爆炸云团基准半径，单位：米。
+   * @param {number} [options.radius=120000] - 爆炸基准半径，单位：米。
    * @param {number} [options.speed=0.65] - 动画播放速度，数值越大爆炸循环越快。
    * @param {number} [options.heightOffset=0.55] - 未指定 height 时的高度偏移系数。
    * @param {Cesium.Color} [options.baseColor] - 爆炸热核心颜色，默认橙红色。
@@ -72,7 +72,7 @@ class ExplosionSphereEffect {
 
   /**
    * 返回 Cesium Material 使用的 GLSL shader 源码。
-   * shader 内部通过噪声、时间参数和径向距离混合出热核心、冲击波、烟尘和火星。
+   * 单面圆形爆炸效果：中心爆发 -> 冲击波扩散 -> 消散
    * @private
    * @returns {string} GLSL 材质源码。
    */
@@ -84,71 +84,103 @@ class ExplosionSphereEffect {
       uniform float speed;
       uniform float time;
 
-      float gyroid(vec3 p) {
-        return dot(cos(p), sin(p.yzx));
+      float hash(float n) {
+        return fract(cos(n) * 41415.92653);
       }
 
-      float fbm3(vec3 p) {
-        float result = 0.0;
-        float a = 0.5;
-        for (int i = 0; i < 8; i++) {
-          p.z += result * 0.1;
-          result += abs(gyroid(p / a) * a);
-          a /= 1.7;
-        }
-        return result;
+      float hash2(vec2 p) {
+        return fract(cos(dot(p, vec2(127.1, 311.7))) * 43758.5453);
       }
 
-      vec3 palette(float v) {
-        vec3 ember = vec3(0.95, 0.12, 0.02);
-        vec3 orange = color.rgb * 1.85;
-        vec3 yellow = shockColor.rgb * 2.35;
-        vec3 whiteHot = vec3(1.0, 0.92, 0.48) * 3.1;
-        vec3 fire = mix(ember, orange, smoothstep(0.18, 0.55, v));
-        fire = mix(fire, yellow, smoothstep(0.48, 0.78, v));
-        fire = mix(fire, whiteHot, smoothstep(0.78, 1.08, v));
-        return fire;
+      float noise(vec2 p) {
+        vec2 i = floor(p);
+        vec2 f = fract(p);
+        f = f * f * (3.0 - 2.0 * f);
+        float a = hash2(i);
+        float b = hash2(i + vec2(1.0, 0.0));
+        float c = hash2(i + vec2(0.0, 1.0));
+        float d = hash2(i + vec2(1.0, 1.0));
+        return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
       }
 
       czm_material czm_getMaterial(czm_materialInput materialInput) {
         vec2 uv = materialInput.st;
         vec2 p = (uv - 0.5) * 2.0;
         float dist = length(p);
-        vec3 dir = normalize(vec3(p, 0.38 + smoothstep(1.2, 0.0, dist)));
-        float phase = fract(time * speed);
-        float growth = pow(phase, 0.22);
-        float fade = 1.0 - pow(phase, 7.5);
-        float burn = 1.0 - pow(phase, 0.45);
 
-        vec3 flow = dir * (2.1 + growth * 3.2);
-        flow += vec3(time * 0.34, -time * 0.22, time * 0.28);
-        float shell = fbm3(flow);
-        float detail = fbm3(dir * 8.0 + vec3(time * 0.9, -time * 0.55, time * 0.7));
-        float plume = fbm3(dir * 3.4 + dir * growth * 2.6 + vec3(phase * 3.0));
-        float edgeRipples = fbm3(vec3(p * 12.0, time * 0.8)) * 0.18
-          + fbm3(vec3(p * 24.0, -time * 0.55)) * 0.08;
+        // Circular mask - smooth edge
+        float circularMask = smoothstep(1.0, 0.75, dist);
 
-        float radialFlame = smoothstep(0.12, 1.18, shell + plume * 0.45 - burn * 0.45);
-        float hotCore = smoothstep(1.15, 2.7, shell + detail * 0.35) * (1.0 - phase * 0.55);
-        float smoke = smoothstep(0.18, 1.1, shell - burn * 0.82 + growth * 0.18);
-        float shock = smoothstep(0.08, 0.0, abs(shell * 0.34 + plume * 0.15 - (0.22 + phase * 0.72))) * fade;
-        float sparks = smoothstep(1.55, 2.25, detail + shell * 0.38) * smoothstep(0.08, 0.62, phase);
+        // Animation cycle: burst -> expand -> fade
+        float cycle = 2.0;
+        float phase = fract(time * speed / cycle);
 
-        vec3 fireColor = palette(shell * 0.24 + plume * 0.28 + hotCore * 0.5);
-        vec3 smokeCol = smokeColor.rgb * (0.66 + plume * 0.22);
-        vec3 finalCol = mix(fireColor, smokeCol, smoke * smoothstep(0.26, 1.0, phase));
-        finalCol += shockColor.rgb * shock * 1.8;
-        finalCol += vec3(1.0, 0.72, 0.2) * sparks * (1.0 - phase * 0.55);
+        // Phase timing:
+        // 0.0 - 0.15: initial flash
+        // 0.1 - 0.5: shockwave expansion
+        // 0.4 - 0.8: debris/fade
+        // 0.7 - 1.0: fade out
 
-        float alpha = radialFlame * fade * 0.62 + hotCore * 0.35 + smoke * 0.18 + shock * 0.26 + sparks * 0.18;
-        alpha *= smoothstep(1.18 + edgeRipples, 0.34, dist);
-        alpha *= 0.72 + smoothstep(0.16, 0.9, shell + detail * 0.25) * 0.28;
-        alpha = clamp(alpha, 0.0, 0.92);
+        float flash = smoothstep(0.0, 0.05, phase) * (1.0 - smoothstep(0.05, 0.2, phase));
+        float shockwave = smoothstep(0.08, 0.15, phase) * (1.0 - smoothstep(0.4, 0.7, phase));
+        float debris = smoothstep(0.3, 0.5, phase) * (1.0 - smoothstep(0.6, 0.9, phase));
+        float fadeOut = 1.0 - smoothstep(0.65, 1.0, phase);
+
+        // Central bright core
+        float coreRadius = 0.08 + phase * 0.15;
+        float core = smoothstep(coreRadius, 0.0, dist);
+
+        // Noise turbulence
+        float turb = noise(p * 4.0 + phase * 3.0) * 0.3
+                   + noise(p * 8.0 - phase * 2.0) * 0.15;
+
+        // Flying debris particles
+        float debrisParticles = 0.0;
+        for (int i = 0; i < 24; i++) {
+          float fi = float(i);
+          float angle = fi * 0.2618 + hash(fi * 17.3);
+          float particleDist = (0.15 + hash(fi * 29.3) * 0.7) * phase * 1.6;
+          float particleSize = 0.035 + hash(fi * 37.1) * 0.045;
+
+          vec2 particlePos = vec2(cos(angle), sin(angle)) * particleDist;
+          float d = length(p - particlePos);
+          debrisParticles = max(debrisParticles, smoothstep(particleSize, 0.0, d));
+        }
+
+        // Combine all elements
+        float intensity = core * 1.2 + debrisParticles * 0.5;
+        intensity *= fadeOut;
+        intensity += turb * 0.15 * shockwave;
+
+        // Colors: white hot center -> yellow -> orange -> red -> dark edges
+        vec3 whiteHot = vec3(1.0, 0.95, 0.8);
+        vec3 brightYellow = vec3(1.0, 0.72, 0.15);
+        vec3 orange = vec3(1.0, 0.5, 0.08);
+        vec3 red = vec3(0.85, 0.15, 0.05);
+        vec3 darkRed = vec3(0.35, 0.05, 0.02);
+
+        // Color based on distance and phase
+        float colorDist = dist * (1.0 - phase * 0.1);
+
+        vec3 finalColor = whiteHot;
+        finalColor = mix(finalColor, brightYellow, smoothstep(0.02, 0.1, colorDist));
+        finalColor = mix(finalColor, orange, smoothstep(0.1, 0.25, colorDist));
+        finalColor = mix(finalColor, red, smoothstep(0.25, 0.5, colorDist));
+        finalColor = mix(finalColor, darkRed, smoothstep(0.5, 0.8, colorDist));
+
+        // Core is brighter
+        finalColor += whiteHot * core * 0.5;
+
+        // Subtle brightness variation
+        float brightness = noise(p * 5.0 + phase * 2.0) * 0.08 + 0.96;
+        finalColor *= brightness;
+
+        float alpha = intensity * circularMask;
 
         czm_material material = czm_getDefaultMaterial(materialInput);
-        material.diffuse = finalCol;
-        material.emission = finalCol * (1.45 + hotCore * 1.35 + shock * 0.65);
-        material.alpha = alpha;
+        material.diffuse = finalColor;
+        material.emission = finalColor * 1.8;
+        material.alpha = clamp(alpha, 0.0, 0.9);
         material.specular = 0.0;
         return material;
       }
@@ -206,89 +238,20 @@ class ExplosionSphereEffect {
   }
 
   /**
-   * 根据经纬度、高度和半径创建立体球形 Primitive。
-   * Primitive 使用 MaterialAppearance 承载自定义 GLSL 材质。
+   * 创建单面平面 Primitive，随视角转动。
    * @private
    */
-  _createExplosionGeometry(CesiumRef, radius) {
-    const segments = 112;
-    const rings = [0, 0.24, 0.46, 0.68, 0.86, 1.0];
-    const values = [];
-    const sts = [];
-    const indices = [];
-
-    rings.forEach((ring, ringIndex) => {
-      for (let index = 0; index < segments; index += 1) {
-        const angle = (index / segments) * Math.PI * 2;
-        const wave =
-          1
-          + Math.sin(angle * 3.0 + ringIndex * 0.8) * 0.18
-          + Math.sin(angle * 7.0 - ringIndex * 0.45) * 0.1
-          + Math.sin(angle * 13.0 + ringIndex * 1.7) * 0.055
-          + Math.sin(angle * 19.0 - ringIndex * 2.1) * 0.035
-          + Math.sin(angle * 31.0 + ringIndex * 0.35) * 0.022;
-        const edgeNoise =
-          ringIndex >= rings.length - 2
-            ? 1 + Math.sin(angle * 23.0 + ringIndex) * 0.12 + Math.sin(angle * 41.0) * 0.055
-            : 1;
-        const edgeBoost = ringIndex === rings.length - 1 ? 1.18 : 1;
-        const localRadius = radius * ring * wave * edgeBoost * edgeNoise;
-        const height = radius * (
-          Math.sin(ring * Math.PI) * 0.64
-          + Math.max(0, 1 - ring) * 0.18
-          + Math.sin(angle * 5.0 + ringIndex) * 0.08 * ring
-          + Math.sin(angle * 17.0 - ringIndex * 0.6) * 0.045 * ring
-        );
-
-        values.push(Math.cos(angle) * localRadius, Math.sin(angle) * localRadius, height);
-        sts.push(0.5 + Math.cos(angle) * ring * 0.5, 0.5 + Math.sin(angle) * ring * 0.5);
-      }
-    });
-
-    for (let ringIndex = 0; ringIndex < rings.length - 1; ringIndex += 1) {
-      const currentRing = ringIndex * segments;
-      const nextRing = (ringIndex + 1) * segments;
-      for (let index = 0; index < segments; index += 1) {
-        const current = currentRing + index;
-        const currentNext = currentRing + ((index + 1) % segments);
-        const next = nextRing + index;
-        const nextNext = nextRing + ((index + 1) % segments);
-        indices.push(current, next, currentNext);
-        indices.push(currentNext, next, nextNext);
-      }
-    }
-
-    return new CesiumRef.Geometry({
-      attributes: {
-        position: new CesiumRef.GeometryAttribute({
-          componentDatatype: CesiumRef.ComponentDatatype.DOUBLE,
-          componentsPerAttribute: 3,
-          values: new Float64Array(values),
-        }),
-        st: new CesiumRef.GeometryAttribute({
-          componentDatatype: CesiumRef.ComponentDatatype.FLOAT,
-          componentsPerAttribute: 2,
-          values: new Float32Array(sts),
-        }),
-      },
-      indices,
-      primitiveType: CesiumRef.PrimitiveType.TRIANGLES,
-      boundingSphere: new CesiumRef.BoundingSphere(CesiumRef.Cartesian3.ZERO, radius * 1.45),
-    });
-  }
-
   _createPrimitive() {
     const CesiumRef = this._getCesium();
     const { longitude, latitude, height, radius, heightOffset } = this.options;
     const targetHeight = height !== undefined ? height : radius * heightOffset;
-    const position = CesiumRef.Cartesian3.fromDegrees(longitude, latitude, targetHeight);
-    const explosionGeometry = this._createExplosionGeometry(CesiumRef, radius);
-    const modelMatrix = CesiumRef.Transforms.eastNorthUpToFixedFrame(position);
+    this.position = CesiumRef.Cartesian3.fromDegrees(longitude, latitude, targetHeight);
 
     this.primitive = new CesiumRef.Primitive({
       geometryInstances: new CesiumRef.GeometryInstance({
-        geometry: explosionGeometry,
-        modelMatrix,
+        geometry: new CesiumRef.PlaneGeometry({
+          vertexFormat: CesiumRef.MaterialAppearance.MaterialSupport.TEXTURED.vertexFormat,
+        }),
       }),
       appearance: new CesiumRef.MaterialAppearance({
         material: this.material,
@@ -303,7 +266,66 @@ class ExplosionSphereEffect {
       asynchronous: false,
     });
 
+    this._syncPrimitive();
     this.viewer.scene.primitives.add(this.primitive);
+  }
+
+  /**
+   * 同步 Primitive 的 modelMatrix，使平面始终面向相机。
+   * @private
+   */
+  _syncPrimitive() {
+    if (!this.primitive || !this.position) return;
+
+    const CesiumRef = this._getCesium();
+    const { radius } = this.options;
+    const planeSize = radius * 2.0;
+
+    // Get camera position and compute direction to face camera
+    const camera = this.viewer.camera;
+    const cameraPos = camera.positionWC;
+
+    // Compute vector from position to camera
+    const toCamera = CesiumRef.Cartesian3.subtract(cameraPos, this.position, new CesiumRef.Cartesian3());
+    CesiumRef.Cartesian3.normalize(toCamera, toCamera);
+
+    // Build rotation matrix that makes plane face the camera
+    // Plane normal (Z axis) should point to camera
+    const zAxis = toCamera;
+
+    // Choose up vector
+    const up = CesiumRef.Cartesian3.normalize(this.position, new CesiumRef.Cartesian3());
+
+    // Compute xAxis = up × zAxis
+    const xAxis = CesiumRef.Cartesian3.cross(up, zAxis, new CesiumRef.Cartesian3());
+    if (CesiumRef.Cartesian3.magnitude(xAxis) < 0.001) {
+      CesiumRef.Cartesian3.clone(CesiumRef.Cartesian3.UNIT_X, xAxis);
+    }
+    CesiumRef.Cartesian3.normalize(xAxis, xAxis);
+
+    // Compute yAxis = zAxis × xAxis
+    const yAxis = CesiumRef.Cartesian3.cross(zAxis, xAxis, new CesiumRef.Cartesian3());
+    CesiumRef.Cartesian3.normalize(yAxis, yAxis);
+
+    // Build rotation matrix (plane faces camera)
+    const rotationMatrix = CesiumRef.Matrix4.fromRotationTranslation(
+      new CesiumRef.Matrix3(
+        xAxis.x, yAxis.x, zAxis.x,
+        xAxis.y, yAxis.y, zAxis.y,
+        xAxis.z, yAxis.z, zAxis.z
+      )
+    );
+
+    // Translation to position
+    const translationMatrix = CesiumRef.Matrix4.fromTranslation(this.position);
+
+    // Scale
+    const scaleMatrix = CesiumRef.Matrix4.fromScale(new CesiumRef.Cartesian3(planeSize, planeSize, 1.0));
+
+    // Combine: translation * rotation * scale
+    let modelMatrix = CesiumRef.Matrix4.multiply(translationMatrix, rotationMatrix, new CesiumRef.Matrix4());
+    modelMatrix = CesiumRef.Matrix4.multiply(modelMatrix, scaleMatrix, modelMatrix);
+    this.primitive.modelMatrix = modelMatrix;
   }
 
   /**
@@ -339,6 +361,7 @@ class ExplosionSphereEffect {
     this.animationListener = this.viewer.scene.preRender.addEventListener(() => {
       if (this.isDestroyed) return;
       this.material.uniforms.time = (Date.now() - this.startTime) / 1000;
+      this._syncPrimitive();
     });
   }
 
