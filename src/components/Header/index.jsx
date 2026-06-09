@@ -5,12 +5,12 @@ import logo from "../../images/github-icon.png";
 import "./index.css";
 
 const navItems = [
-  { text: "Home", path: "/home" },
-  { text: "About", path: "/about" },
-  { text: "Docs", path: "/docs" },
+  { text: "首页", path: "/home" },
+  { text: "关于", path: "/about" },
+  { text: "文档", path: "/docs" },
   { text: "图表", path: "/chart" },
   { text: "翻译", path: "/translate" },
-  { text: "模型预览", path: "/preview" },
+  { text: "三维场景", path: "/preview" },
   { text: "流程图", path: "/logicflow" },
   { text: "视频案例", path: "/video" },
   { text: "3D地球", path: "/cesium" },

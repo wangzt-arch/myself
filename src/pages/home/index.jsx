@@ -6,10 +6,10 @@ import "./index.css";
 
 const featureItems = [
     {
-        title: "3D 模型预览",
+        title: "三维场景",
         path: "/preview",
         category: "Three.js",
-        description: "基于 React Three Fiber 的 GLB 模型查看器，支持本地模型加载和轨道控制。",
+        description: "基于 React Three，支持本地模型加载和三维智慧园区场景。",
     },
     {
         title: "流程图实验室",
