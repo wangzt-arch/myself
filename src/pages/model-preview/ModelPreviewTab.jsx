@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useLayoutEffect, useMemo, useState, useRef, useCallback } from "react";
+import React, { Suspense, useEffect, useMemo, useState, useRef } from "react";
 import { Canvas } from '@react-three/fiber'
 import { useLoader, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
@@ -34,8 +34,6 @@ function ModelPreviewTab() {
   const [ambientIntensity, setAmbientIntensity] = useState(0.6);
   const [ambientColor, setAmbientColor] = useState('#ffffff');
   const [pointLightIntensity, setPointLightIntensity] = useState(0.8);
-  const [pointLightColor, setPointLightColor] = useState('#ffffff');
-  const [pointLightPosition, setPointLightPosition] = useState('10,10,10');
   const [fillLightEnabled, setFillLightEnabled] = useState(false);
   const [fillLightIntensity, setFillLightIntensity] = useState(0.4);
   const [fillLightColor, setFillLightColor] = useState('#4488aa');
@@ -96,7 +94,7 @@ function ModelPreviewTab() {
         }
       });
       return cloned;
-    }, [glb, wireframe, modelOpacity, modelColor, metalness, roughness]);
+    }, [glb]);
 
     const fit = useMemo(() => {
       const box = new THREE.Box3().setFromObject(scene);
@@ -109,7 +107,7 @@ function ModelPreviewTab() {
         position: [-center.x * scale, -center.y * scale, -center.z * scale],
         scale,
       };
-    }, [scene, modelScale]);
+    }, [scene]);
 
     return (
       <group position={fit.position} scale={fit.scale}>
@@ -130,14 +128,14 @@ function ModelPreviewTab() {
         camera.updateProjectionMatrix();
       }
       prevFov.current = fov;
-    }, [fov, camera]);
+    }, [camera]);
 
     useEffect(() => {
       if (gl.shadowMap.enabled !== enableShadows) {
         gl.shadowMap.enabled = enableShadows;
       }
       prevShadows.current = enableShadows;
-    }, [enableShadows, gl]);
+    }, [ gl]);
 
     return null;
   };
@@ -162,10 +160,6 @@ function ModelPreviewTab() {
     ? currentModel
     : "";
 
-  const lightPos = useMemo(() => {
-    const parts = pointLightPosition.split(',').map(Number);
-    return parts.length === 3 ? parts : [10, 10, 10];
-  }, [pointLightPosition]);
 
   return (
     <div className="model-preview__tab">
@@ -175,7 +169,6 @@ function ModelPreviewTab() {
           <color attach="background" args={[bgColor]} />
           {fogEnabled && <fog attach="fog" args={[bgColor, fogNear, fogFar]} />}
           <ambientLight intensity={ambientIntensity} color={ambientColor} />
-          <pointLight position={lightPos} intensity={pointLightIntensity} color={new THREE.Color(pointLightColor)} castShadow={enableShadows} />
           {fillLightEnabled && (
             <pointLight position={[-5, 5, -5]} intensity={fillLightIntensity} color={fillLightColor} />
           )}
@@ -274,20 +267,6 @@ function ModelPreviewTab() {
               <input type="range" min="0" max="5" step="0.1" value={pointLightIntensity}
                 onChange={(e) => setPointLightIntensity(Number(e.target.value))} />
               <span className="toolbar-value">{pointLightIntensity.toFixed(1)}</span>
-            </div>
-
-            {/* 主灯颜色 */}
-            <div className="toolbar-item">
-              <label>主灯颜色</label>
-              <input type="color" value={pointLightColor} onChange={(e) => setPointLightColor(e.target.value)} />
-            </div>
-
-            {/* 主灯位置 */}
-            <div className="toolbar-item">
-              <label>主灯位置</label>
-              <input type="text" value={pointLightPosition}
-                onChange={(e) => setPointLightPosition(e.target.value)}
-                placeholder="x,y,z" />
             </div>
 
             {/* 补光 */}
@@ -451,8 +430,6 @@ function ModelPreviewTab() {
                 setAmbientIntensity(0.6);
                 setAmbientColor('#ffffff');
                 setPointLightIntensity(0.8);
-                setPointLightColor('#ffffff');
-                setPointLightPosition('10,10,10');
                 setFillLightEnabled(false);
                 setFillLightIntensity(0.4);
                 setFillLightColor('#4488aa');
