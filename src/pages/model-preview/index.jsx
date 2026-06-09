@@ -24,7 +24,7 @@ function Preview() {
             className={`model-preview__tab-btn ${activeTab === tab.id ? 'model-preview__tab-btn--active' : ''}`}
             onClick={() => setActiveTab(tab.id)}
           >
-            {tab.label}{activeTab}
+            {tab.label}
           </button>
         ))}
       </div>
