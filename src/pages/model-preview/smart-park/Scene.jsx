@@ -12,7 +12,7 @@ const PARK_DATA = {
     { name: 'C栋 数据中心', type: '数据中心', floors: 6, position: [-4, 0, 4], size: [2.2, 1.8, 2.0], color: '#1a3a5a' },
     { name: 'D栋 会议中心', type: '会议楼', floors: 5, position: [4, 0, 4], size: [1.6, 1.5, 1.6], color: '#4a6a8a' },
     { name: 'E栋 员工餐厅', type: '餐饮楼', floors: 3, position: [0, 0, -6], size: [2.0, 0.9, 1.2], color: '#5a7a5a' },
-    { name: 'F栋 体育馆', type: '体育馆', floors: 2, position: [-6, 0, 0], size: [1.2, 0.6, 1.8], color: '#6a5a7a' },
+    { name: 'F栋 超市', type: '超市', floors: 2, position: [-6, 0, 0], size: [2.5, 1.5, 2.5], color: '#6a5a7a', externalModel: true },
     { name: 'G栋 宿舍楼A', type: '宿舍楼', floors: 10, position: [6, 0, 0], size: [1.0, 3.0, 1.0], color: '#7a6a5a' },
     { name: 'H栋 宿舍楼B', type: '宿舍楼', floors: 10, position: [7.5, 0, 0], size: [1.0, 3.0, 1.0], color: '#7a6a5a' },
     { name: 'I栋 实验楼', type: '实验楼', floors: 7, position: [0, 0, 6], size: [1.8, 2.1, 1.2], color: '#5a5a7a' },
@@ -180,10 +180,13 @@ function Scene({ onBuildingClick, selectedBuilding, viewMode, weather, timeOfDay
       )}
 
       {/* 地面 */}
-      <Ground />
+      <Ground
+        onExternalModelClick={onBuildingClick}
+        selectedBuilding={selectedBuilding}
+      />
 
-      {/* 建筑 */}
-      {PARK_DATA.buildings.map((building, index) => (
+      {/* 建筑（跳过外部模型） */}
+      {PARK_DATA.buildings.filter(b => !b.externalModel).map((building, index) => (
         <Building
           key={index}
           position={building.position}

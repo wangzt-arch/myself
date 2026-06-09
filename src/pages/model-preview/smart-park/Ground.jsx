@@ -1,16 +1,15 @@
-import React, { useMemo, Suspense } from 'react';
+import React, { useMemo, Suspense, useRef, useState } from 'react';
 import { useLoader } from '@react-three/fiber';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import * as THREE from 'three';
+import superMarcket from '../models/supermarket.glb';
 
 // 小米 SU7 外部模型组件
 function XiaomiSU7({ position, rotation = 0, scale = 1 }) {
-  const gltf = useLoader(GLTFLoader, '/myself/models/xiaomi_su7.gltf');
+  const gltf = useLoader(GLTFLoader, '/myself/models/xiaomi_su7.glb');
   const scene = useMemo(() => {
     const cloned = gltf.scene.clone(true);
-    // 调整模型方向（通常 GLTF 模型需要旋转）
     cloned.rotation.y = rotation;
-    // 自动缩放适配
     const box = new THREE.Box3().setFromObject(cloned);
     const size = box.getSize(new THREE.Vector3());
     const maxSize = Math.max(size.x, size.y, size.z);
@@ -24,7 +23,65 @@ function XiaomiSU7({ position, rotation = 0, scale = 1 }) {
   );
 }
 
-function Ground() {
+// 通用外部 GLB 模型组件（支持点击）
+function ExternalModel({ url, position, rotation = 0, scale = 1, name, type, onClick, isSelected }) {
+  const gltf = useLoader(GLTFLoader, url);
+  const groupRef = useRef();
+  const [hovered, setHovered] = useState(false);
+
+  const scene = useMemo(() => {
+    const cloned = gltf.scene.clone(true);
+    cloned.rotation.y = rotation;
+    const box = new THREE.Box3().setFromObject(cloned);
+    const size = box.getSize(new THREE.Vector3());
+    const maxSize = Math.max(size.x, size.y, size.z);
+    const targetScale = scale / maxSize;
+    cloned.scale.setScalar(targetScale);
+    // 启用所有子 mesh 的射线检测
+    cloned.traverse((child) => {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+    return cloned;
+  }, [gltf, rotation, scale]);
+
+  return (
+    <group
+      ref={groupRef}
+      position={position}
+      onClick={(e) => {
+        e.stopPropagation();
+        if (onClick) onClick({ name, type, size: [scale, scale, scale], floors: 1 });
+      }}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        setHovered(true);
+        document.body.style.cursor = 'pointer';
+      }}
+      onPointerOut={() => {
+        setHovered(false);
+        document.body.style.cursor = 'auto';
+      }}
+    >
+      <primitive object={scene} />
+      {/* 选中/悬停高亮指示器 */}
+      {(isSelected || hovered) && (
+        <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <circleGeometry args={[scale * 0.6, 32]} />
+          <meshBasicMaterial
+            color={isSelected ? '#00d4ff' : '#00d4ff'}
+            transparent
+            opacity={isSelected ? 0.3 : 0.15}
+          />
+        </mesh>
+      )}
+    </group>
+  );
+}
+
+function Ground({ onExternalModelClick, selectedBuilding }) {
   const gridSize = 24;
   const gridDivisions = 48;
 
@@ -269,6 +326,20 @@ function Ground() {
 
       {/* 大门岗亭 */}
       <GateHouse position={[0, 0, 11]} />
+
+      {/* 超市 */}
+      <Suspense fallback={null}>
+        <ExternalModel
+          url={superMarcket}
+          position={[-6, 0, 0]}
+          rotation={0}
+          scale={2.5}
+          name="F栋 超市"
+          type="超市"
+          onClick={onExternalModelClick}
+          isSelected={selectedBuilding?.name === 'F栋 超市'}
+        />
+      </Suspense>
 
       {/* 中心广场 */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.005, 0]}>
