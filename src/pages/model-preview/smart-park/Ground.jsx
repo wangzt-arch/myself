@@ -1,4 +1,28 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, Suspense } from 'react';
+import { useLoader } from '@react-three/fiber';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import * as THREE from 'three';
+
+// 小米 SU7 外部模型组件
+function XiaomiSU7({ position, rotation = 0, scale = 1 }) {
+  const gltf = useLoader(GLTFLoader, '/myself/models/xiaomi_su7.gltf');
+  const scene = useMemo(() => {
+    const cloned = gltf.scene.clone(true);
+    // 调整模型方向（通常 GLTF 模型需要旋转）
+    cloned.rotation.y = rotation;
+    // 自动缩放适配
+    const box = new THREE.Box3().setFromObject(cloned);
+    const size = box.getSize(new THREE.Vector3());
+    const maxSize = Math.max(size.x, size.y, size.z);
+    const targetScale = (1.8 / maxSize) * scale;
+    cloned.scale.setScalar(targetScale);
+    return cloned;
+  }, [gltf, rotation, scale]);
+
+  return (
+    <primitive object={scene} position={position} />
+  );
+}
 
 function Ground() {
   const gridSize = 24;
@@ -216,12 +240,22 @@ function Ground() {
         <ParkingSlot key={slot.key} position={slot.pos} />
       ))}
 
-      {/* 车辆 */}
-      <Car position={[8.5, 0, -6]} color="#cc4444" rotation={Math.PI} />
-      <Car position={[8.5, 0, -4.8]} color="#4444cc" rotation={Math.PI} />
-      <Car position={[8.5, 0, 2.4]} color="#44aa44" rotation={0} />
-      <Car position={[8.5, 0, 3.6]} color="#aa8844" rotation={0} />
-      <Car position={[-8.5, 0, -1.2]} color="#888888" rotation={Math.PI} />
+      {/* 车辆 - 使用小米 SU7 外部模型 */}
+      <Suspense fallback={null}>
+        <XiaomiSU7 position={[8.5, 0, -6]} rotation={Math.PI} />
+      </Suspense>
+      <Suspense fallback={null}>
+        <XiaomiSU7 position={[8.5, 0, -4.2]} rotation={Math.PI} />
+      </Suspense>
+      <Suspense fallback={null}>
+        <XiaomiSU7 position={[8.5, 0, 2.4]} rotation={0} />
+      </Suspense>
+      <Suspense fallback={null}>
+        <XiaomiSU7 position={[8.5, 0, 3.8]} rotation={0} />
+      </Suspense>
+      <Suspense fallback={null}>
+        <XiaomiSU7 position={[-8.5, 0, -1.2]} rotation={Math.PI} />
+      </Suspense>
 
       {/* 路灯 */}
       <StreetLight position={[-5, 0, -5]} />
@@ -561,59 +595,6 @@ function SecurityGuard({ position }) {
       <mesh position={[0.09, 0.03, 0.02]}>
         <boxGeometry args={[0.11, 0.06, 0.16]} />
         <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
-      </mesh>
-    </group>
-  );
-}
-
-function Car({ position, color, rotation = 0 }) {
-  return (
-    <group position={position} rotation={[0, rotation, 0]}>
-      {/* 车身 */}
-      <mesh position={[0, 0.35, 0]}>
-        <boxGeometry args={[0.7, 0.35, 1.6]} />
-        <meshStandardMaterial color={color} metalness={0.4} roughness={0.3} />
-      </mesh>
-      {/* 车顶 */}
-      <mesh position={[0, 0.6, -0.1]}>
-        <boxGeometry args={[0.6, 0.25, 0.9]} />
-        <meshStandardMaterial color={color} metalness={0.4} roughness={0.3} />
-      </mesh>
-      {/* 车窗 */}
-      <mesh position={[0, 0.6, -0.1]}>
-        <boxGeometry args={[0.62, 0.2, 0.85]} />
-        <meshStandardMaterial
-          color="#4488aa"
-          transparent
-          opacity={0.5}
-          emissive="#224466"
-          emissiveIntensity={0.3}
-        />
-      </mesh>
-      {/* 车轮 */}
-      {[[-0.38, 0.15, 0.5], [0.38, 0.15, 0.5], [-0.38, 0.15, -0.5], [0.38, 0.15, -0.5]].map((pos, i) => (
-        <mesh key={i} position={pos} rotation={[0, 0, Math.PI / 2]}>
-          <cylinderGeometry args={[0.12, 0.12, 0.08, 12]} />
-          <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
-        </mesh>
-      ))}
-      {/* 车灯 - 前 */}
-      <mesh position={[-0.2, 0.35, 0.81]}>
-        <boxGeometry args={[0.15, 0.08, 0.02]} />
-        <meshStandardMaterial color="#ffeeaa" emissive="#ffeeaa" emissiveIntensity={0.8} />
-      </mesh>
-      <mesh position={[0.2, 0.35, 0.81]}>
-        <boxGeometry args={[0.15, 0.08, 0.02]} />
-        <meshStandardMaterial color="#ffeeaa" emissive="#ffeeaa" emissiveIntensity={0.8} />
-      </mesh>
-      {/* 车灯 - 后 */}
-      <mesh position={[-0.2, 0.4, -0.81]}>
-        <boxGeometry args={[0.12, 0.06, 0.02]} />
-        <meshStandardMaterial color="#ff2222" emissive="#ff2222" emissiveIntensity={0.6} />
-      </mesh>
-      <mesh position={[0.2, 0.4, -0.81]}>
-        <boxGeometry args={[0.12, 0.06, 0.02]} />
-        <meshStandardMaterial color="#ff2222" emissive="#ff2222" emissiveIntensity={0.6} />
       </mesh>
     </group>
   );
