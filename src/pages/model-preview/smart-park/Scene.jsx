@@ -149,6 +149,44 @@ function Scene({ onBuildingClick, selectedBuilding, viewMode, weather, timeOfDay
     return [];
   }, [weather]);
 
+  // 云朵数据
+  const clouds = useMemo(() => {
+    if (weather === 'cloudy') {
+      const cloudList = [];
+      for (let i = 0; i < 12; i++) {
+        const cx = (Math.random() - 0.5) * 30;
+        const cz = (Math.random() - 0.5) * 30;
+        const cy = 10 + Math.random() * 6;
+        const scale = 0.8 + Math.random() * 1.2;
+        // 每朵云由 4-7 个扁球体组成，横向延展、纵向压扁
+        const blobs = [];
+        const blobCount = 4 + Math.floor(Math.random() * 4);
+        for (let j = 0; j < blobCount; j++) {
+          blobs.push({
+            offset: [
+              (Math.random() - 0.5) * 2.5 * scale,
+              (Math.random() - 0.5) * 0.35 * scale,
+              (Math.random() - 0.5) * 1.2 * scale,
+            ],
+            radiusX: (0.6 + Math.random() * 1.0) * scale,
+            radiusY: (0.25 + Math.random() * 0.35) * scale,
+            radiusZ: (0.5 + Math.random() * 0.7) * scale,
+            rotationY: Math.random() * Math.PI,
+          });
+        }
+        cloudList.push({
+          position: [cx, cy, cz],
+          scale,
+          blobs,
+          speed: 0.2 + Math.random() * 0.3,
+          key: `cloud-${i}`,
+        });
+      }
+      return cloudList;
+    }
+    return [];
+  }, [weather]);
+
   return (
     <>
       {/* 背景色 */}
@@ -205,6 +243,11 @@ function Scene({ onBuildingClick, selectedBuilding, viewMode, weather, timeOfDay
         <RainDrop key={p.key} position={p.position} speed={p.speed} />
       ))}
 
+      {/* 多云效果 */}
+      {weather === 'cloudy' && clouds.map((c) => (
+        <Cloud key={c.key} position={c.position} blobs={c.blobs} speed={c.speed} />
+      ))}
+
       {/* 控制器 */}
       <OrbitControls
         ref={controlsRef}
@@ -238,6 +281,43 @@ function RainDrop({ position, speed }) {
       <cylinderGeometry args={[0.01, 0.01, 0.3, 4]} />
       <meshBasicMaterial color="#88aacc" transparent opacity={0.5} />
     </mesh>
+  );
+}
+
+function Cloud({ position, blobs, speed }) {
+  const groupRef = useRef();
+  const initialX = useRef(position[0]);
+
+  useFrame((state) => {
+    if (groupRef.current) {
+      // 缓慢水平飘动
+      const time = state.clock.elapsedTime;
+      groupRef.current.position.x = initialX.current + Math.sin(time * speed * 0.3) * 2;
+      // 轻微上下浮动
+      groupRef.current.position.y = position[1] + Math.sin(time * speed * 0.5 + initialX.current) * 0.3;
+    }
+  });
+
+  return (
+    <group ref={groupRef} position={position}>
+      {blobs.map((blob, idx) => (
+        <mesh
+          key={idx}
+          position={blob.offset}
+          rotation={[0, blob.rotationY, 0]}
+          scale={[blob.radiusX, blob.radiusY, blob.radiusZ]}
+        >
+          <sphereGeometry args={[1, 10, 8]} />
+          <meshStandardMaterial
+            color="#e8e8e8"
+            transparent
+            opacity={0.8}
+            roughness={1}
+            metalness={0}
+          />
+        </mesh>
+      ))}
+    </group>
   );
 }
 
