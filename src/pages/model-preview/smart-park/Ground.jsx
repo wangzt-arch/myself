@@ -85,28 +85,38 @@ function ExternalModel({ url, position, rotation = 0, scale = 1, name, type, onC
 function Ground({ onExternalModelClick, selectedBuilding }) {
   const gridSize = 24;
 
-  // 围墙路径 - 围绕整个园区
+  // 围墙路径 - 围绕整个园区（南边大门处留缺口）
   const wallPath = useMemo(() => {
     const half = 11;
     const height = 0.8;
     const thickness = 0.15;
+    const gateHalfWidth = 3; // 大门半宽
     const segments = [
+      // 北边
       { pos: [0, height / 2, -half], size: [half * 2, height, thickness] },
-      { pos: [0, height / 2, half], size: [half * 2, height, thickness] },
+      // 南边 — 大门左右两段
+      { pos: [-half + (half - gateHalfWidth) / 2, height / 2, half], size: [half - gateHalfWidth, height, thickness] },
+      { pos: [half - (half - gateHalfWidth) / 2, height / 2, half], size: [half - gateHalfWidth, height, thickness] },
+      // 西边
       { pos: [-half, height / 2, 0], size: [thickness, height, half * 2] },
+      // 东边
       { pos: [half, height / 2, 0], size: [thickness, height, half * 2] },
     ];
     return segments;
   }, []);
 
-  // 围墙柱子
+  // 围墙柱子（大门处不生成）
   const wallPillars = useMemo(() => {
     const half = 11;
     const pillars = [];
     const spacing = 2.5;
+    const gateHalfWidth = 3;
     for (let x = -half; x <= half; x += spacing) {
       pillars.push({ pos: [x, 0.9, -half], key: `p-n-${x}` });
-      pillars.push({ pos: [x, 0.9, half], key: `p-s-${x}` });
+      // 南边柱子跳过大门区域
+      if (x < -gateHalfWidth || x > gateHalfWidth) {
+        pillars.push({ pos: [x, 0.9, half], key: `p-s-${x}` });
+      }
     }
     for (let z = -half + spacing; z < half; z += spacing) {
       pillars.push({ pos: [-half, 0.9, z], key: `p-w-${z}` });
@@ -352,15 +362,19 @@ function Ground({ onExternalModelClick, selectedBuilding }) {
         <XiaomiSU7 position={[-8.5, 0, -1.2]} rotation={Math.PI} />
       </Suspense>
 
-      {/* 路灯 */}
-      <StreetLight position={[-5, 0, -5]} />
-      <StreetLight position={[5, 0, -5]} />
-      <StreetLight position={[-5, 0, 5]} />
-      <StreetLight position={[5, 0, 5]} />
-      <StreetLight position={[0, 0, -9]} />
-      <StreetLight position={[0, 0, 9]} />
-      <StreetLight position={[-9, 0, 0]} />
-      <StreetLight position={[9, 0, 0]} />
+      {/* 路灯 — 分布在道路两侧 */}
+      <StreetLight position={[-5.5, 0, -5.5]} />
+      <StreetLight position={[5.5, 0, -5.5]} />
+      <StreetLight position={[-5.5, 0, 5.5]} />
+      <StreetLight position={[5.5, 0, 5.5]} />
+      <StreetLight position={[-1, 0, -9.5]} />
+      <StreetLight position={[1, 0, -9.5]} />
+      <StreetLight position={[-1, 0, 9.5]} />
+      <StreetLight position={[1, 0, 9.5]} />
+      <StreetLight position={[-9.5, 0, -1]} />
+      <StreetLight position={[-9.5, 0, 1]} />
+      <StreetLight position={[9.5, 0, -1]} />
+      <StreetLight position={[9.5, 0, 1]} />
 
       {/* 大门岗亭 */}
       <GateHouse position={[0, 0, 11]} />
@@ -490,35 +504,40 @@ function GateHouse({ position }) {
   return (
     <group position={position}>
       {/* 大门柱子 - 左 */}
-      <mesh position={[-1.5, 0.6, 0]}>
-        <boxGeometry args={[0.4, 1.2, 0.4]} />
-        <meshStandardMaterial color="#4a5a6a" metalness={0.4} roughness={0.5} />
+      <mesh position={[-2.5, 0.6, 0]}>
+        <boxGeometry args={[0.5, 1.2, 0.5]} />
+        <meshStandardMaterial color="#4a4a4a" metalness={0.3} roughness={0.7} />
       </mesh>
       {/* 大门柱子 - 右 */}
-      <mesh position={[1.5, 0.6, 0]}>
-        <boxGeometry args={[0.4, 1.2, 0.4]} />
-        <meshStandardMaterial color="#4a5a6a" metalness={0.4} roughness={0.5} />
+      <mesh position={[2.5, 0.6, 0]}>
+        <boxGeometry args={[0.5, 1.2, 0.5]} />
+        <meshStandardMaterial color="#4a4a4a" metalness={0.3} roughness={0.7} />
       </mesh>
       {/* 柱子顶部灯 */}
-      <mesh position={[-1.5, 1.25, 0]}>
-        <sphereGeometry args={[0.12, 8, 6]} />
+      <mesh position={[-2.5, 1.25, 0]}>
+        <sphereGeometry args={[0.15, 8, 6]} />
         <meshStandardMaterial
           color="#ffcc00"
           emissive="#ffaa00"
           emissiveIntensity={1.2}
         />
       </mesh>
-      <mesh position={[1.5, 1.25, 0]}>
-        <sphereGeometry args={[0.12, 8, 6]} />
+      <mesh position={[2.5, 1.25, 0]}>
+        <sphereGeometry args={[0.15, 8, 6]} />
         <meshStandardMaterial
           color="#ffcc00"
           emissive="#ffaa00"
           emissiveIntensity={1.2}
         />
       </mesh>
-      {/* 岗亭 */}
-      <mesh position={[0, 0.5, 0.3]}>
-        <boxGeometry args={[1.2, 1.0, 1.0]} />
+      {/* 大门横梁 */}
+      <mesh position={[0, 1.2, 0]}>
+        <boxGeometry args={[5.5, 0.15, 0.3]} />
+        <meshStandardMaterial color="#4a4a4a" metalness={0.3} roughness={0.7} />
+      </mesh>
+      {/* 岗亭 — 挪到右侧 */}
+      <mesh position={[1.8, 0.5, 0.5]}>
+        <boxGeometry args={[1.0, 1.0, 0.8]} />
         <meshStandardMaterial
           color="#3a4a5e"
           metalness={0.3}
@@ -528,8 +547,8 @@ function GateHouse({ position }) {
         />
       </mesh>
       {/* 岗亭窗户 */}
-      <mesh position={[0, 0.6, 0.81]}>
-        <planeGeometry args={[0.8, 0.4]} />
+      <mesh position={[1.8, 0.6, 0.91]}>
+        <planeGeometry args={[0.6, 0.4]} />
         <meshStandardMaterial
           color="#88ccff"
           transparent
@@ -539,33 +558,47 @@ function GateHouse({ position }) {
         />
       </mesh>
       {/* 岗亭屋顶 */}
-      <mesh position={[0, 1.05, 0.3]}>
-        <boxGeometry args={[1.4, 0.08, 1.2]} />
+      <mesh position={[1.8, 1.05, 0.5]}>
+        <boxGeometry args={[1.2, 0.08, 1.0]} />
         <meshStandardMaterial color="#5a6a7a" metalness={0.5} roughness={0.3} />
       </mesh>
-      {/* 道闸杆 */}
-      <mesh position={[-1, 1.5, -0.3]} rotation={[0, 0, Math.PI / 2]}>
-        <boxGeometry args={[0.8, 0.06, 0.06]} />
+      {/* 道闸机 — 左侧入口 */}
+      <mesh position={[-1.5, 0.3, -0.3]}>
+        <boxGeometry args={[0.4, 0.6, 0.4]} />
+        <meshStandardMaterial color="#4a4a4a" metalness={0.3} roughness={0.7} />
+      </mesh>
+      {/* 道闸杆 — 横杆 */}
+      <mesh position={[-0.8, 0.55, -0.3]} rotation={[0, 0, 0]}>
+        <boxGeometry args={[1.6, 0.06, 0.06]} />
         <meshStandardMaterial
-          color="#ff4444"
-          emissive="#ff2222"
-          emissiveIntensity={0.5}
+          color="#e8c840"
+          emissive="#e8c840"
+          emissiveIntensity={0.3}
         />
       </mesh>
-      {/* 道闸机 */}
-      <mesh position={[-0.8, 0.25, -0.3]}>
-        <boxGeometry args={[0.3, 0.5, 0.3]} />
-        <meshStandardMaterial color="#4a5a6a" metalness={0.4} roughness={0.5} />
+      {/* 道闸机 — 右侧出口 */}
+      <mesh position={[1.5, 0.3, -0.3]}>
+        <boxGeometry args={[0.4, 0.6, 0.4]} />
+        <meshStandardMaterial color="#4a4a4a" metalness={0.3} roughness={0.7} />
       </mesh>
-      {/* 保安（简化人形） */}
-      <SecurityGuard position={[0.8, 0, 0.8]} />
+      {/* 出口道闸杆 */}
+      <mesh position={[0.8, 0.55, -0.3]} rotation={[0, 0, 0]}>
+        <boxGeometry args={[1.6, 0.06, 0.06]} />
+        <meshStandardMaterial
+          color="#e8c840"
+          emissive="#e8c840"
+          emissiveIntensity={0.3}
+        />
+      </mesh>
+      {/* 保安 — 挪到岗亭旁边 */}
+      <SecurityGuard position={[1.8, 0, 1.2]} />
       {/* 园区名称牌 */}
-      <mesh position={[0, 1.5, 0]}>
-        <boxGeometry args={[2.5, 0.4, 0.08]} />
+      <mesh position={[0, 1.45, 0]}>
+        <boxGeometry args={[3.5, 0.5, 0.1]} />
         <meshStandardMaterial color="#2a3a4a" metalness={0.3} roughness={0.5} />
       </mesh>
-      <mesh position={[0, 1.5, 0.05]}>
-        <planeGeometry args={[2.3, 0.3]} />
+      <mesh position={[0, 1.45, 0.06]}>
+        <planeGeometry args={[3.3, 0.4]} />
         <meshStandardMaterial
           color="#00d4ff"
           emissive="#00d4ff"
