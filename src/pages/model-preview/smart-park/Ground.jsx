@@ -1,5 +1,5 @@
 import React, { useMemo, Suspense, useRef, useState } from 'react';
-import { useLoader } from '@react-three/fiber';
+import { useLoader, useFrame } from '@react-three/fiber';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import * as THREE from 'three';
 import superMarcket from '../models/supermarket.glb';
@@ -501,6 +501,38 @@ function ParkingSlot({ position }) {
 }
 
 function GateHouse({ position }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const barRef = useRef();
+
+  // 道闸杆条纹贴图
+  const barTexture = useMemo(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+
+    // 黄黑相间条纹
+    const stripeWidth = 32;
+    for (let i = 0; i < canvas.width; i += stripeWidth) {
+      ctx.fillStyle = (i / stripeWidth) % 2 === 0 ? '#e8c840' : '#1a1a1a';
+      ctx.fillRect(i, 0, stripeWidth, canvas.height);
+    }
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(6, 1);
+    return texture;
+  }, []);
+
+  // 道闸杆动画：关闭时水平，打开时逆时针旋转90度竖起
+    useFrame(() => {
+      const targetAngle = isOpen ? Math.PI / 2 : 0;
+      if (barRef.current) {
+        barRef.current.rotation.z = THREE.MathUtils.lerp(barRef.current.rotation.z, targetAngle, 0.12);
+      }
+    });
+
   return (
     <group position={position}>
       {/* 大门柱子 - 左 */}
@@ -562,36 +594,48 @@ function GateHouse({ position }) {
         <boxGeometry args={[1.2, 0.08, 1.0]} />
         <meshStandardMaterial color="#5a6a7a" metalness={0.5} roughness={0.3} />
       </mesh>
-      {/* 道闸机 — 左侧入口 */}
+      {/* 道闸机 */}
       <mesh position={[-1.5, 0.3, -0.3]}>
         <boxGeometry args={[0.4, 0.6, 0.4]} />
         <meshStandardMaterial color="#4a4a4a" metalness={0.3} roughness={0.7} />
       </mesh>
-      {/* 道闸杆 — 横杆 */}
-      <mesh position={[-0.8, 0.55, -0.3]} rotation={[0, 0, 0]}>
-        <boxGeometry args={[1.6, 0.06, 0.06]} />
-        <meshStandardMaterial
-          color="#e8c840"
-          emissive="#e8c840"
-          emissiveIntensity={0.3}
-        />
-      </mesh>
-      {/* 道闸机 — 右侧出口 */}
-      <mesh position={[1.5, 0.3, -0.3]}>
-        <boxGeometry args={[0.4, 0.6, 0.4]} />
-        <meshStandardMaterial color="#4a4a4a" metalness={0.3} roughness={0.7} />
-      </mesh>
-      {/* 出口道闸杆 */}
-      <mesh position={[0.8, 0.55, -0.3]} rotation={[0, 0, 0]}>
-        <boxGeometry args={[1.6, 0.06, 0.06]} />
-        <meshStandardMaterial
-          color="#e8c840"
-          emissive="#e8c840"
-          emissiveIntensity={0.3}
-        />
-      </mesh>
+      {/* 道闸杆 — 以最左端（道闸机顶部）为原点旋转 */}
+      <group ref={barRef} position={[-1.5, 0.6, -0.3]}>
+        <mesh position={[1.25, 0, 0]}>
+          <boxGeometry args={[2.5, 0.04, 0.04]} />
+          <meshStandardMaterial
+            map={barTexture}
+            emissive="#e8c840"
+            emissiveIntensity={0.1}
+            roughness={0.4}
+            metalness={0.1}
+          />
+        </mesh>
+      </group>
       {/* 保安 — 挪到岗亭旁边 */}
       <SecurityGuard position={[1.8, 0, 1.2]} />
+      {/* 岗亭墙上按钮 */}
+      <mesh
+        position={[1.35, 0.55, 0.91]}
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsOpen(!isOpen);
+        }}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          document.body.style.cursor = 'pointer';
+        }}
+        onPointerOut={() => {
+          document.body.style.cursor = 'auto';
+        }}
+      >
+        <boxGeometry args={[0.15, 0.15, 0.02]} />
+        <meshStandardMaterial
+          color={isOpen ? '#44ff44' : '#ff4444'}
+          emissive={isOpen ? '#44ff44' : '#ff4444'}
+          emissiveIntensity={0.8}
+        />
+      </mesh>
       {/* 园区名称牌 */}
       <mesh position={[0, 1.45, 0]}>
         <boxGeometry args={[3.5, 0.5, 0.1]} />
