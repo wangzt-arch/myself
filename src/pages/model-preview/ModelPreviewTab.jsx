@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect, useMemo, useState, useRef } from "react";
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useFrame } from '@react-three/fiber'
 import { useLoader, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import {
@@ -24,6 +24,150 @@ const modelLists = importAll(require.context('./models', false, /\.glb$/));
 const defaultModelName = 'xiaomi_su7_max.glb';
 const defaultModel = modelLists.find((item) => item.name === defaultModelName)?.value || modelLists[0]?.value || "";
 
+// 爆炸图：根据节点名称判断部件类型和爆炸方向
+const getExplodeDirection = (name) => {
+  const n = name.toLowerCase();
+  if (n.includes('wheel') || n.includes('hub') || n.includes('brake') || n.includes('disk')) {
+    if (n.includes('l')) return new THREE.Vector3(-1, 0, 0);
+    if (n.includes('r')) return new THREE.Vector3(1, 0, 0);
+    return new THREE.Vector3(0, 0, 0);
+  }
+  if (n.includes('frontkit')) return new THREE.Vector3(0, 0, 1);
+  if (n.includes('rearkit')) return new THREE.Vector3(0, 0, -1);
+  if (n.includes('hood')) return new THREE.Vector3(0, 1, 0.5);
+  if (n.includes('interior')) return new THREE.Vector3(0, 1, 0);
+  if (n.includes('base') && !n.includes('frontkit') && !n.includes('rearkit') && !n.includes('hood') && !n.includes('interior')) {
+    return new THREE.Vector3(0, 0, 0);
+  }
+  if (n.includes('root') && n.includes('xiaomi')) return new THREE.Vector3(0, 0, 0);
+  return new THREE.Vector3(0, 0, 0);
+};
+
+// 爆炸图方向缓存
+const explodeDirCache = new Map();
+const getCachedExplodeDir = (name) => {
+  if (!explodeDirCache.has(name)) {
+    explodeDirCache.set(name, getExplodeDirection(name));
+  }
+  return explodeDirCache.get(name);
+};
+
+// 共享参数 ref：父组件写入，Model 通过 useFrame 读取，避免 props 变化触发重渲染
+const sharedParamsRef = {
+  modelScale: 1.0,
+  explodeFactor: 0,
+  wireframe: false,
+  modelOpacity: 1.0,
+  modelColor: '#ffffff',
+  metalness: 0.3,
+  roughness: 0.5,
+};
+
+// Model 组件移到外部，使用共享 ref 读取参数，props 只有 currentModel（不会变）
+const Model = React.memo(({ currentModel }) => {
+  const glb = useLoader(GLTFLoader, currentModel);
+  const groupRef = useRef();
+  const fitRef = useRef(null);
+  const nodesRef = useRef(null);
+
+  const fit = useMemo(() => {
+    if (fitRef.current && fitRef.current.model === glb.scene) {
+      return fitRef.current.fit;
+    }
+    const box = new THREE.Box3().setFromObject(glb.scene);
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+    const maxSize = Math.max(size.x, size.y, size.z) || 1;
+    const baseScale = 3.2 / maxSize;
+
+    const result = {
+      position: [-center.x * baseScale, -center.y * baseScale, -center.z * baseScale],
+      baseScale,
+    };
+    fitRef.current = { model: glb.scene, fit: result };
+    return result;
+  }, [glb]);
+
+  // 首次加载时缓存节点原始位置和方向
+  if (!nodesRef.current) {
+    const nodeInfos = [];
+    glb.scene.traverse((child) => {
+      if (child.isMesh || child.isGroup) {
+        nodeInfos.push({
+          uuid: child.uuid,
+          origPosition: child.position.clone(),
+          dir: getCachedExplodeDir(child.name),
+        });
+      }
+    });
+    nodesRef.current = nodeInfos;
+  }
+
+  // 材质状态追踪
+  const prevMaterialState = useRef({
+    wireframe: false,
+    opacity: 1.0,
+    color: '#ffffff',
+    metalness: 0.3,
+    roughness: 0.5,
+  });
+
+  useFrame(() => {
+    if (!groupRef.current) return;
+
+    const params = sharedParamsRef;
+
+    // 更新材质（仅在参数变化时）
+    const ms = prevMaterialState.current;
+    if (ms.wireframe !== params.wireframe ||
+        ms.opacity !== params.modelOpacity ||
+        ms.color !== params.modelColor ||
+        ms.metalness !== params.metalness ||
+        ms.roughness !== params.roughness) {
+      glb.scene.traverse((child) => {
+        if (child.isMesh && child.material) {
+          child.material.wireframe = params.wireframe;
+          child.material.transparent = params.modelOpacity < 1;
+          child.material.opacity = params.modelOpacity;
+          child.material.color.set(params.modelColor);
+          if (child.material.metalness !== undefined) child.material.metalness = params.metalness;
+          if (child.material.roughness !== undefined) child.material.roughness = params.roughness;
+        }
+      });
+      ms.wireframe = params.wireframe;
+      ms.opacity = params.modelOpacity;
+      ms.color = params.modelColor;
+      ms.metalness = params.metalness;
+      ms.roughness = params.roughness;
+    }
+
+    // 更新缩放
+    groupRef.current.scale.setScalar(fit.baseScale * params.modelScale);
+
+    // 更新爆炸图位置
+    const nodeMap = new Map();
+    groupRef.current.traverse((child) => {
+      nodeMap.set(child.uuid, child);
+    });
+
+    nodesRef.current.forEach((info) => {
+      const obj = nodeMap.get(info.uuid);
+      if (obj && info.dir.lengthSq() > 0) {
+        const target = info.origPosition.clone().add(
+          info.dir.clone().multiplyScalar(params.explodeFactor * 3)
+        );
+        obj.position.lerp(target, 0.15);
+      }
+    });
+  });
+
+  return (
+    <group ref={groupRef} position={fit.position}>
+      <primitive object={glb.scene} />
+    </group>
+  );
+});
+
 function ModelPreviewTab() {
   const input = useRef(null);
   const [currentModel, setCurrentModel] = useState(defaultModel);
@@ -31,13 +175,17 @@ function ModelPreviewTab() {
 
   // 场景参数
   const [bgColor, setBgColor] = useState('#1a2332');
-  const [ambientIntensity, setAmbientIntensity] = useState(0.6);
+  const [ambientIntensity, setAmbientIntensity] = useState(1);
   const [ambientColor, setAmbientColor] = useState('#ffffff');
   const [pointLightIntensity, setPointLightIntensity] = useState(0.8);
+  const [mainLightEnabled, setMainLightEnabled] = useState(true);
+  const [mainLightIntensity, setMainLightIntensity] = useState(1.5);
+  const [mainLightColor, setMainLightColor] = useState('#ffffff');
+  const [mainLightPosition, setMainLightPosition] = useState([5, 8, 5]);
   const [fillLightEnabled, setFillLightEnabled] = useState(false);
   const [fillLightIntensity, setFillLightIntensity] = useState(0.4);
   const [fillLightColor, setFillLightColor] = useState('#4488aa');
-  const [fogEnabled, setFogEnabled] = useState(true);
+  const [fogEnabled, setFogEnabled] = useState(false);
   const [fogNear, setFogNear] = useState(8);
   const [fogFar, setFogFar] = useState(25);
   const [gridEnabled, setGridEnabled] = useState(true);
@@ -51,9 +199,27 @@ function ModelPreviewTab() {
   const [metalness, setMetalness] = useState(0.3);
   const [roughness, setRoughness] = useState(0.5);
   const [modelColor, setModelColor] = useState('#ffffff');
-  const [enableShadows, setEnableShadows] = useState(true);
+  const [enableShadows, setEnableShadows] = useState(false);
   const [fov, setFov] = useState(45);
   const [showToolbar, setShowToolbar] = useState(true);
+
+  // 爆炸图参数
+  const [explodeFactor, setExplodeFactor] = useState(0);
+
+  // 同步所有可变参数到 sharedParamsRef，避免 Model 因 props 变化重渲染
+  sharedParamsRef.modelScale = modelScale;
+  sharedParamsRef.explodeFactor = explodeFactor;
+  sharedParamsRef.wireframe = wireframe;
+  sharedParamsRef.modelOpacity = modelOpacity;
+  sharedParamsRef.modelColor = modelColor;
+  sharedParamsRef.metalness = metalness;
+  sharedParamsRef.roughness = roughness;
+
+  // 判断当前模型是否支持爆炸图（小米SU7）
+  const isExplodeSupported = useMemo(() => {
+    const modelName = modelLists.find(m => m.value === currentModel)?.name || '';
+    return modelName.toLowerCase().includes('xiaomi') && modelName.toLowerCase().includes('su7');
+  }, [currentModel]);
 
   useEffect(() => {
     return () => {
@@ -65,55 +231,6 @@ function ModelPreviewTab() {
 
   const loadModel = () => {
     input.current.click();
-  };
-
-  const Model = () => {
-    const glb = useLoader(GLTFLoader, currentModel);
-
-    const scene = useMemo(() => {
-      const cloned = glb.scene.clone(true);
-      cloned.traverse((child) => {
-        if (child.isMesh && child.material) {
-          child.material = child.material.clone();
-          if (wireframe) {
-            child.material.wireframe = true;
-          }
-          if (modelOpacity < 1) {
-            child.material.transparent = true;
-            child.material.opacity = modelOpacity;
-          }
-          if (modelColor !== '#ffffff') {
-            child.material.color = new THREE.Color(modelColor);
-          }
-          if (child.material.metalness !== undefined) {
-            child.material.metalness = metalness;
-          }
-          if (child.material.roughness !== undefined) {
-            child.material.roughness = roughness;
-          }
-        }
-      });
-      return cloned;
-    }, [glb]);
-
-    const fit = useMemo(() => {
-      const box = new THREE.Box3().setFromObject(scene);
-      const center = box.getCenter(new THREE.Vector3());
-      const size = box.getSize(new THREE.Vector3());
-      const maxSize = Math.max(size.x, size.y, size.z) || 1;
-      const scale = (3.2 / maxSize) * modelScale;
-
-      return {
-        position: [-center.x * scale, -center.y * scale, -center.z * scale],
-        scale,
-      };
-    }, [scene]);
-
-    return (
-      <group position={fit.position} scale={fit.scale}>
-        <primitive object={scene} />
-      </group>
-    );
   };
 
   // 相机 FOV 和阴影控制组件（放在 Canvas 内部）
@@ -169,11 +286,19 @@ function ModelPreviewTab() {
           <color attach="background" args={[bgColor]} />
           {fogEnabled && <fog attach="fog" args={[bgColor, fogNear, fogFar]} />}
           <ambientLight intensity={ambientIntensity} color={ambientColor} />
+          {mainLightEnabled && (
+            <directionalLight
+              position={mainLightPosition}
+              intensity={mainLightIntensity}
+              color={mainLightColor}
+              castShadow={enableShadows}
+            />
+          )}
           {fillLightEnabled && (
             <pointLight position={[-5, 5, -5]} intensity={fillLightIntensity} color={fillLightColor} />
           )}
           <Suspense fallback={<Loader />}>
-            {currentModel && <Model key={currentModel} />}
+            {currentModel && <Model key={currentModel} currentModel={currentModel} />}
             <OrbitControls
               target={[0, 0, 0]}
               enableDamping
@@ -261,13 +386,29 @@ function ModelPreviewTab() {
               <span className="toolbar-value">{ambientIntensity.toFixed(1)}</span>
             </div>
 
-            {/* 主灯强度 */}
-            <div className="toolbar-item">
-              <label>主灯强度</label>
-              <input type="range" min="0" max="5" step="0.1" value={pointLightIntensity}
-                onChange={(e) => setPointLightIntensity(Number(e.target.value))} />
-              <span className="toolbar-value">{pointLightIntensity.toFixed(1)}</span>
+            {/* 主光源 */}
+            <div className="toolbar-item toolbar-item--row">
+              <label>主光源</label>
+              <button className={`toolbar-switch ${mainLightEnabled ? 'toolbar-switch--on' : ''}`}
+                onClick={() => setMainLightEnabled(!mainLightEnabled)}>
+                {mainLightEnabled ? '开' : '关'}
+              </button>
             </div>
+
+            {mainLightEnabled && (
+              <>
+                <div className="toolbar-item">
+                  <label>主光强度</label>
+                  <input type="range" min="0" max="5" step="0.1" value={mainLightIntensity}
+                    onChange={(e) => setMainLightIntensity(Number(e.target.value))} />
+                  <span className="toolbar-value">{mainLightIntensity.toFixed(1)}</span>
+                </div>
+                <div className="toolbar-item">
+                  <label>主光颜色</label>
+                  <input type="color" value={mainLightColor} onChange={(e) => setMainLightColor(e.target.value)} />
+                </div>
+              </>
+            )}
 
             {/* 补光 */}
             <div className="toolbar-item toolbar-item--row">
@@ -423,17 +564,34 @@ function ModelPreviewTab() {
               <span className="toolbar-value">{roughness.toFixed(2)}</span>
             </div>
 
+            {isExplodeSupported && (
+              <>
+                <div className="toolbar-divider" />
+
+                {/* 爆炸图 */}
+                <div className="toolbar-item">
+                  <label>💥 爆炸图</label>
+                  <input type="range" min="0" max="3" step="0.1" value={explodeFactor}
+                    onChange={(e) => setExplodeFactor(Number(e.target.value))} />
+                  <span className="toolbar-value">{explodeFactor.toFixed(1)}</span>
+                </div>
+              </>
+            )}
+
             {/* 重置按钮 */}
             <div className="toolbar-item">
               <button className="toolbar-reset" onClick={() => {
                 setBgColor('#1a2332');
-                setAmbientIntensity(0.6);
+                setAmbientIntensity(1);
                 setAmbientColor('#ffffff');
                 setPointLightIntensity(0.8);
+                setMainLightEnabled(true);
+                setMainLightIntensity(1.5);
+                setMainLightColor('#ffffff');
                 setFillLightEnabled(false);
                 setFillLightIntensity(0.4);
                 setFillLightColor('#4488aa');
-                setFogEnabled(true);
+                setFogEnabled(false);
                 setFogNear(8);
                 setFogFar(25);
                 setGridEnabled(true);
@@ -449,6 +607,7 @@ function ModelPreviewTab() {
                 setRoughness(0.5);
                 setEnableShadows(false);
                 setFov(45);
+                setExplodeFactor(0);
               }}>
                 🔄 重置默认
               </button>
