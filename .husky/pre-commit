@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# ——————————————————————————————————————————————————
+# pre-commit: 提交前钩子（占位，保留 husky 接入点）
+#   - 项目原有 eslint 规则由 IDE 提示，不在这里强制拦截
+#   - 如果后续需要开启质量门禁，在此调用 lint-staged 或 eslint
+# ——————————————————————————————————————————————————
+
+echo "[husky] 正在进行提交前检查..."
+
+# —— 1. 检查 package.json 的 scripts 是否完整（确保 husky/commitlint 可用）
+# —— 2. 检查 node_modules 是否存在（husky hooks 需要）
+
+if [ ! -d "node_modules" ]; then
+  echo "⚠️  node_modules 不存在，建议先运行: npm install"
+fi
+
+echo "✅ pre-commit 检查通过"
