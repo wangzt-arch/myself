@@ -7,6 +7,7 @@ import skills from "./skills.md";
 import commonInstructions from "./common-instructions.md";
 import openlayers from "./openlayers-func.md";
 import cesium from "./cesium.md";
+import cesiumPerf from "./cesium-perf.md";
 import ai from "./ai.md";
 import codexStart from "./codex-start.md";
 import aiPrompts from "./ai-prompts.md";
@@ -97,6 +98,12 @@ const docs = [
     category: "GIS 可视化",
     tags: ["Cesium", "3D GIS"],
     value: cesium,
+  },
+  {
+    title: "Cesium WebGL / WebGPU 性能优化实战指南",
+    category: "GIS 可视化",
+    tags: ["Cesium", "WebGL", "WebGPU", "性能优化", "3D GIS"],
+    value: cesiumPerf,
   },
   {
     title: "JS 面试题",
