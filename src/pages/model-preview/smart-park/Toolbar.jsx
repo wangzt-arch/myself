@@ -12,7 +12,7 @@ function Toolbar({ onViewChange, currentView, weather, onWeatherChange, timeOfDa
     { id: 'sunny', label: '☀️ 晴', icon: '☀️' },
     { id: 'cloudy', label: '☁️ 多云', icon: '☁️' },
     { id: 'rainy', label: '🌧️ 雨', icon: '🌧️' },
-    { id: 'night', label: '🌙 夜', icon: '🌙' },
+    { id: 'snowy', label: '❄️ 雪', icon: '❄️' },
   ];
 
   const times = [

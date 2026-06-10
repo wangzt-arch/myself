@@ -129,7 +129,7 @@ function Scene({ onBuildingClick, selectedBuilding, viewMode, weather, timeOfDay
     }
   }, [timeOfDay]);
 
-  // 天气效果
+  // 天气效果 — 雨滴
   const weatherParticles = useMemo(() => {
     if (weather === 'rainy') {
       const particles = [];
@@ -142,6 +142,28 @@ function Scene({ onBuildingClick, selectedBuilding, viewMode, weather, timeOfDay
           ],
           speed: 0.3 + Math.random() * 0.2,
           key: `rain-${i}`,
+        });
+      }
+      return particles;
+    }
+    return [];
+  }, [weather]);
+
+  // 天气效果 — 雪花
+  const snowParticles = useMemo(() => {
+    if (weather === 'snowy') {
+      const particles = [];
+      for (let i = 0; i < 300; i++) {
+        particles.push({
+          position: [
+            (Math.random() - 0.5) * 24,
+            Math.random() * 15 + 5,
+            (Math.random() - 0.5) * 24,
+          ],
+          speed: 0.05 + Math.random() * 0.08,
+          drift: (Math.random() - 0.5) * 0.02,
+          size: 0.03 + Math.random() * 0.05,
+          key: `snow-${i}`,
         });
       }
       return particles;
@@ -248,6 +270,19 @@ function Scene({ onBuildingClick, selectedBuilding, viewMode, weather, timeOfDay
         <Cloud key={c.key} position={c.position} blobs={c.blobs} speed={c.speed} />
       ))}
 
+      {/* 下雪效果 */}
+      {weather === 'snowy' && snowParticles.map((p) => (
+        <SnowFlake key={p.key} position={p.position} speed={p.speed} drift={p.drift} size={p.size} />
+      ))}
+
+      {/* 地面积雪 */}
+      {weather === 'snowy' && (
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.08, 0]} receiveShadow>
+          <planeGeometry args={[24, 24]} />
+          <meshStandardMaterial color="#f0f4f8" transparent opacity={0.6} roughness={1} metalness={0} />
+        </mesh>
+      )}
+
       {/* 控制器 */}
       <OrbitControls
         ref={controlsRef}
@@ -318,6 +353,39 @@ function Cloud({ position, blobs, speed }) {
         </mesh>
       ))}
     </group>
+  );
+}
+
+function SnowFlake({ position, speed, drift, size }) {
+  const ref = useRef();
+  const initialX = useRef(position[0]);
+  const initialZ = useRef(position[2]);
+
+  useFrame((state) => {
+    if (ref.current) {
+      const time = state.clock.elapsedTime;
+      // 缓慢飘落
+      ref.current.position.y -= speed;
+      // 左右飘动
+      ref.current.position.x = initialX.current + Math.sin(time * 0.5 + initialZ.current) * 0.5;
+      ref.current.position.z += drift + Math.sin(time * 0.3 + initialX.current) * 0.003;
+
+      // 落到地面后重置
+      if (ref.current.position.y < 0) {
+        ref.current.position.y = 15 + Math.random() * 5;
+        ref.current.position.x = (Math.random() - 0.5) * 24;
+        ref.current.position.z = (Math.random() - 0.5) * 24;
+        initialX.current = ref.current.position.x;
+        initialZ.current = ref.current.position.z;
+      }
+    }
+  });
+
+  return (
+    <mesh ref={ref} position={position}>
+      <sphereGeometry args={[size, 4, 4]} />
+      <meshBasicMaterial color="#ffffff" transparent opacity={0.85} />
+    </mesh>
   );
 }
 

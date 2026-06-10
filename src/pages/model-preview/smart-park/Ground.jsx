@@ -306,10 +306,10 @@ function Ground({ onExternalModelClick, selectedBuilding }) {
         <XiaomiSU7 position={[8.5, 0, -4.2]} rotation={Math.PI} />
       </Suspense>
       <Suspense fallback={null}>
-        <XiaomiSU7 position={[8.5, 0, 2.4]} rotation={0} />
+        <XiaomiSU7 position={[8.5, 0, 2.0]} rotation={0} />
       </Suspense>
       <Suspense fallback={null}>
-        <XiaomiSU7 position={[8.5, 0, 3.8]} rotation={0} />
+        <XiaomiSU7 position={[8.5, 0, 4.5]} rotation={0} />
       </Suspense>
       <Suspense fallback={null}>
         <XiaomiSU7 position={[-8.5, 0, -1.2]} rotation={Math.PI} />
