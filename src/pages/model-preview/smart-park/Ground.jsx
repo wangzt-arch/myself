@@ -84,7 +84,6 @@ function ExternalModel({ url, position, rotation = 0, scale = 1, name, type, onC
 
 function Ground({ onExternalModelClick, selectedBuilding }) {
   const gridSize = 24;
-  const gridDivisions = 48;
 
   // 围墙路径 - 围绕整个园区
   const wallPath = useMemo(() => {
@@ -116,30 +115,72 @@ function Ground({ onExternalModelClick, selectedBuilding }) {
     return pillars;
   }, []);
 
-  // 道路系统
-  const roadPaths = useMemo(() => {
-    const paths = [
-      // 主路 - 横向贯穿
-      { start: [-11, 0.01, 0], end: [11, 0.01, 0], width: 1.0 },
-      // 主路 - 纵向贯穿
-      { start: [0, 0.01, -11], end: [0, 0.01, 11], width: 1.0 },
-      // 外环路
-      { start: [-8, 0.01, -8], end: [8, 0.01, -8], width: 0.6 },
-      { start: [8, 0.01, -8], end: [8, 0.01, 8], width: 0.6 },
-      { start: [8, 0.01, 8], end: [-8, 0.01, 8], width: 0.6 },
-      { start: [-8, 0.01, 8], end: [-8, 0.01, -8], width: 0.6 },
-      // 内环路
-      { start: [-4, 0.01, -4], end: [4, 0.01, -4], width: 0.5 },
-      { start: [4, 0.01, -4], end: [4, 0.01, 4], width: 0.5 },
-      { start: [4, 0.01, 4], end: [-4, 0.01, 4], width: 0.5 },
-      { start: [-4, 0.01, 4], end: [-4, 0.01, -4], width: 0.5 },
-      // 支路
-      { start: [-8, 0.01, -4], end: [8, 0.01, -4], width: 0.4 },
-      { start: [-8, 0.01, 4], end: [8, 0.01, 4], width: 0.4 },
-      { start: [-4, 0.01, -8], end: [-4, 0.01, 8], width: 0.4 },
-      { start: [4, 0.01, -8], end: [4, 0.01, 8], width: 0.4 },
-    ];
-    return paths;
+  // 道路纹理 — 使用 Canvas 绘制所有道路到一个贴图上
+  const roadTexture = useMemo(() => {
+    const size = 1024;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+
+    // 透明背景
+    ctx.clearRect(0, 0, size, size);
+
+    const worldSize = 24; // 世界坐标范围 -12 到 12
+    const scale = size / worldSize; // 像素/世界单位
+
+    function worldToPixel(x, z) {
+      return {
+        x: (x + worldSize / 2) * scale,
+        y: (worldSize / 2 - z) * scale,
+      };
+    }
+
+    function drawRoad(x, z, w, h, isMain) {
+      const pos = worldToPixel(x, z);
+      const pw = w * scale;
+      const ph = h * scale;
+      ctx.fillStyle = '#1a1a1a';
+      ctx.fillRect(pos.x - pw / 2, pos.y - ph / 2, pw, ph);
+
+      // 中心线
+      ctx.fillStyle = isMain ? '#f0f0f0' : '#aaaaaa';
+      const lineWidth = isMain ? 2 : 1.5;
+      if (w > h) {
+        // 横向道路
+        ctx.fillRect(pos.x - pw / 2, pos.y - lineWidth / 2, pw, lineWidth);
+      } else {
+        // 纵向道路
+        ctx.fillRect(pos.x - lineWidth / 2, pos.y - ph / 2, lineWidth, ph);
+      }
+    }
+
+    // 横向主干道（贯穿东西）
+    drawRoad(0, 0, 22, 1.2, true);
+    // 纵向主干道（贯穿南北）
+    drawRoad(0, 0, 1.2, 22, true);
+
+    // 外环主干道
+    const outer = 9;
+    drawRoad(0, -outer, 18, 1.0, true);
+    drawRoad(0, outer, 18, 1.0, true);
+    drawRoad(-outer, 0, 1.0, 18, true);
+    drawRoad(outer, 0, 1.0, 18, true);
+
+    // 内环支路
+    const inner = 4.5;
+    drawRoad(0, -inner, 9, 0.6, false);
+    drawRoad(0, inner, 9, 0.6, false);
+    drawRoad(-inner, 0, 0.6, 9, false);
+    drawRoad(inner, 0, 0.6, 9, false);
+
+    // 停车场通道
+    drawRoad(8, 0, 0.8, 10, false);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    return texture;
   }, []);
 
   // 树木 - 更丰富
@@ -150,16 +191,16 @@ function Ground({ onExternalModelClick, selectedBuilding }) {
     for (let i = -10; i <= 10; i += 1.5) {
       borderPositions.push([i, -9.5], [i, 9.5], [-9.5, i], [9.5, i]);
     }
-    // 内部绿化
+    // 内部绿化（排除超市位置附近）
     const innerPositions = [
       [-6, -6], [-6, -2], [-6, 2], [-6, 6],
-      [-2, -6], [-2, 6], [2, -6], [2, 6],
+      [-2, -6], [-2, 6], [2, -6], // [2, 6] 删除，靠近超市
       [6, -6], [6, -2], [6, 2], [6, 6],
       [-9, -9], [-9, 9], [9, -9], [9, 9],
-      [-3, -9], [3, -9], [-3, 9], [3, 9],
+      [-3, -9], [3, -9], [-3, 9], // [3, 9] 删除，靠近超市
       [-9, -3], [-9, 3], [9, -3], [9, 3],
       [-7, -3], [-7, 3], [7, -3], [7, 3],
-      [-3, -7], [3, -7], [-3, 7], [3, 7],
+      [-3, -7], [3, -7], [-3, 7], // [3, 7] 删除，靠近超市
     ];
     [...borderPositions, ...innerPositions].forEach(([x, z], i) => {
       items.push({
@@ -182,7 +223,7 @@ function Ground({ onExternalModelClick, selectedBuilding }) {
       { pos: [-6, 0.005, 0], size: [2, 4] },
       { pos: [6, 0.005, 0], size: [2, 4] },
       { pos: [0, 0.005, -6], size: [4, 2] },
-      { pos: [0, 0.005, 6], size: [4, 2] },
+      // 大门左手边草坪已删除，改为超市位置
     ];
   }, []);
 
@@ -207,35 +248,29 @@ function Ground({ onExternalModelClick, selectedBuilding }) {
 
   return (
     <group>
-      {/* 地面 */}
+      {/* 地面 - 水泥地面底色 */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
         <planeGeometry args={[gridSize, gridSize]} />
         <meshStandardMaterial
-          color="#1a2332"
-          metalness={0.1}
-          roughness={0.8}
+          color="#8a8a8a"
+          metalness={0.05}
+          roughness={0.95}
         />
       </mesh>
 
-      {/* 网格线 */}
-      <gridHelper
-        args={[gridSize, gridDivisions, '#2a3a50', '#1e2d3d']}
-        position={[0, 0, 0]}
-      />
-
-      {/* 围墙 */}
+      {/* 围墙 - 深灰色 */}
       {wallPath.map((wall, i) => (
         <mesh key={`wall-${i}`} position={wall.pos}>
           <boxGeometry args={wall.size} />
           <meshStandardMaterial
-            color="#3a4a5e"
-            metalness={0.3}
-            roughness={0.6}
+            color="#4a4a4a"
+            metalness={0.1}
+            roughness={0.9}
           />
         </mesh>
       ))}
 
-      {/* 围墙顶部装饰线 */}
+      {/* 围墙顶部压顶线 */}
       {wallPath.map((wall, i) => (
         <mesh
           key={`wall-top-${i}`}
@@ -243,42 +278,44 @@ function Ground({ onExternalModelClick, selectedBuilding }) {
         >
           <boxGeometry args={[wall.size[0] + 0.1, 0.06, wall.size[2] + 0.1]} />
           <meshStandardMaterial
-            color="#5a7a9a"
-            metalness={0.5}
-            roughness={0.3}
-            emissive="#5a7a9a"
-            emissiveIntensity={0.2}
+            color="#5a5a5a"
+            metalness={0.15}
+            roughness={0.8}
           />
         </mesh>
       ))}
 
-      {/* 围墙柱子 */}
+      {/* 围墙柱子 - 深灰色 */}
       {wallPillars.map((pillar) => (
         <mesh key={pillar.key} position={pillar.pos}>
           <boxGeometry args={[0.25, 1.0, 0.25]} />
           <meshStandardMaterial
-            color="#4a5a6a"
-            metalness={0.4}
-            roughness={0.5}
+            color="#505050"
+            metalness={0.1}
+            roughness={0.85}
           />
         </mesh>
       ))}
 
-      {/* 道路 */}
-      {roadPaths.map((road, i) => (
-        <Road key={`road-${i}`} start={road.start} end={road.end} width={road.width} />
-      ))}
+      {/* 道路层 — 单个平面 + Canvas 纹理 */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 0]}>
+        <planeGeometry args={[24, 24]} />
+        <meshStandardMaterial
+          map={roadTexture}
+          transparent
+          roughness={0.95}
+          metalness={0.05}
+        />
+      </mesh>
 
-      {/* 草坪 */}
+      {/* 草坪 - 绿化带 */}
       {lawns.map((lawn, i) => (
         <mesh key={`lawn-${i}`} rotation={[-Math.PI / 2, 0, 0]} position={lawn.pos}>
           <planeGeometry args={lawn.size} />
           <meshStandardMaterial
-            color="#1a3a1a"
-            metalness={0.1}
-            roughness={0.9}
-            emissive="#0a2a0a"
-            emissiveIntensity={0.1}
+            color="#3a5a2a"
+            metalness={0.05}
+            roughness={0.95}
           />
         </mesh>
       ))}
@@ -332,7 +369,7 @@ function Ground({ onExternalModelClick, selectedBuilding }) {
       <Suspense fallback={null}>
         <ExternalModel
           url={superMarcket}
-          position={[-6, 0, 0]}
+          position={[-2, 0, 6]}
           rotation={0}
           scale={2.5}
           name="F栋 超市"
@@ -342,56 +379,6 @@ function Ground({ onExternalModelClick, selectedBuilding }) {
         />
       </Suspense>
 
-      {/* 中心广场 */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.005, 0]}>
-        <circleGeometry args={[1.5, 32]} />
-        <meshStandardMaterial
-          color="#2a3a50"
-          metalness={0.2}
-          roughness={0.6}
-        />
-      </mesh>
-
-      {/* 中心喷泉 */}
-      <Fountain />
-    </group>
-  );
-}
-
-function Road({ start, end, width }) {
-  const length = Math.sqrt(
-    Math.pow(end[0] - start[0], 2) + Math.pow(end[2] - start[2], 2)
-  );
-  const midX = (start[0] + end[0]) / 2;
-  const midZ = (start[2] + end[2]) / 2;
-  const angle = Math.atan2(end[0] - start[0], end[2] - start[2]);
-
-  return (
-    <group>
-      {/* 路面 */}
-      <mesh
-        rotation={[-Math.PI / 2, angle, 0]}
-        position={[midX, 0.005, midZ]}
-      >
-        <planeGeometry args={[width, length]} />
-        <meshStandardMaterial
-          color="#3a4a5e"
-          metalness={0.2}
-          roughness={0.7}
-        />
-      </mesh>
-      {/* 道路标线 */}
-      <mesh
-        rotation={[-Math.PI / 2, angle, 0]}
-        position={[midX, 0.008, midZ]}
-      >
-        <planeGeometry args={[0.03, length]} />
-        <meshStandardMaterial
-          color="#5a7a9a"
-          emissive="#5a7a9a"
-          emissiveIntensity={0.3}
-        />
-      </mesh>
     </group>
   );
 }
@@ -466,22 +453,34 @@ function FlowerBed({ position, color }) {
 function ParkingSlot({ position }) {
   return (
     <group position={position}>
+      {/* 停车位地面 - 水泥色 */}
       <mesh rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[0.8, 2.0]} />
         <meshStandardMaterial
-          color="#2a3a4a"
-          metalness={0.2}
-          roughness={0.7}
+          color="#7a7a7a"
+          metalness={0.05}
+          roughness={0.95}
         />
       </mesh>
-      {/* 停车线 */}
+      {/* 白色停车线 - 前 */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.005, -0.9]}>
-        <planeGeometry args={[0.8, 0.03]} />
-        <meshStandardMaterial color="#5a7a9a" emissive="#5a7a9a" emissiveIntensity={0.3} />
+        <planeGeometry args={[0.8, 0.04]} />
+        <meshStandardMaterial color="#f0f0f0" roughness={0.6} />
       </mesh>
+      {/* 白色停车线 - 后 */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.005, 0.9]}>
-        <planeGeometry args={[0.8, 0.03]} />
-        <meshStandardMaterial color="#5a7a9a" emissive="#5a7a9a" emissiveIntensity={0.3} />
+        <planeGeometry args={[0.8, 0.04]} />
+        <meshStandardMaterial color="#f0f0f0" roughness={0.6} />
+      </mesh>
+      {/* 白色停车线 - 左 */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-0.38, 0.005, 0]}>
+        <planeGeometry args={[0.04, 2.0]} />
+        <meshStandardMaterial color="#f0f0f0" roughness={0.6} />
+      </mesh>
+      {/* 白色停车线 - 右 */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0.38, 0.005, 0]}>
+        <planeGeometry args={[0.04, 2.0]} />
+        <meshStandardMaterial color="#f0f0f0" roughness={0.6} />
       </mesh>
     </group>
   );
@@ -545,8 +544,8 @@ function GateHouse({ position }) {
         <meshStandardMaterial color="#5a6a7a" metalness={0.5} roughness={0.3} />
       </mesh>
       {/* 道闸杆 */}
-      <mesh position={[0, 0.7, -0.3]} rotation={[0, 0, Math.PI / 2]}>
-        <boxGeometry args={[2.8, 0.06, 0.06]} />
+      <mesh position={[-1, 1.5, -0.3]} rotation={[0, 0, Math.PI / 2]}>
+        <boxGeometry args={[0.8, 0.06, 0.06]} />
         <meshStandardMaterial
           color="#ff4444"
           emissive="#ff2222"
@@ -559,7 +558,7 @@ function GateHouse({ position }) {
         <meshStandardMaterial color="#4a5a6a" metalness={0.4} roughness={0.5} />
       </mesh>
       {/* 保安（简化人形） */}
-      <SecurityGuard position={[0.5, 0, 0.8]} />
+      <SecurityGuard position={[0.8, 0, 0.8]} />
       {/* 园区名称牌 */}
       <mesh position={[0, 1.5, 0]}>
         <boxGeometry args={[2.5, 0.4, 0.08]} />
@@ -701,53 +700,6 @@ function StreetLight({ position }) {
       </mesh>
       {/* 点光源 */}
       <pointLight position={[0.3, 2.0, 0]} intensity={0.3} color="#ffeecc" distance={5} />
-    </group>
-  );
-}
-
-function Fountain() {
-  return (
-    <group position={[0, 0, 0]}>
-      {/* 喷泉底座 */}
-      <mesh position={[0, 0.05, 0]}>
-        <cylinderGeometry args={[0.5, 0.6, 0.1, 16]} />
-        <meshStandardMaterial
-          color="#4a6a8a"
-          metalness={0.4}
-          roughness={0.3}
-        />
-      </mesh>
-      {/* 喷泉中心柱 */}
-      <mesh position={[0, 0.3, 0]}>
-        <cylinderGeometry args={[0.08, 0.12, 0.4, 8]} />
-        <meshStandardMaterial
-          color="#5a7a9a"
-          metalness={0.5}
-          roughness={0.3}
-        />
-      </mesh>
-      {/* 水柱 */}
-      <mesh position={[0, 0.6, 0]}>
-        <cylinderGeometry args={[0.02, 0.06, 0.3, 8]} />
-        <meshStandardMaterial
-          color="#00d4ff"
-          transparent
-          opacity={0.6}
-          emissive="#00d4ff"
-          emissiveIntensity={0.8}
-        />
-      </mesh>
-      {/* 水面 */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.11, 0]}>
-        <circleGeometry args={[0.5, 16]} />
-        <meshStandardMaterial
-          color="#00a0cc"
-          transparent
-          opacity={0.4}
-          emissive="#00a0cc"
-          emissiveIntensity={0.3}
-        />
-      </mesh>
     </group>
   );
 }

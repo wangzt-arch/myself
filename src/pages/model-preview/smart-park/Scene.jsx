@@ -7,18 +7,31 @@ import Ground from './Ground';
 
 const PARK_DATA = {
   buildings: [
-    { name: 'A栋 行政楼', type: '办公楼', floors: 8, position: [-4, 0, -4], size: [1.8, 2.4, 1.2], color: '#3a5a7a' },
-    { name: 'B栋 研发中心', type: '研发楼', floors: 12, position: [4, 0, -4], size: [2.0, 3.6, 1.4], color: '#2a4a6a' },
-    { name: 'C栋 数据中心', type: '数据中心', floors: 6, position: [-4, 0, 4], size: [2.2, 1.8, 2.0], color: '#1a3a5a' },
-    { name: 'D栋 会议中心', type: '会议楼', floors: 5, position: [4, 0, 4], size: [1.6, 1.5, 1.6], color: '#4a6a8a' },
-    { name: 'E栋 员工餐厅', type: '餐饮楼', floors: 3, position: [0, 0, -6], size: [2.0, 0.9, 1.2], color: '#5a7a5a' },
-    { name: 'F栋 超市', type: '超市', floors: 2, position: [-6, 0, 0], size: [2.5, 1.5, 2.5], color: '#6a5a7a', externalModel: true },
-    { name: 'G栋 宿舍楼A', type: '宿舍楼', floors: 10, position: [6, 0, 0], size: [1.0, 3.0, 1.0], color: '#7a6a5a' },
-    { name: 'H栋 宿舍楼B', type: '宿舍楼', floors: 10, position: [7.5, 0, 0], size: [1.0, 3.0, 1.0], color: '#7a6a5a' },
-    { name: 'I栋 实验楼', type: '实验楼', floors: 7, position: [0, 0, 6], size: [1.8, 2.1, 1.2], color: '#5a5a7a' },
-    { name: 'J栋 图书馆', type: '图书馆', floors: 4, position: [-7, 0, -7], size: [1.4, 1.2, 1.0], color: '#7a5a5a' },
-    { name: 'K栋 医疗中心', type: '医疗楼', floors: 4, position: [7, 0, -7], size: [1.2, 1.2, 1.2], color: '#5a7a7a' },
-    { name: 'L栋 停车楼', type: '停车楼', floors: 5, position: [-7, 0, 7], size: [2.0, 1.5, 1.0], color: '#6a6a6a' },
+    // 左上区域（内环和外环之间）
+    { name: 'A栋 行政楼', type: '办公楼', floors: 8, position: [-6.5, 0, -6.5], size: [1.8, 2.4, 1.2], color: '#3a5a7a' },
+    { name: 'J栋 图书馆', type: '图书馆', floors: 4, position: [-6.5, 0, -2.5], size: [1.4, 1.2, 1.0], color: '#7a5a5a' },
+
+    // 右上区域
+    { name: 'B栋 研发中心', type: '研发楼', floors: 12, position: [6.5, 0, -6.5], size: [2.0, 3.6, 1.4], color: '#2a4a6a' },
+    { name: 'K栋 医疗中心', type: '医疗楼', floors: 4, position: [6.5, 0, -2.5], size: [1.2, 1.2, 1.2], color: '#5a7a7a' },
+
+    // 左下区域
+    { name: 'C栋 数据中心', type: '数据中心', floors: 6, position: [-6.5, 0, 6.5], size: [2.2, 1.8, 2.0], color: '#1a3a5a' },
+    { name: 'L栋 停车楼', type: '停车楼', floors: 5, position: [-6.5, 0, 2.5], size: [2.0, 1.5, 1.0], color: '#6a6a6a' },
+
+    // 右下区域
+    { name: 'D栋 会议中心', type: '会议楼', floors: 5, position: [6.5, 0, 6.5], size: [1.6, 1.5, 1.6], color: '#4a6a8a' },
+    { name: 'I栋 实验楼', type: '实验楼', floors: 7, position: [6.5, 0, 2.5], size: [1.8, 2.1, 1.2], color: '#5a5a7a' },
+
+    // 大门左手边（南侧草坪位置）
+    { name: 'F栋 超市', type: '超市', floors: 2, position: [-2, 0, 6.5], size: [2.5, 1.5, 2.5], color: '#6a5a7a', externalModel: true },
+
+    // 右侧区域（横向主干道以南）
+    { name: 'G栋 宿舍楼A', type: '宿舍楼', floors: 10, position: [2.5, 0, 2.5], size: [1.0, 3.0, 1.0], color: '#7a6a5a' },
+    { name: 'H栋 宿舍楼B', type: '宿舍楼', floors: 10, position: [-2.5, 0, 2.5], size: [1.0, 3.0, 1.0], color: '#7a6a5a' },
+
+    // 上方区域（纵向主干道以西）
+    { name: 'E栋 员工餐厅', type: '餐饮楼', floors: 3, position: [-2.5, 0, -2.5], size: [2.0, 0.9, 1.2], color: '#5a7a5a' },
   ],
 };
 
