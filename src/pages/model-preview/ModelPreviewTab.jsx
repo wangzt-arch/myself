@@ -177,11 +177,10 @@ function ModelPreviewTab() {
   const [bgColor, setBgColor] = useState('#1a2332');
   const [ambientIntensity, setAmbientIntensity] = useState(1);
   const [ambientColor, setAmbientColor] = useState('#ffffff');
-  const [pointLightIntensity, setPointLightIntensity] = useState(0.8);
   const [mainLightEnabled, setMainLightEnabled] = useState(true);
   const [mainLightIntensity, setMainLightIntensity] = useState(1.5);
   const [mainLightColor, setMainLightColor] = useState('#ffffff');
-  const [mainLightPosition, setMainLightPosition] = useState([5, 8, 5]);
+  const [mainLightPosition] = useState([5, 8, 5]);
   const [fillLightEnabled, setFillLightEnabled] = useState(false);
   const [fillLightIntensity, setFillLightIntensity] = useState(0.4);
   const [fillLightColor, setFillLightColor] = useState('#4488aa');
@@ -584,7 +583,6 @@ function ModelPreviewTab() {
                 setBgColor('#1a2332');
                 setAmbientIntensity(1);
                 setAmbientColor('#ffffff');
-                setPointLightIntensity(0.8);
                 setMainLightEnabled(true);
                 setMainLightIntensity(1.5);
                 setMainLightColor('#ffffff');
