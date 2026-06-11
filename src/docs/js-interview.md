@@ -511,4 +511,211 @@ JavaScript 引擎会自动回收不再使用的内存，主要有两种策略：
 
 ---
 
+### 7.5 前端如何处理高并发请求？
+
+前端处理高并发请求主要从**控制请求频率**、**优化请求策略**、**利用缓存**和**降级处理**几个方面入手。下面详细说明核心方案。
+
+**请求层面的优化**：
+
+第一种是**请求合并**。当短时间内有多个相似请求时，可以合并成一个请求发送，减少网络开销。比如把多个 ID 的查询合并成 `/api/users?ids=1,2,3`。
+
+第二种是**请求缓存**。对于相同的请求，缓存其结果，避免重复请求。可以用 `Map` 或 `WeakMap` 做内存缓存，也可以用 `localStorage` 做持久化缓存。
+
+第三种是**请求降级**。当服务器压力过大时，前端可以选择性地取消一些非关键请求，或者展示缓存数据。
+
+**并发控制**：
+
+使用**限流**策略，限制同时发送的请求数量。比如用 Promise.all 每次只并发发送 5 个请求，处理完再发送下一批。
+
+```javascript
+async function batchRequest(urls, limit = 5) {
+  const results = [];
+  for (let i = 0; i < urls.length; i += limit) {
+    const batch = urls.slice(i, i + limit);
+    const batchResults = await Promise.all(batch.map(url => fetch(url)));
+    results.push(...batchResults);
+  }
+  return results;
+}
+```
+
+**场景：3 个并发发送 100 条请求**
+
+如果限制最多同时发送 3 个请求，有几种实现方式：
+
+**方案一：批处理（简单但不够高效）**
+
+```javascript
+async function batchProcess(urls, maxConcurrent = 3) {
+  const results = [];
+  for (let i = 0; i < urls.length; i += maxConcurrent) {
+    const batch = urls.slice(i, i + maxConcurrent);
+    const batchResults = await Promise.all(
+      batch.map(url => fetch(url).then(res => res.json()))
+    );
+    results.push(...batchResults);
+  }
+  return results;
+}
+
+// 使用示例
+const urls = Array.from({ length: 100 }, (_, i) => `/api/data/${i}`);
+batchProcess(urls, 3);
+```
+
+**方案二：任务队列（更高效，一完成就补位）**
+
+```javascript
+async function queueProcess(urls, maxConcurrent = 3) {
+  const results = [];
+  const executing = [];
+  
+  for (const url of urls) {
+    const promise = fetch(url).then(res => res.json()).then(result => {
+      results.push(result);
+      // 从执行队列中移除
+      const index = executing.indexOf(promise);
+      if (index > -1) executing.splice(index, 1);
+      return result;
+    });
+    
+    executing.push(promise);
+    
+    // 如果并发数达到上限，等待其中一个完成
+    if (executing.length >= maxConcurrent) {
+      await Promise.race(executing);
+    }
+  }
+  
+  // 等待剩余请求完成
+  await Promise.all(executing);
+  return results;
+}
+```
+
+**方案三：递归调度（控制更精细）**
+
+```javascript
+async function scheduleRequests(urls, maxConcurrent = 3) {
+  const results = [];
+  let currentIndex = 0;
+  
+  async function worker() {
+    while (currentIndex < urls.length) {
+      const url = urls[currentIndex++];
+      const result = await fetch(url).then(res => res.json());
+      results.push(result);
+    }
+  }
+  
+  // 创建指定数量的工作线程
+  const workers = Array.from({ length: maxConcurrent }, () => worker());
+  await Promise.all(workers);
+  return results;
+}
+```
+
+**方案对比**：
+
+| 方案 | 特点 | 适用场景 |
+|------|------|---------|
+| **批处理** | 简单直观，按批次等待 | 对延迟不敏感，代码需要简洁 |
+| **任务队列** | 高效利用带宽，一完成就补位 | 追求最大吞吐量 |
+| **递归调度** | 控制精细，可扩展 | 需要复杂的任务管理逻辑 |
+
+**其他优化手段**：
+
+- **使用 HTTP/2**，它支持多路复用，可以在一个连接上同时发送多个请求。
+- **配置合理的超时时间**，避免请求长时间挂起。
+- **实现请求重试机制**，处理网络抖动导致的失败。
+- **利用 CDN** 缓存静态资源，减轻服务器压力。
+
+---
+
+### 7.6 常用的设计模式有哪些？
+
+设计模式是解决特定问题的成熟方案，前端开发中常用的有以下几种：
+
+**单例模式**：确保一个类只有一个实例，并提供全局访问点。常用于管理全局状态、弹窗管理器等场景。
+
+```javascript
+class Singleton {
+  constructor() {
+    if (Singleton.instance) return Singleton.instance;
+    Singleton.instance = this;
+  }
+}
+```
+
+**工厂模式**：通过工厂方法创建对象，隐藏创建逻辑。比如根据不同类型创建不同的图表组件。
+
+```javascript
+class ChartFactory {
+  static create(type) {
+    switch (type) {
+      case 'bar': return new BarChart();
+      case 'line': return new LineChart();
+      default: throw new Error('Unknown chart type');
+    }
+  }
+}
+```
+
+**观察者模式**：定义对象间一对多的依赖关系，当一个对象状态改变时，所有依赖它的对象都会收到通知。常用于事件系统、状态管理。
+
+```javascript
+class Subject {
+  constructor() {
+    this.observers = [];
+  }
+  subscribe(observer) { this.observers.push(observer); }
+  notify(data) { this.observers.forEach(o => o.update(data)); }
+}
+```
+
+**策略模式**：定义一系列算法，把它们封装起来，使它们可以互相替换。比如表单验证中，不同字段有不同的验证规则。
+
+```javascript
+const strategies = {
+  required: (value) => value.length > 0,
+  email: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
+};
+
+function validate(field, strategy) {
+  return strategies[strategy](field.value);
+}
+```
+
+**代理模式**：为其他对象提供代理，控制对原对象的访问。常用于权限控制、缓存、虚拟代理等。
+
+```javascript
+class ImageProxy {
+  constructor(url) {
+    this.url = url;
+    this.realImage = null;
+  }
+  display() {
+    if (!this.realImage) {
+      this.realImage = new RealImage(this.url);
+    }
+    this.realImage.display();
+  }
+}
+```
+
+**装饰器模式**：动态地给对象添加额外的职责，而不改变其结构。常用于增强组件功能。
+
+```javascript
+function withLogger(target) {
+  return class extends target {
+    constructor(...args) {
+      super(...args);
+      console.log(`${target.name} created`);
+    }
+  };
+}
+```
+
+---
+
 > **面试回答技巧**：先一句话给出结论，再展开细节说明，最后结合项目经验举一个实际例子。手写题先说思路再写代码，边写边解释。遇到不会的坦诚说明，然后给出你的思考方向，比硬编要好。
