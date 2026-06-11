@@ -11,7 +11,7 @@
 .chart-dashboard {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 56px);
+  height: calc(100vh - 86px);
   padding: 10px 16px 12px;
   overflow: hidden;
 
@@ -229,6 +229,28 @@
 }
 
 /* ========== 移动端适配 ========== */
+@media (max-width: 1024px) {
+  .dash-body {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .dash-left {
+    flex: 1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(140px, 1fr));
+  }
+
+  .dash-map {
+    flex: none;
+    height: 360px;
+  }
+
+  .dash-grid-item:nth-child(3) {
+    grid-column: span 2;
+  }
+}
+
 @media (max-width: 768px) {
   .yq-distribution {
     height: auto;
@@ -237,7 +259,7 @@
 
   .chart-dashboard {
     height: auto;
-    min-height: calc(100vh - 56px);
+    min-height: calc(100vh - 86px);
     padding: 12px;
     overflow: visible;
   }
@@ -268,7 +290,7 @@
 
   .dash-body {
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
     overflow: visible;
   }
 
@@ -278,23 +300,41 @@
   }
 
   .dash-left {
-    grid-template-rows: repeat(3, 160px);
-    gap: 8px;
+    flex: none;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(120px, 1fr));
+    gap: 10px;
     overflow: visible;
   }
 
-  .dash-left {
-    grid-template-rows: repeat(3, 140px);
+  .dash-grid-item {
+    min-height: 120px;
+    height: auto;
   }
 
-  .dash-grid-item {
-    height: 140px;
+  .dash-grid-item:nth-child(3) {
+    grid-column: span 2;
   }
 }
 
 @media (max-width: 480px) {
   .chart-metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .metric-card {
+    min-height: 56px;
+    padding: 6px 8px;
+
+    strong {
+      font-size: 16px;
+    }
+
+    span,
+    em {
+      font-size: 11px;
+    }
   }
 
   .dash-header {
@@ -309,7 +349,32 @@
     height: 260px;
   }
 
+  .dash-left {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(3, minmax(140px, 1fr));
+    gap: 8px;
+  }
+
   .dash-grid-item {
-    height: 160px;
+    min-height: 140px;
+    grid-column: span 1 !important;
+  }
+
+  .chart-card__head {
+    min-height: 32px;
+    margin-bottom: 4px;
+
+    h2 {
+      font-size: 13px;
+    }
+
+    p {
+      font-size: 10px;
+    }
+
+    i {
+      width: 24px;
+      height: 4px;
+    }
   }
 }
