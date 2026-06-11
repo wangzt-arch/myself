@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../components/Header";
+import MessageBoard from "../../components/MessageBoard";
 import useScrollReveal from "../../hooks/useScrollReveal";
 import "./index.css";
 
@@ -164,6 +165,7 @@ function Home() {
                     </div>
                 </section>
             </main>
+            <MessageBoard />
         </div>
     );
 }
