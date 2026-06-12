@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/myself/static/css/main.7632030f.css",
-    "main.js": "/myself/static/js/main.6894d0fa.js",
+    "main.js": "/myself/static/js/main.fcf8ddec.js",
     "static/js/510.03e488e9.chunk.js": "/myself/static/js/510.03e488e9.chunk.js",
     "static/media/狙击枪_ar-15.glb": "/myself/static/media/狙击枪_ar-15.11739dd9547babb3f7a5.glb",
     "static/media/supermarket.glb": "/myself/static/media/supermarket.3df4865ca2229163dc1c.glb",
@@ -11,6 +11,7 @@
     "static/media/自动步枪_m16.glb": "/myself/static/media/自动步枪_m16.905547cbb773a69fbc3f.glb",
     "static/media/高射炮.glb": "/myself/static/media/高射炮.6443b1cb553fb07f1bfd.glb",
     "static/media/2.mp4": "/myself/static/media/2.8d58593a666d6fac60aa.mp4",
+    "static/media/bgm.mp3": "/myself/static/media/bgm.731bba8894ae5338f085.mp3",
     "static/media/4.mp4": "/myself/static/media/4.580c4ce486485e2ddf41.mp4",
     "static/media/5.mp4": "/myself/static/media/5.af272671d517e4437f37.mp4",
     "static/media/自动步枪_m4a1.glb": "/myself/static/media/自动步枪_m4a1.7d15ba0fa2dbc219aab6.glb",
@@ -416,6 +417,6 @@
   },
   "entrypoints": [
     "static/css/main.7632030f.css",
-    "static/js/main.6894d0fa.js"
+    "static/js/main.fcf8ddec.js"
   ]
 }
