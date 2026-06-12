@@ -135,9 +135,14 @@ function Docs() {
 
   const scrollToTop = () => {
     const container = document.querySelector(".docs-content");
+    const appContent = document.querySelector(".app-content");
 
-    container?.scrollTo({ top: 0, behavior: "smooth" });
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    // 移动端滚动 app-content，PC端滚动 docs-content
+    if (window.innerWidth <= 760) {
+      appContent?.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (container) {
+      container.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   const changeDoc = (index) => {

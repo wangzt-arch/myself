@@ -35,17 +35,19 @@ function Header() {
 
   return (
     <header className="header">
-      <button
-        className="header-brand"
-        type="button"
-        onClick={() => navigateTo("/home")}
-      >
-        <span className="text-shadow">举个栗子</span>
-        <span className="brand-mark" aria-hidden="true">
-          🌰
-        </span>
+      <div className="header-brand-wrapper">
+        <button
+          className="header-brand"
+          type="button"
+          onClick={() => navigateTo("/home")}
+        >
+          <span className="text-shadow">举个栗子</span>
+          <span className="brand-mark" aria-hidden="true">
+            🌰
+          </span>
+        </button>
         <MusicPlayer />
-      </button>
+      </div>
 
       <div className="header-actions">
         <a

@@ -16,6 +16,13 @@
     backdrop-filter: blur(14px);
 }
 
+.header-brand-wrapper {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
 .header-brand {
     box-sizing: border-box;
     display: inline-flex;
