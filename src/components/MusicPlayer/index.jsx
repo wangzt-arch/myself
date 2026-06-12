@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import "./index.scss";
+import bgm from "./music/bgm.mp3";
 
 function MusicPlayer() {
     const [isPlaying, setIsPlaying] = useState(false);
@@ -63,7 +64,7 @@ function MusicPlayer() {
 
     return (
         <div className={`music-player ${isPlaying ? "music-player--playing" : ""}`}>
-            <audio ref={audioRef} src="/music/bgm.mp3" />
+            <audio ref={audioRef} src={bgm} />
 
             <button
                 className="music-btn"
