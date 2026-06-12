@@ -41,10 +41,11 @@ function Header() {
           type="button"
           onClick={() => navigateTo("/home")}
         >
-          <span className="text-shadow">举个栗子</span>
           <span className="brand-mark" aria-hidden="true">
             🌰
           </span>
+          <span className="text-shadow">举个栗子</span>
+
         </button>
         <MusicPlayer />
       </div>
