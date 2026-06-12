@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import WztButton from "../wzt-button";
+import MusicPlayer from "../MusicPlayer";
 import logo from "../../images/github-icon.png";
 import "./index.css";
 
@@ -43,6 +44,7 @@ function Header() {
         <span className="brand-mark" aria-hidden="true">
           🌰
         </span>
+        <MusicPlayer />
       </button>
 
       <div className="header-actions">

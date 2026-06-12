@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import * as Cesium from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
-import Header from "../../components/Header";
 import CityPopup from "./components/CityPopup";
 import EffectLibraryPanel from "./components/EffectLibraryPanel";
 import { CITIES_DATA } from "./cityData";
@@ -692,7 +691,6 @@ function CesiumPage() {
 
   return (
     <div className="cesium-page">
-      <Header />
       <main className="cesium-main">
         {isLoading && (
           <div className="loading-overlay">

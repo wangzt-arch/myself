@@ -11,7 +11,7 @@ $font-body: 'DM Sans', -apple-system, sans-serif;
 
 // ========== 页面 ==========
 .video-page {
-  min-height: 100vh;
+  height: 100%;
   background: $color-bg;
   color: $color-text;
   font-family: $font-body;
@@ -20,12 +20,12 @@ $font-body: 'DM Sans', -apple-system, sans-serif;
 
 // ========== Hero 区域 ==========
 .video-hero {
-  padding: 80px 60px 50px;
+  padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
 
   @media (max-width: 768px) {
-    padding: 60px 24px 36px;
+    padding: 10px;
   }
 }
 
@@ -67,11 +67,6 @@ $font-body: 'DM Sans', -apple-system, sans-serif;
 .video-content {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 40px 60px 80px;
-
-  @media (max-width: 768px) {
-    padding: 24px 24px 60px;
-  }
 }
 
 // ========== 分类筛选 ==========

@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as echarts from "echarts";
 import china from "./china.json";
-import Header from "../../components/Header";
 import "./index.scss";
 
 const cityScatterData = [
@@ -406,7 +405,6 @@ function YqDistribution() {
 
   return (
     <div className="yq-distribution">
-      <Header />
       <main className="chart-dashboard">
         {/* 顶部栏 */}
         <header className="dash-header">

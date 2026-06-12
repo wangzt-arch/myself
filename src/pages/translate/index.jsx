@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import Header from "../../components/Header";
 import { getTranslate } from "../../api";
 import "./index.scss";
 
@@ -128,7 +127,6 @@ function Translate() {
 
   return (
     <div className="translate-page">
-      <Header />
       <main className="translate-main">
         {/* 语言工具栏 */}
         <div className="translate-toolbar">

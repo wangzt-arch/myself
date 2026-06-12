@@ -1,6 +1,6 @@
 /* ========== 白色阅读器主题 ========== */
 .about-reader {
-  min-height: 100vh;
+  height:100%;
   background: #fafafa;
   color: #14191f;
 }
@@ -8,8 +8,8 @@
 /* ========== 两栏布局 ========== */
 .reader-wrapper {
   display: flex;
-  height: calc(100vh - 64px);
-  margin-top: 64px;
+  height: 100%;
+  /* margin-top: 64px; */
   overflow: hidden;
 }
 

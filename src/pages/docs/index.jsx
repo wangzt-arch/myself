@@ -3,7 +3,6 @@ import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { base16AteliersulphurpoolLight } from "react-syntax-highlighter/dist/esm/styles/prism";
 import gfm from "remark-gfm";
-import Header from "../../components/Header";
 import docs from "../../docs";
 import "./index.scss";
 
@@ -148,7 +147,6 @@ function Docs() {
 
   return (
     <div className="docs-page">
-      <Header />
       <div className="docs">
         <aside className="docs-sidebar">
           <div className="docs-search">

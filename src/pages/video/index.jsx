@@ -1,5 +1,4 @@
 import React, { useRef, useState, useEffect } from "react";
-import Header from "../../components/Header";
 import "./index.scss";
 
 // 视频元数据（可扩展）
@@ -33,7 +32,6 @@ function VideoPage() {
 
   return (
     <div className="video-page">
-      <Header />
       <section className="video-content">
         {/* 分类筛选 */}
         <div className="video-filters">

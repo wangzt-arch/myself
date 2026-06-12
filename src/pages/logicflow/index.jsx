@@ -7,7 +7,6 @@ import "@logicflow/extension/lib/style/index.css";
 import { toolMap } from './toolsData';
 import PositionsTools from './components/positionTools';
 import SaveTools from './components/saveTools'
-import Header from "../../components/Header";
 import { defaultDevelopmentFlow } from './defaultFlowData';
 
 const modulesFiles = require.context("./nodeStyles", true, /\.js$/);
@@ -158,7 +157,6 @@ export default function LogicFlowCanvas() {
   }
   return (
     <div className="logicflow-box">
-      <Header></Header>
       <div className="logicflow-box__canvas" ref={lfRef}></div>
       <div className="right-tools">
         {renderRightTool()}

@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import Header from "../../components/Header";
+
 import MessageBoard from "../../components/MessageBoard";
 import useScrollReveal from "../../hooks/useScrollReveal";
 import "./index.css";
@@ -78,7 +78,7 @@ function Home() {
 
     return (
         <div className="home">
-            <Header />
+
             <main className="home-main">
                 <section
                     className={`home-hero reveal ${heroReveal.isVisible ? "reveal--visible" : ""}`}

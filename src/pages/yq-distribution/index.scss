@@ -1,5 +1,5 @@
 .yq-distribution {
-  height: 100vh;
+  height: 100%;
   overflow: hidden;
   color: #edf7ff;
   background:
@@ -11,7 +11,7 @@
 .chart-dashboard {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 86px);
+  height: 98%;
   padding: 10px 16px 12px;
   overflow: hidden;
 

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import Header from "../../components/Header";
 import ModelPreviewTab from "./ModelPreviewTab";
 import SmartParkTab from "./smart-park";
 import "./index.css";
@@ -14,8 +13,6 @@ function Preview() {
 
   return (
     <div className="model-preview">
-      <Header />
-
       {/* Tab 切换栏 */}
       <div className="model-preview__tabs">
         {TABS.map((tab) => (

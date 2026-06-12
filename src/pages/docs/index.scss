@@ -1,12 +1,12 @@
 .docs-page {
-    min-height: 100vh;
+    height: 100%;
     background: #f6f8fb;
     color: #17202a;
 }
 
 .docs {
     width: 100%;
-    height: calc(100vh - 64px);
+    height: 100%;
     overflow: hidden;
     display: grid;
     grid-template-columns: 280px minmax(0, 1fr) 240px;

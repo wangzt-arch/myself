@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react'
-import Header from '../../components/Header';
 import Loading from '../../components/Loading2';
 import me from './pdf/myself.pdf'
 import { usePdf } from '@mikecousins/react-pdf';
@@ -44,8 +43,6 @@ function About() {
 
   return (
     <div className="about-reader">
-      <Header />
-
       <div className="reader-wrapper">
         {/* 侧边信息栏 */}
         <aside className="reader-sidebar">

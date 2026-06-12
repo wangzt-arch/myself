@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import Pdf from 'react-pdf-js'
-import Header from '../../components/Header';
 import Loading from '../../components/Loading2';
 import CubeBox from '../../components/cube-box'
 import isPc from '../../utils'
@@ -38,7 +37,6 @@ function About() {
   }
   return (
     <div className="about">
-      <Header></Header>
       <div className="about-me">
         <div className='about-me__loading'>
           <Loading show={show}></Loading>
