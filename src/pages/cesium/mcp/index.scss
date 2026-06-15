@@ -1,0 +1,284 @@
+/* ========== AI 智能控制面板（深色科技感，与现有面板风格一致 ========== */
+.ai-panel {
+  position: absolute;
+  bottom: 60px;
+  right: 84px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  width: 310px;
+  max-height: 380px;
+  border: 1px solid rgba(0, 245, 255, 0.72);
+  border-radius: 8px;
+  background: var(--panel-bg);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 0 30px rgba(0, 245, 255, 0.16), inset 0 0 20px rgba(0, 245, 255, 0.04);
+  overflow: hidden;
+
+  // 顶部装饰线
+  &::before {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: 14px;
+    right: 14px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+  }
+}
+
+// 收起状态：只显示一个 AI 图标按钮，贴在右侧边缘
+.ai-panel--collapsed {
+  width: auto;
+  max-height: none;
+  border-radius: 999px;
+
+  &::before {
+    display: none;
+  }
+
+  .ai-panel__header {
+    display: none;
+  }
+
+  .ai-panel__body {
+    display: none;
+  }
+}
+
+// AI 图标按钮（收起状态）
+.ai-collapsed-btn {
+  z-index: 99;
+  position: absolute;
+  right: 0;
+  bottom: 100px;
+  width: 48px;
+  height: 48px;
+  border: 1px solid rgba(0, 245, 255, 0.5);
+  border-radius: 50%;
+  background: var(--panel-bg);
+  color: var(--neon-cyan);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  box-shadow: 0 0 20px rgba(0, 245, 255, 0.25), inset 0 0 12px rgba(0, 245, 255, 0.1);
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(0, 245, 255, 0.15);
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 28px rgba(0, 245, 255, 0.4), inset 0 0 16px rgba(0, 245, 255, 0.2);
+    transform: scale(1.08);
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 10px;
+    height: 10px;
+    background: #67f6c3;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #67f6c3;
+    animation: pulse 2s ease-in-out infinite;
+  }
+}
+
+.ai-panel__header {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 15px 16px 13px;
+  border-bottom: 1px solid rgba(0, 245, 255, 0.16);
+  background: linear-gradient(180deg, rgba(5, 13, 23, 0.96), rgba(5, 13, 23, 0.82));
+
+  span {
+    display: block;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  strong {
+    display: block;
+    margin-top: 3px;
+    color: #ffffff;
+    font-size: 18px;
+    letter-spacing: 0;
+  }
+
+  button {
+    height: 28px;
+    padding: 0 10px;
+    border: 1px solid rgba(0, 245, 255, 0.32);
+    border-radius: 5px;
+    background: rgba(0, 245, 255, 0.08);
+    color: var(--neon-cyan);
+    cursor: pointer;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+}
+
+.ai-panel__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 14px 16px 16px;
+  overflow: hidden;
+}
+
+// 聊天区域
+.ai-chat {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 2px 12px;
+  overflow-y: auto;
+  scrollbar-color: rgba(0, 245, 255, 0.36) rgba(255, 255, 255, 0.04);
+  scrollbar-width: thin;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    margin: 4px 0;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border: 2px solid rgba(5, 13, 23, 0.88);
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgba(0, 245, 255, 0.64), rgba(103, 246, 195, 0.42));
+  }
+}
+
+.ai-bubble {
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.6;
+  max-width: 90%;
+
+  &.ai-bubble--user {
+    align-self: flex-end;
+    background: rgba(0, 245, 255, 0.12);
+    border: 1px solid rgba(0, 245, 255, 0.32);
+    color: #ffffff;
+  }
+
+  &.ai-bubble--ai {
+    align-self: flex-start;
+    background: rgba(103, 246, 195, 0.08);
+    border: 1px solid rgba(103, 246, 195, 0.26);
+    color: #e8fff4;
+  }
+}
+
+// 快捷指令按钮
+.ai-quicks {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin: 4px 0 10px;
+
+  button {
+    min-height: 28px;
+    padding: 0 6px;
+    border: 1px solid rgba(0, 245, 255, 0.22);
+    border-radius: 5px;
+    background: rgba(0, 245, 255, 0.06);
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+
+    &:hover {
+      color: var(--neon-cyan);
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 12px rgba(0, 245, 255, 0.2);
+    }
+  }
+}
+
+// 输入框区域
+.ai-input {
+  display: flex;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid rgba(0, 245, 255, 0.12);
+
+  input {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid rgba(0, 245, 255, 0.32);
+    border-radius: 6px;
+    background: rgba(5, 13, 23, 0.6);
+    color: #ffffff;
+    font-size: 13px;
+    font-family: "Rajdhani", sans-serif;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+    &:focus {
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 12px rgba(0, 245, 255, 0.22);
+    }
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+  }
+
+  button {
+    height: 36px;
+    padding: 0 14px;
+    border: 1px solid rgba(0, 245, 255, 0.46);
+    border-radius: 6px;
+    background: rgba(0, 245, 255, 0.12);
+    color: var(--neon-cyan);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+
+    &:hover {
+      background: rgba(0, 245, 255, 0.22);
+      box-shadow: 0 0 12px rgba(0, 245, 255, 0.3);
+    }
+  }
+}
+
+// 响应式：移动端自动折叠
+@media (max-width: 768px) {
+  .ai-panel {
+    top: auto;
+    right: 10px;
+    bottom: 10px;
+    width: min(310px, calc(100vw - 20px));
+    max-height: 260px;
+  }
+
+  .ai-panel--collapsed {
+    width: 156px;
+  }
+
+  .ai-quicks {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

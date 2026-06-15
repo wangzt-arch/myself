@@ -3,6 +3,7 @@ import * as Cesium from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import CityPopup from "./components/CityPopup";
 import EffectLibraryPanel from "./components/EffectLibraryPanel";
+import AiPanel from "./mcp/AiPanel";
 import { CITIES_DATA } from "./cityData";
 import { CESIUM_TOKEN, INITIAL_CAMERA, STATS, VIEWER_OPTIONS } from "./constants";
 import { DRONE_ROUTE_OPTIONS, createDronePatrol, updateDroneFollowCamera } from "./drone";
@@ -327,6 +328,7 @@ function CesiumPage() {
   const [coordinates, setCoordinates] = useState({ lon: "105.0000", lat: "35.0000", height: 8000000 });
   const [selectedCity, setSelectedCity] = useState(null);
   const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 });
+  const [isAiPanelOpen, setIsAiPanelOpen] = useState(true);
 
   // 关闭城市信息弹窗。
   const handleClosePopup = useCallback(() => setSelectedCity(null), []);
@@ -848,6 +850,28 @@ function CesiumPage() {
           onAddAtViewCenter={addEffectAtViewCenter}
           onClearEffects={clearWebGLEffects}
           onDeleteEffect={deleteWebGLEffect}
+        />
+
+        <AiPanel
+          isOpen={isAiPanelOpen}
+          onToggle={() => setIsAiPanelOpen((value) => !value)}
+          engine={{
+            viewerRef,
+            setLayers,
+            droneControllerRef,
+            setFollowingSatellite: (flag) => {
+              isFollowingSatelliteRef.current = flag;
+              if (flag && viewerRef.current) {
+                viewerRef.current.clock.shouldAnimate = true;
+              }
+            },
+            resetView: flyToChina,
+            clearEffects: clearWebGLEffects,
+            onEffectAdded: (effect) => {
+              webGLEffectsRef.current = [effect, ...webGLEffectsRef.current];
+              setWebGLEffects(webGLEffectsRef.current);
+            },
+          }}
         />
 
         <div className="coordinates-display">
