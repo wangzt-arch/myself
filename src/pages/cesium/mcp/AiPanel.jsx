@@ -5,7 +5,7 @@ import "./index.scss";
 // AI 对话面板（右侧功能面板下方
 function AiPanel({ isOpen, onToggle, engine }) {
   const [messages, setMessages] = useState([
-    { role: "ai", text: "你好！我是地球智能助手 🌍\n告诉我你想做什么，例如：\n· 飞到北京\n· 放一个烟花\n· 显示卫星轨迹" },
+    { role: "ai", text: "你好！我是地球智能助手 🌍\n告诉我你想做什么，例如：\n· 飞到北京\n· 放一个烟花\n· 观察卫星" },
   ]);
   const [input, setInput] = useState("");
   const scrollRef = useRef(null);

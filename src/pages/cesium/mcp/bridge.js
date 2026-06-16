@@ -135,16 +135,24 @@ export function dispatchCommand(input, ctx) {
     });
   }
 
-  // -- 3. 显隐图层
+  // -- 3. 卫星跟随（观察卫星）- 优先于图层切换
+  if (/观察卫星|跟随卫星|追踪卫星|卫星跟随/i.test(text)) {
+    return TOOLS.find((t) => t.name === "followSatellite").handler(ctx, { following: true });
+  }
+  if (/自由视角|自由/i.test(text)) {
+    return TOOLS.find((t) => t.name === "followSatellite").handler(ctx, { following: false });
+  }
+
+  // -- 4. 显隐图层（排除"观察卫星"等组合）
   const layerMatch = extractLayer(text);
-  if (layerMatch) {
+  if (layerMatch && !/观察卫星/i.test(text)) {
     return TOOLS.find((t) => t.name === "toggleLayer").handler(ctx, {
       layer: layerMatch.key,
       visible: isVisibleIntent(text),
     });
   }
 
-  // -- 4. 添加特效（支持"在 X 城市 放一个烟花"这样的组合）
+  // -- 5. 添加特效（支持"在 X 城市 放一个烟花"这样的组合）
   const effect = extractEffect(text);
   if (effect) {
     let pos;
@@ -160,7 +168,7 @@ export function dispatchCommand(input, ctx) {
       .handler(ctx, { type: effect.key, position: pos });
   }
 
-  // -- 5. 无人机控制
+  // -- 6. 无人机控制
   const route = extractDroneRoute(text);
   if (/无人机|drone|飞行/i.test(text) || route) {
     const params = { action: "start", routeKey: route?.key };
@@ -171,17 +179,9 @@ export function dispatchCommand(input, ctx) {
     return TOOLS.find((t) => t.name === "drone").handler(ctx, params);
   }
 
-  // -- 6. 相机位置查询
+  // -- 7. 相机位置查询
   if (/相机|当前位置|坐标|哪里|camera/i.test(text)) {
     return TOOLS.find((t) => t.name === "getCamera").handler(ctx);
-  }
-
-  // -- 7. 卫星跟随
-  if (/跟随卫星|追踪卫星|卫星跟随/i.test(text)) {
-    return TOOLS.find((t) => t.name === "followSatellite").handler(ctx, { following: true });
-  }
-  if (/自由视角|自由/i.test(text)) {
-    return TOOLS.find((t) => t.name === "followSatellite").handler(ctx, { following: false });
   }
 
   // -- 8. 重置视角（单独的"卫星"不应该误触发飞行，所以这里要在飞行之后）
@@ -202,7 +202,7 @@ export function dispatchCommand(input, ctx) {
   return {
     ok: false,
     message:
-      "我暂时没有理解你的指令。试试：\n· 飞到北京\n· 显示卫星\n· 在视图中心放一个烟花\n· 让无人机沿河道飞\n· 相机位置\n· 帮助",
+      "我暂时没有理解你的指令。试试：\n· 飞到北京\n· 观察卫星\n· 在视图中心放一个烟花\n· 让无人机沿河道飞\n· 相机位置\n· 帮助",
   };
 }
 
@@ -212,11 +212,11 @@ export const QUICK_COMMANDS = [
   { label: "飞到上海", text: "飞到上海" },
   // { label: "飞到深圳", text: "飞到深圳" },
   // { label: "飞到成都", text: "飞到成都" },
-  { label: "显示卫星", text: "显示卫星轨迹" },
+  { label: "观察卫星", text: "观察卫星" },
   { label: "放个烟花", text: "在视图中心放一个烟花" },
   // { label: "无人机河道", text: "让无人机沿河道飞" },
   { label: "相机位置", text: "现在相机在哪里" },
-  { label: "清除特效", text: "清除所有特效" },
+  { label: "清除特效", text: "清除特效" },
   { label: "帮助", text: "帮助" },
   { label: "回到中国", text: "回到中国" },
 ];

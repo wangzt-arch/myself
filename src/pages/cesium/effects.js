@@ -749,11 +749,27 @@ export const createWebGLEffect = (viewer, type, position, index) => {
 
 export const removeWebGLEffect = (viewer, effect) => {
   if (!viewer || !effect) return;
-  effect.entities.forEach((entity) => {
-    if (typeof entity.destroy === "function") {
-      entity.destroy();
-      return;
-    }
-    viewer.entities.remove(entity);
-  });
+  if (typeof effect.destroy === "function") {
+    effect.destroy();
+    return;
+  }
+  if (effect.entities && Array.isArray(effect.entities)) {
+    effect.entities.forEach((entity) => {
+      if (typeof entity.destroy === "function") {
+        entity.destroy();
+        return;
+      }
+      if (viewer.entities.contains(entity)) {
+        viewer.entities.remove(entity);
+        return;
+      }
+      if (entity.primitive && viewer.scene.primitives.contains(entity.primitive)) {
+        viewer.scene.primitives.remove(entity.primitive);
+        return;
+      }
+      if (viewer.scene.primitives.contains(entity)) {
+        viewer.scene.primitives.remove(entity);
+      }
+    });
+  }
 };
