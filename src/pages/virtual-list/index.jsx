@@ -231,7 +231,11 @@ function VirtualListPage() {
   const jumpToIndex = useCallback(
     (index) => {
       if (!listRef.current || index < 0 || index >= sortedData.length) return;
-      listRef.current.scrollTop = index * 92;
+      // 找到内部的滚动容器 .vl-container
+      const scrollContainer = listRef.current.querySelector(".vl-container");
+      if (scrollContainer) {
+        scrollContainer.scrollTop = index * 92;
+      }
       setKeyboardIndex(index);
     },
     [sortedData.length]
@@ -332,7 +336,16 @@ function VirtualListPage() {
             max={sortedData.length}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
-                jumpToIndex(parseInt(e.target.value) - 1);
+                const val = parseInt(e.target.value);
+                if (val) {
+                  // 根据排序方向计算实际的数组索引
+                  // 正序: 用户第N项 = 数组第N-1个
+                  // 倒序: 用户第N项 = 数组倒数第N个
+                  const actualIndex = sortOrder === "desc"
+                    ? sortedData.length - val
+                    : val - 1;
+                  jumpToIndex(actualIndex);
+                }
                 e.target.value = "";
               }
             }}
