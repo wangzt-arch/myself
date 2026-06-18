@@ -1,0 +1,132 @@
+// ============================================================
+// Skeleton — Dashboard 仪表盘风格
+// ============================================================
+.sk-list {
+  padding: 0;
+}
+
+.sk-item {
+  display: flex;
+  align-items: center;
+  padding: 14px 20px 14px 0;
+  border-bottom: 1px solid rgba(0, 200, 255, 0.06);
+  box-sizing: border-box;
+  opacity: 0;
+  animation: sk-fade-in 0.3s ease forwards;
+}
+
+@keyframes sk-fade-in {
+  to { opacity: 1; }
+}
+
+.sk-accent {
+  width: 3px;
+  height: 44px;
+  border-radius: 2px;
+  margin-right: 0;
+  background: rgba(0, 200, 255, 0.3);
+  opacity: 0;
+}
+
+.sk-item:nth-child(odd) .sk-accent { opacity: 0.6; }
+.sk-item:nth-child(even) .sk-accent { opacity: 0.3; }
+
+.sk-index {
+  width: 24px;
+  height: 12px;
+  margin-right: 28px;
+  border-radius: 2px;
+  margin-left: 18px;
+  background: rgba(0, 200, 255, 0.08);
+}
+
+.sk-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 3px;
+  margin-right: 18px;
+  flex-shrink: 0;
+  background: rgba(0, 200, 255, 0.08);
+  border: 1px solid rgba(0, 200, 255, 0.1);
+}
+
+.sk-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.sk-title {
+  width: 55%;
+  height: 16px;
+  border-radius: 3px;
+  margin-bottom: 10px;
+  background: rgba(0, 200, 255, 0.1);
+}
+
+.sk-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sk-meta-1 {
+  width: 60px;
+  height: 10px;
+  border-radius: 2px;
+  background: rgba(0, 200, 255, 0.07);
+}
+
+.sk-meta-2 {
+  width: 80px;
+  height: 10px;
+  border-radius: 2px;
+  background: rgba(0, 200, 255, 0.06);
+}
+
+.sk-meta-3 {
+  width: 70px;
+  height: 10px;
+  border-radius: 2px;
+  background: rgba(0, 200, 255, 0.06);
+}
+
+.sk-spacer {
+  flex: 1;
+}
+
+.sk-meta-4 {
+  width: 90px;
+  height: 10px;
+  border-radius: 2px;
+  background: rgba(0, 200, 255, 0.05);
+}
+
+// Shimmer animation — 青蓝色发光流
+.shimmer {
+  background-image: linear-gradient(
+    110deg,
+    transparent 0%,
+    transparent 35%,
+    rgba(0, 200, 255, 0.12) 50%,
+    transparent 65%,
+    transparent 100%
+  );
+  background-size: 220% 100%;
+  animation: shimmer-move 1.8s ease-in-out infinite;
+}
+
+@keyframes shimmer-move {
+  0% {
+    background-position: 220% 0;
+  }
+  100% {
+    background-position: -120% 0;
+  }
+}
+
+// 适配窄屏
+@media (max-width: 768px) {
+  .sk-index { display: none; }
+  .sk-avatar { width: 36px; height: 36px; }
+  .sk-meta-4 { display: none; }
+}

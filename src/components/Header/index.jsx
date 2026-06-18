@@ -11,6 +11,7 @@ const navItems = [
   { text: "文档", path: "/docs" },
   { text: "图表", path: "/chart" },
   { text: "翻译", path: "/translate" },
+  { text: "虚拟列表", path: "/virtual-list" },
   { text: "三维场景", path: "/preview" },
   { text: "流程图", path: "/logicflow" },
   { text: "视频案例", path: "/video" },
