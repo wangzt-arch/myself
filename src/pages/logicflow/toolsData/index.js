@@ -24,9 +24,14 @@ export const toolMap = [
       desc: '区域适应',
       icon: 'tool_fullscreen.png'
     },
-     {
+    {
       name: 'selection',
       desc: '框选节点',
       icon: 'tool_selection.png'
+    },
+    {
+      name: 'clear',
+      desc: '清空画布',
+      icon: 'btn1.png'
     }
 ]

@@ -8,6 +8,7 @@ import { toolMap } from './toolsData';
 import PositionsTools from './components/positionTools';
 import SaveTools from './components/saveTools'
 import { defaultDevelopmentFlow } from './defaultFlowData';
+import { TrashIcon } from './img/TrashIcon';
 
 const modulesFiles = require.context("./nodeStyles", true, /\.js$/);
 
@@ -189,16 +190,33 @@ export default function LogicFlowCanvas() {
       case 'selection':
         lf.extension.selectionSelect.openSelectionSelect()
         break;
+      case 'clear':
+        if (window.confirm('确定要清空画布吗？此操作不可撤销。')) {
+          lf.clearData();
+        }
+        break;
       default:
         break;
     }
   }
   const renderRightTool = () => {
-    return toolMap.map(item =>
-      <div key={item.name} onClick={() => rightToolsClick(item.name)} className='tools-item'>
-        <img width='30px' height='30px' src={require('./img/' + item.icon)} alt="" title={item.desc} />
-      </div>
-    )
+    return toolMap.map(item => {
+      const isSvg = item.name === 'clear';
+      return (
+        <div
+          key={item.name}
+          onClick={() => rightToolsClick(item.name)}
+          className={`tools-item ${isSvg ? 'tools-item--clear' : ''}`}
+          title={item.desc}
+        >
+          {isSvg ? (
+            <TrashIcon size={30} />
+          ) : (
+            <img width='30px' height='30px' src={require('./img/' + item.icon)} alt="" title={item.desc} />
+          )}
+        </div>
+      );
+    });
   }
   return (
     <div className="logicflow-box">

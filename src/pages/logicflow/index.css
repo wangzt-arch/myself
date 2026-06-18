@@ -213,4 +213,24 @@
 .tools-item{
     cursor: pointer;
     margin-left: 5px;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tools-item:hover {
+    background: rgba(0, 200, 255, 0.1);
+}
+
+/* 清空画布按钮：悬停时变红色警示 */
+.tools-item--clear:hover {
+    background: rgba(244, 63, 94, 0.15);
+}
+
+.tools-item--clear:hover svg path {
+    stroke: #f43f5e;
+    filter: drop-shadow(0 0 4px rgba(244, 63, 94, 0.6));
 }
