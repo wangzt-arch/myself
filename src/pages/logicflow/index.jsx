@@ -9,6 +9,7 @@ import PositionsTools from './components/positionTools';
 import SaveTools from './components/saveTools'
 import { defaultDevelopmentFlow } from './defaultFlowData';
 import { TrashIcon } from './img/TrashIcon';
+import ColorPicker from './components/colorPicker';
 
 const modulesFiles = require.context("./nodeStyles", true, /\.js$/);
 
@@ -23,6 +24,24 @@ LogicFlow.use(DndPanel);
 LogicFlow.use(SelectionSelect);
 LogicFlow.use(Snapshot);
 
+const rgbToHex = (rgb) => {
+  if (rgb.startsWith('#')) return rgb;
+  const match = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  if (!match) return '#00c8ff';
+  const r = parseInt(match[1]).toString(16).padStart(2, '0');
+  const g = parseInt(match[2]).toString(16).padStart(2, '0');
+  const b = parseInt(match[3]).toString(16).padStart(2, '0');
+  return `#${r}${g}${b}`;
+};
+
+const hexToRgb = (hex) => {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
+  } : null;
+};
 
 export default function LogicFlowCanvas() {
 
@@ -31,6 +50,7 @@ export default function LogicFlowCanvas() {
   }, [])
   const [lf, setLf] = useState(null)
   const lfRef = useRef(null)
+  const [colorPicker, setColorPicker] = useState({ show: false, nodeId: null, initialColor: '#00c8ff' })
 
   const initCanvas = () => {
     const lf = new LogicFlow({
@@ -93,6 +113,18 @@ export default function LogicFlowCanvas() {
           },
         },
         {
+          text: "修改节点颜色",
+          callback: (node) => {
+            const nodeModel = lf.getNodeModelById(node.id);
+            const currentColor = nodeModel?.customColor?.stroke || '#00c8ff';
+            setColorPicker({
+              show: true,
+              nodeId: node.id,
+              initialColor: rgbToHex(currentColor)
+            });
+          },
+        },
+        {
           text: "删除",
           callback: (node) => {
             lf.deleteNode(node.id);
@@ -118,6 +150,12 @@ export default function LogicFlowCanvas() {
 
     lf.extension.dndPanel.setPatternItems([
       {
+        type: "TaskStart",
+        text: "起",
+        className: "task-node-start",
+        label: "起"
+      },
+      {
         type: "TaskZzrw",
         text: "1",
         className: "task-node1",
@@ -136,22 +174,22 @@ export default function LogicFlowCanvas() {
         label: "3"
       },
       {
-        type: "TaskZzqk",
-        text: "4",
-        className: "task-node4",
-        label: "4"
+        type: "TaskJudge",
+        text: "判",
+        className: "task-node-judge",
+        label: "判"
       },
       {
-        type: "TaskZzjs",
-        text: "5",
-        className: "task-node5",
-        label: "5"
+        type: "TaskState",
+        text: "态",
+        className: "task-node-state",
+        label: "态"
       },
       {
-        type: "TaskZzwj",
-        text: "6",
-        className: "task-node6",
-        label: "6"
+        type: "TaskParallel",
+        text: "并",
+        className: "task-node-parallel",
+        label: "并"
       },
     ]);
     lf.on('node:dnd-add', ({ data }) => {
@@ -226,6 +264,28 @@ export default function LogicFlowCanvas() {
       </div>
       <PositionsTools lf={lf} />
       <SaveTools lf={lf} />
+      {colorPicker.show && (
+        <ColorPicker
+          initialColor={colorPicker.initialColor}
+          onConfirm={(hex) => {
+            if (colorPicker.nodeId && lf) {
+              const rgb = hexToRgb(hex);
+              if (rgb) {
+                lf.setProperties(colorPicker.nodeId, {
+                  customColor: {
+                    fill: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.9)`,
+                    stroke: `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`
+                  }
+                });
+              }
+            }
+            setColorPicker({ show: false, nodeId: null, initialColor: '#00c8ff' });
+          }}
+          onCancel={() => {
+            setColorPicker({ show: false, nodeId: null, initialColor: '#00c8ff' });
+          }}
+        />
+      )}
     </div>
   )
 }

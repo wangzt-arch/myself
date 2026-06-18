@@ -1,7 +1,7 @@
 .positions-tools{
     position: absolute;
     bottom: 100px;
-    left: 15px;
+    right: 15px;
     background: hsla(0, 0%, 100%, .8);
     box-shadow: 0 1px 4px rgba(0, 0, 0, .3);
     display: flex;

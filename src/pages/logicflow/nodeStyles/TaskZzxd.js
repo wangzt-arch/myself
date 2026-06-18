@@ -1,18 +1,24 @@
 // 矩形
 import { RectNode, RectNodeModel } from '@logicflow/core'
 
+const DEFAULT_COLOR = {
+  fill: 'rgba(23, 187, 128,0.5)',
+  stroke: 'rgba(23, 187, 128,1)'
+}
+
 class TaskNodeModel extends RectNodeModel {
   initNodeData(data) {
     super.initNodeData(data)
-    // this.width = 96
     this.height = 36
     this.radius = 4
+    this.customColor = data.color || DEFAULT_COLOR
   }
 
   getNodeStyle() {
     const style = super.getNodeStyle()
-    style.fill = 'rgba(23, 187, 128,0.5)'
-    style.stroke = 'rgba(23, 187, 128,1)'
+    const color = this.properties.customColor || this.customColor
+    style.fill = color.fill
+    style.stroke = color.stroke
     style.strokeWidth = 1
     return style
   }

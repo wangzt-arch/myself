@@ -7,6 +7,10 @@ class TaskNodeModel extends RectNodeModel {
     this.width = 120
     this.height = 50
     this.radius = 4
+    this.customColor = {
+      fill: '#0C97D850',
+      stroke: '#0C97D8'
+    }
   }
   getDefaultAnchor() {
     const { height, x, y, id } = this;
@@ -28,8 +32,9 @@ class TaskNodeModel extends RectNodeModel {
 
   getNodeStyle() {
     const style = super.getNodeStyle()
-    style.fill = '#0C97D850'
-    style.stroke = '#0C97D8'
+    const color = this.properties.customColor || this.customColor
+    style.fill = color.fill
+    style.stroke = color.stroke
     style.strokeWidth = 1
     return style
   }

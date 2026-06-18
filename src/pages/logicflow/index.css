@@ -168,36 +168,61 @@
         }
     }
 
-    .task-node4 {
+    /* 圆形 - 开始/结束 */
+    .task-node-start {
         margin-right: 0px;
         background: rgba(0, 200, 255, 0.5);
         border: 1px solid #00c8ff;
+        border-radius: 50%;
+        width: 36px;
         height: 36px;
+        line-height: 34px;
+        text-align: center;
 
         &:hover {
             background: rgba(0, 200, 255, 0.8);
         }
     }
 
-    .task-node5 {
+    /* 菱形 - 判断 */
+    .task-node-judge {
         margin-right: 0px;
         background: rgba(245, 158, 11, 0.5);
         border: 1px solid #f59e0b;
         height: 36px;
+        transform: skewX(-20deg);
+        text-align: center;
 
         &:hover {
             background: rgba(245, 158, 11, 0.8);
         }
     }
 
-    .task-node6 {
+    /* 椭圆 - 状态 */
+    .task-node-state {
         margin-right: 0px;
-        background: rgba(244, 63, 94, 0.5);
-        border: 1px solid #f43f5e;
+        background: rgba(74, 222, 128, 0.5);
+        border: 1px solid #4ade80;
+        width: 80px;
         height: 36px;
+        border-radius: 72px;
+        text-align: center;
 
         &:hover {
-            background: rgba(244, 63, 94, 0.8);
+            background: rgba(74, 222, 128, 0.8);
+        }
+    }
+
+    /* 多边形 - 并行 */
+    .task-node-parallel {
+        margin-right: 0px;
+        background: rgba(139, 92, 255, 0.5);
+        border: 1px solid #8b5cff;
+        height: 36px;
+        clip-path: polygon(50% 0%, 100% 35%, 80% 100%, 20% 100%, 0% 35%);
+
+        &:hover {
+            background: rgba(139, 92, 255, 0.8);
         }
     }
 }
