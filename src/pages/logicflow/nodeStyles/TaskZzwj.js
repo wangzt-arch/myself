@@ -4,16 +4,22 @@ import { RectNode, RectNodeModel } from '@logicflow/core'
 class TaskNodeModel extends RectNodeModel {
   initNodeData(data) {
     super.initNodeData(data)
-    // this.width = 96
     this.height = 36
     this.radius = 4
   }
 
   getNodeStyle() {
     const style = super.getNodeStyle()
-    style.fill = 'rgba(67, 84, 207,0.5)'
-    style.stroke = 'rgba(67, 84, 207,0.1)'
+    style.fill = 'rgba(244, 63, 94,0.5)'
+    style.stroke = 'rgba(244, 63, 94,1)'
     style.strokeWidth = 1
+    return style
+  }
+
+  getTextStyle() {
+    const style = super.getTextStyle()
+    style.fontSize = 14
+    style.color = '#000'
     return style
   }
   getDefaultAnchor() {
@@ -45,18 +51,11 @@ class TaskNodeModel extends RectNodeModel {
       },
     ];
   }
-
-  getTextStyle() {
-    const style = super.getTextStyle()
-    style.fontSize = 14
-    style.color = '#000'
-    return style
-  }
 }
 
-const taskZzhd = {
-  type: 'TaskZzhd',
+const taskZzwj = {
+  type: 'TaskZzwj',
   view: RectNode,
   model: TaskNodeModel
 }
-export default taskZzhd
+export default taskZzwj

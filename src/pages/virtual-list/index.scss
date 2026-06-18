@@ -411,6 +411,7 @@ $text-dim: rgba(140, 180, 220, 0.5);
   outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
   -moz-appearance: textfield;
+  appearance: textfield;
 
   &::-webkit-outer-spin-button,
   &::-webkit-inner-spin-button {

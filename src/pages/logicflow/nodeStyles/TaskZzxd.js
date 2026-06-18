@@ -24,19 +24,31 @@ class TaskNodeModel extends RectNodeModel {
     return style
   }
   getDefaultAnchor() {
-    const { height, x, y, id } = this;
+    const { width, height, x, y, id } = this;
     return [
       {
         x: x,
-        y:y-height/2,
+        y: y - height / 2,
         type: 'top',
         id: `${id}_0`,
       },
       {
-        x:x,
-        y:y+height/2,
+        x: x,
+        y: y + height / 2,
         type: 'bottom',
         id: `${id}_1`,
+      },
+      {
+        x: x - width / 2,
+        y: y,
+        type: 'left',
+        id: `${id}_2`,
+      },
+      {
+        x: x + width / 2,
+        y: y,
+        type: 'right',
+        id: `${id}_3`,
       },
     ];
   }

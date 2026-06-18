@@ -10,6 +10,79 @@
     overflow: hidden;
 }
 
+/* ── 右键菜单：科技仪表盘风格 ── */
+.lf-menu {
+    background: rgba(7, 18, 38, 0.95) !important;
+    border: 1px solid rgba(0, 200, 255, 0.3) !important;
+    border-radius: 6px !important;
+    box-shadow: 0 0 20px rgba(0, 200, 255, 0.15), 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+    backdrop-filter: blur(12px) !important;
+    padding: 4px 0 !important;
+    min-width: 120px !important;
+    overflow: hidden;
+}
+
+/* 菜单顶部装饰线 */
+.lf-menu::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #00c8ff, transparent);
+    opacity: 0.8;
+}
+
+.lf-menu .lf-menu-item {
+    color: #e0f7ff !important;
+    font-family: 'Rajdhani', 'Segoe UI', sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.5px !important;
+    padding: 8px !important;
+    transition: all 0.2s ease !important;
+    position: relative;
+    cursor: pointer;
+}
+
+.lf-menu .lf-menu-item:hover {
+    background: rgba(0, 200, 255, 0.15) !important;
+    color: #00c8ff !important;
+    text-shadow: 0 0 8px rgba(0, 200, 255, 0.6);
+}
+
+/* 菜单项左侧发光条 */
+.lf-menu .lf-menu-item:hover::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 60%;
+    background: #00c8ff;
+    border-radius: 0 2px 2px 0;
+    box-shadow: 0 0 6px rgba(0, 200, 255, 0.8);
+}
+
+/* 删除项特殊样式 */
+.lf-menu .lf-menu-item:last-child {
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    margin-top: 2px;
+}
+
+.lf-menu .lf-menu-item:last-child:hover {
+    background: rgba(244, 63, 94, 0.15) !important;
+    color: #f43f5e !important;
+    text-shadow: 0 0 8px rgba(244, 63, 94, 0.6);
+}
+
+.lf-menu .lf-menu-item:last-child:hover::before {
+    background: #f43f5e;
+    box-shadow: 0 0 6px rgba(244, 63, 94, 0.8);
+}
+
 .logicflow-box__canvas {
     /* flex: 1; */
     width: 100%;
@@ -92,6 +165,39 @@
 
         &:hover {
             background: rgba(67, 84, 207, 0.8);
+        }
+    }
+
+    .task-node4 {
+        margin-right: 0px;
+        background: rgba(0, 200, 255, 0.5);
+        border: 1px solid #00c8ff;
+        height: 36px;
+
+        &:hover {
+            background: rgba(0, 200, 255, 0.8);
+        }
+    }
+
+    .task-node5 {
+        margin-right: 0px;
+        background: rgba(245, 158, 11, 0.5);
+        border: 1px solid #f59e0b;
+        height: 36px;
+
+        &:hover {
+            background: rgba(245, 158, 11, 0.8);
+        }
+    }
+
+    .task-node6 {
+        margin-right: 0px;
+        background: rgba(244, 63, 94, 0.5);
+        border: 1px solid #f43f5e;
+        height: 36px;
+
+        &:hover {
+            background: rgba(244, 63, 94, 0.8);
         }
     }
 }

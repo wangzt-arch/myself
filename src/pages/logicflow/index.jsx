@@ -46,6 +46,21 @@ export default function LogicFlowCanvas() {
       },
       stopScrollGraph: true,
       multipleSelectKey: "shift",
+      keyboard: {
+        enabled: true,
+        shortcuts: [
+      {
+        keys: ["delete"],
+        callback: () => {
+            const elements = lf.getSelectElements(true);
+            lf.clearSelectElements();
+            elements.edges.forEach((edge) => lf.deleteEdge(edge.id));
+            elements.nodes.forEach((node) => lf.deleteNode(node.id));
+        },
+      },
+    ],
+
+      }
     });
     setLf(lf)
     modules.forEach(item => {
@@ -71,6 +86,12 @@ export default function LogicFlowCanvas() {
       // 覆盖默认的节点右键菜单
       nodeMenu: [
         {
+          text: "添加/修改文本",
+          callback: (node) => {
+            lf.editText(node.id);
+          },
+        },
+        {
           text: "删除",
           callback: (node) => {
             lf.deleteNode(node.id);
@@ -79,6 +100,12 @@ export default function LogicFlowCanvas() {
       ],
       // 删除默认的边右键菜单
       edgeMenu: [
+        {
+          text: "添加/修改文本",
+          callback: (edge) => {
+            lf.editText(edge.id);
+          },
+        },
         {
           text: "删除",
           callback: (edge) => {
@@ -106,6 +133,24 @@ export default function LogicFlowCanvas() {
         text: "3",
         className: "task-node3",
         label: "3"
+      },
+      {
+        type: "TaskZzqk",
+        text: "4",
+        className: "task-node4",
+        label: "4"
+      },
+      {
+        type: "TaskZzjs",
+        text: "5",
+        className: "task-node5",
+        label: "5"
+      },
+      {
+        type: "TaskZzwj",
+        text: "6",
+        className: "task-node6",
+        label: "6"
       },
     ]);
     lf.on('node:dnd-add', ({ data }) => {
