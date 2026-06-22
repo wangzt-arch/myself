@@ -17,4 +17,10 @@ export const tools = [
     description: '本地图片压缩与格式转换',
     icon: '⊜',
   },
+  {
+    id: 'timestamp',
+    name: '时间戳转换',
+    description: 'Unix 时间戳 ↔ 北京时间',
+    icon: '⏱',
+  },
 ];
