@@ -244,6 +244,7 @@
   margin-bottom: 24px;
   padding-bottom: 20px;
   border-bottom: 1px solid var(--ot-border);
+  flex-shrink: 0;
 }
 
 .ot-tool-header__info {
@@ -404,6 +405,7 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
+  overflow: hidden;
 }
 
 /* ===== 自定义滚动条 ===== */

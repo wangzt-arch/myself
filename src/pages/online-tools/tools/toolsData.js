@@ -11,4 +11,10 @@ export const tools = [
     description: '正则表达式调试与匹配',
     icon: '.*',
   },
+  {
+    id: 'image',
+    name: '图片压缩',
+    description: '本地图片压缩与格式转换',
+    icon: '⊜',
+  },
 ];

@@ -1,0 +1,408 @@
+/* ===== 图片压缩工具 ===== */
+.img-compress {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: 20px;
+  overflow: hidden;
+}
+
+/* 上传区 */
+.img-compress__upload {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--ot-border);
+  border-radius: var(--ot-radius-lg);
+  background: var(--ot-bg-card);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  min-height: 300px;
+}
+
+.img-compress__upload:hover,
+.img-compress__upload.dragging {
+  border-color: var(--ot-accent);
+  background: var(--ot-bg-card-hover);
+  box-shadow: inset 0 0 40px rgba(59, 130, 246, 0.08);
+}
+
+.img-compress__upload.dragging {
+  transform: scale(1.01);
+}
+
+.img-compress__file-input {
+  display: none;
+}
+
+.img-compress__upload-icon {
+  color: var(--ot-text-muted);
+  margin-bottom: 16px;
+  transition: all 0.25s ease;
+}
+
+.img-compress__upload:hover .img-compress__upload-icon,
+.img-compress__upload.dragging .img-compress__upload-icon {
+  color: var(--ot-accent);
+  transform: scale(1.1) translateY(-4px);
+}
+
+.img-compress__upload-text {
+  font-size: 15px;
+  color: var(--ot-text-secondary);
+  margin: 0 0 8px;
+  text-align: center;
+}
+
+.img-compress__upload-text strong {
+  color: var(--ot-accent-light);
+}
+
+.img-compress__upload-hint {
+  font-size: 12px;
+  color: var(--ot-text-muted);
+  margin: 0;
+}
+
+/* 工作区 */
+.img-compress__workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* 预览区 */
+.img-compress__preview-area {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.img-compress__preview-card {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--ot-bg-card);
+  border: 1px solid var(--ot-border);
+  border-radius: var(--ot-radius-lg);
+  overflow: hidden;
+  min-height: 0;
+  max-height: 100%;
+}
+
+.img-compress__preview-card--compressed {
+  border-color: var(--ot-border-accent);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.12);
+}
+
+.img-compress__preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--ot-bg-secondary);
+  border-bottom: 1px solid var(--ot-border);
+}
+
+.img-compress__preview-label {
+  font-size: 12px;
+  color: var(--ot-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+.img-compress__preview-size {
+  font-size: 13px;
+  color: var(--ot-text-secondary);
+  font-family: 'Cascadia Code', 'Consolas', monospace;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.img-compress__reduction {
+  font-size: 11px;
+  color: var(--ot-success);
+  background: var(--ot-success-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.img-compress__preview-img-wrap {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  min-height: 0;
+  overflow: auto;
+  background:
+    linear-gradient(45deg, #1a2332 25%, transparent 25%) 0 0,
+    linear-gradient(-45deg, #1a2332 25%, transparent 25%) 0 8px,
+    linear-gradient(45deg, transparent 75%, #1a2332 75%) 8px -8px,
+    linear-gradient(-45deg, transparent 75%, #1a2332 75%) -8px 0,
+    #141a26;
+  background-size: 16px 16px;
+}
+
+.img-compress__preview-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 4px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+
+.img-compress__preview-placeholder {
+  color: var(--ot-text-muted);
+  font-size: 14px;
+}
+
+.img-compress__arrow {
+  color: var(--ot-text-muted);
+  flex-shrink: 0;
+}
+
+/* 控制区 */
+.img-compress__controls {
+  background: var(--ot-bg-card);
+  border: 1px solid var(--ot-border);
+  border-radius: var(--ot-radius-lg);
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-shrink: 0;
+}
+
+.img-compress__quality {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.img-compress__quality-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.img-compress__quality-label {
+  font-size: 13px;
+  color: var(--ot-text-secondary);
+  font-weight: 500;
+}
+
+.img-compress__quality-value {
+  font-size: 14px;
+  color: var(--ot-accent-light);
+  font-family: 'Cascadia Code', 'Consolas', monospace;
+  font-weight: 700;
+}
+
+.img-compress__slider-wrap {
+  position: relative;
+  height: 6px;
+  background: var(--ot-bg-input);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.img-compress__slider {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.img-compress__slider-track {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: linear-gradient(90deg, var(--ot-accent) 0%, var(--ot-info) 100%);
+  border-radius: 3px;
+  pointer-events: none;
+  transition: width 0.1s ease;
+}
+
+.img-compress__slider-track::after {
+  content: '';
+  position: absolute;
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.img-compress__quality-hints {
+  display: flex;
+  gap: 12px;
+}
+
+.img-compress__quality-hints span {
+  font-size: 11px;
+  color: var(--ot-text-muted);
+  cursor: pointer;
+  transition: color 0.2s ease;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.img-compress__quality-hints span:hover {
+  color: var(--ot-accent-light);
+  background: var(--ot-bg-card-hover);
+}
+
+.img-compress__actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.img-compress__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: var(--ot-radius-md);
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.img-compress__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.img-compress__btn--ghost {
+  background: transparent;
+  border: 1px solid var(--ot-border);
+  color: var(--ot-text-secondary);
+}
+
+.img-compress__btn--ghost:hover:not(:disabled) {
+  background: var(--ot-bg-card-hover);
+  border-color: var(--ot-accent);
+  color: var(--ot-text-primary);
+}
+
+.img-compress__btn--primary {
+  background: linear-gradient(135deg, var(--ot-accent) 0%, var(--ot-accent-hover) 100%);
+  border: none;
+  color: #fff;
+  box-shadow: 0 2px 10px var(--ot-accent-glow);
+}
+
+.img-compress__btn--primary:hover:not(:disabled) {
+  box-shadow: 0 4px 20px var(--ot-accent-glow);
+  transform: translateY(-1px);
+}
+
+.img-compress__spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: imgCompressSpin 0.7s linear infinite;
+}
+
+@keyframes imgCompressSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* 统计 */
+.img-compress__stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  padding: 16px 24px;
+  background: var(--ot-bg-card);
+  border: 1px solid var(--ot-border);
+  border-radius: var(--ot-radius-lg);
+  flex-shrink: 0;
+}
+
+.img-compress__stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.img-compress__stat-label {
+  font-size: 11px;
+  color: var(--ot-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.img-compress__stat-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ot-text-primary);
+  font-family: 'Cascadia Code', 'Consolas', monospace;
+}
+
+.img-compress__stat-value--accent {
+  color: var(--ot-accent-light);
+}
+
+.img-compress__stat-value--green {
+  color: var(--ot-success);
+}
+
+.img-compress__stat-divider {
+  width: 1px;
+  height: 36px;
+  background: var(--ot-border);
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .img-compress__preview-area {
+    flex-direction: column;
+  }
+  .img-compress__arrow {
+    transform: rotate(90deg);
+  }
+  .img-compress__controls {
+    flex-direction: column;
+  }
+  .img-compress__quality {
+    width: 100%;
+  }
+  .img-compress__stats {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .img-compress__stat-divider {
+    display: none;
+  }
+}
