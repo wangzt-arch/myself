@@ -23,4 +23,16 @@ export const tools = [
     description: 'Unix 时间戳 ↔ 北京时间',
     icon: '⏱',
   },
+  {
+    id: 'url',
+    name: 'URL 编解码',
+    description: 'URL 编码与解码转换',
+    icon: '%',
+  },
+  {
+    id: 'css',
+    name: 'CSS 生成器',
+    description: '渐变、阴影、模糊可视化生成',
+    icon: '◐',
+  },
 ];

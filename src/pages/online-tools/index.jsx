@@ -4,6 +4,7 @@ import JsonTool from './tools/JsonTool';
 import RegexTool from './tools/RegexTool';
 import ImageCompress from './tools/ImageCompress';
 import TimestampTool from './tools/TimestampTool';
+import CssGenerator from './tools/CssGenerator';
 import './layout.css';
 
 /* --------- 工具映射表（后续添加工具只需在此注册） --------- */
@@ -12,6 +13,7 @@ const toolComponents = {
   regex: { component: RegexTool, tags: ['Regex', 'Match', 'Dev Tool'] },
   image: { component: ImageCompress, tags: ['Image', 'Compress', 'Local'] },
   timestamp: { component: TimestampTool, tags: ['Time', 'Unix', 'Beijing'] },
+  css: { component: CssGenerator, tags: ['CSS', 'Shadow', 'Generator'] },
 };
 
 /* --------- 主组件 --------- */
