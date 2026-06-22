@@ -1,0 +1,272 @@
+/* ===== 正则工具 ===== */
+.regex-tool {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 18px;
+  min-height: 0;
+}
+
+.regex-tool__top-section {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.regex-tool__input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.regex-tool__label {
+  font-size: 11px;
+  color: var(--ot-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  font-weight: 600;
+  padding-left: 4px;
+}
+
+.regex-tool__input-wrapper {
+  display: flex;
+  align-items: center;
+  background: var(--ot-bg-input);
+  border: 1px solid var(--ot-border);
+  border-radius: var(--ot-radius-md);
+  overflow: hidden;
+  transition: all 0.25s ease;
+}
+
+.regex-tool__input-wrapper:focus-within {
+  border-color: var(--ot-accent);
+  box-shadow: var(--ot-shadow-glow);
+}
+
+.regex-tool__slash {
+  padding: 12px 10px 12px 14px;
+  color: var(--ot-text-muted);
+  font-family: 'Cascadia Code', monospace;
+  font-size: 14px;
+  user-select: none;
+}
+
+.regex-tool__slash--end {
+  padding: 12px 8px 12px 6px;
+}
+
+.regex-tool__input {
+  flex: 1;
+  padding: 12px 4px;
+  border: none;
+  background: transparent;
+  color: var(--ot-accent-light);
+  font-family: 'Cascadia Code', 'Consolas', monospace;
+  font-size: 14px;
+  outline: none;
+}
+
+.regex-tool__flags {
+  padding: 10px 14px 10px 8px;
+  display: flex;
+  gap: 6px;
+  border-left: 1px solid var(--ot-border);
+}
+
+.regex-tool__flag {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Cascadia Code', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: var(--ot-text-muted);
+}
+
+.regex-tool__flag:hover {
+  color: var(--ot-text-primary);
+  background: var(--ot-bg-card-hover);
+}
+
+.regex-tool__flag.active {
+  color: var(--ot-accent-light);
+  background: var(--ot-accent-glow);
+}
+
+.regex-tool__quick-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.regex-tool__quick-btn {
+  padding: 8px 14px;
+  border: 1px solid var(--ot-border);
+  border-radius: var(--ot-radius-sm);
+  background: var(--ot-bg-card);
+  color: var(--ot-text-secondary);
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.regex-tool__quick-btn::before {
+  content: '#';
+  color: var(--ot-accent-light);
+  font-family: 'Cascadia Code', monospace;
+  font-size: 11px;
+}
+
+.regex-tool__quick-btn:hover {
+  background: var(--ot-bg-card-hover);
+  border-color: var(--ot-accent);
+  color: var(--ot-text-primary);
+  transform: translateY(-1px);
+}
+
+.regex-tool__textarea {
+  width: 100%;
+  padding: 16px;
+  border: 1px solid var(--ot-border);
+  border-radius: var(--ot-radius-md);
+  background: var(--ot-bg-input);
+  color: var(--ot-text-primary);
+  font-family: 'Cascadia Code', 'Consolas', monospace;
+  font-size: 13.5px;
+  line-height: 1.75;
+  resize: none;
+  outline: none;
+  transition: all 0.25s ease;
+  min-height: 120px;
+}
+
+.regex-tool__textarea:focus {
+  border-color: var(--ot-accent);
+  box-shadow: var(--ot-shadow-glow);
+}
+
+.regex-tool__results {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--ot-bg-card);
+  border: 1px solid var(--ot-border);
+  border-radius: var(--ot-radius-lg);
+  overflow: hidden;
+  min-height: 200px;
+}
+
+.regex-tool__results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  background: var(--ot-bg-secondary);
+  border-bottom: 1px solid var(--ot-border);
+}
+
+.regex-tool__results-title {
+  font-size: 12px;
+  color: var(--ot-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  font-weight: 600;
+}
+
+.regex-tool__results-count {
+  font-size: 12px;
+  color: var(--ot-success);
+  background: var(--ot-success-bg);
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.regex-tool__results-list {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.regex-tool__result-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--ot-bg-input);
+  border: 1px solid var(--ot-border);
+  border-radius: var(--ot-radius-md);
+  margin-bottom: 8px;
+  font-family: 'Cascadia Code', 'Consolas', monospace;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.regex-tool__result-item:hover {
+  border-color: var(--ot-accent);
+  background: var(--ot-bg-card-hover);
+}
+
+.regex-tool__result-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg, var(--ot-accent) 0%, var(--ot-info) 100%);
+  border-radius: 50%;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.regex-tool__result-match {
+  color: #f97316;
+  background: rgba(249, 115, 22, 0.12);
+  padding: 3px 10px;
+  border-radius: 4px;
+  word-break: break-all;
+  font-weight: 600;
+}
+
+.regex-tool__result-groups {
+  color: var(--ot-accent-light);
+  font-size: 12px;
+  margin-left: 8px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.regex-tool__result-groups span {
+  background: var(--ot-info-bg);
+  color: var(--ot-info);
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.regex-tool__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--ot-text-muted);
+  font-size: 14px;
+  gap: 12px;
+}
+
+.regex-tool__empty-icon {
+  font-size: 48px;
+  opacity: 0.4;
+  font-family: 'Cascadia Code', monospace;
+}

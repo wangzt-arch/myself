@@ -16,6 +16,7 @@ const navItems = [
   { text: "流程图", path: "/logicflow" },
   { text: "视频案例", path: "/video" },
   { text: "3D地球", path: "/cesium" },
+  { text: "在线工具", path: "/online-tools" }
 ];
 
 function Header() {

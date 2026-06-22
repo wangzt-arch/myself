@@ -12,6 +12,7 @@ import LogicFlow from "./pages/logicflow"
 import Video from "./pages/video"
 import CesiumPage from "./pages/cesium"
 import VirtualListPage from "./pages/virtual-list"
+import OnlineTools from "./pages/online-tools"
 
 function App() {
     return (
@@ -48,6 +49,8 @@ function App() {
                         element={<CesiumPage />} />
                     <Route path="/virtual-list"
                         element={<VirtualListPage />} />
+                    <Route path="/online-tools"
+                        element={<OnlineTools />} />
                     <Route path="*"
                         element={<NoFound />} />
                 </Routes>

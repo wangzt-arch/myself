@@ -1,0 +1,438 @@
+/* ================================
+   在线工具模块 - 深色科技风格（基础布局）
+   ================================ */
+
+/* CSS 变量 - 主题色系 */
+:root {
+  --ot-bg-primary: #0a0e1a;
+  --ot-bg-secondary: #111827;
+  --ot-bg-card: #1a2332;
+  --ot-bg-card-hover: #203049;
+  --ot-bg-input: #0d1421;
+  --ot-border: #1e3a5f;
+  --ot-border-accent: #2563eb;
+  --ot-text-primary: #e2e8f0;
+  --ot-text-secondary: #94a3b8;
+  --ot-text-muted: #64748b;
+  --ot-accent: #3b82f6;
+  --ot-accent-hover: #2563eb;
+  --ot-accent-light: #60a5fa;
+  --ot-accent-glow: rgba(59, 130, 246, 0.35);
+  --ot-success: #10b981;
+  --ot-success-bg: rgba(16, 185, 129, 0.15);
+  --ot-danger: #ef4444;
+  --ot-danger-bg: rgba(239, 68, 68, 0.15);
+  --ot-warning: #f59e0b;
+  --ot-warning-bg: rgba(245, 158, 11, 0.15);
+  --ot-info: #06b6d4;
+  --ot-info-bg: rgba(6, 182, 212, 0.15);
+  --ot-radius-sm: 6px;
+  --ot-radius-md: 10px;
+  --ot-radius-lg: 14px;
+  --ot-radius-xl: 18px;
+  --ot-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --ot-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --ot-shadow-glow: 0 0 30px rgba(59, 130, 246, 0.25);
+}
+
+/* ===== 主体布局 ===== */
+.online-tools {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  width: 100%;
+  background: var(--ot-bg-primary);
+  color: var(--ot-text-primary);
+  font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  overflow: hidden;
+  position: relative;
+}
+
+/* 背景装饰 */
+.online-tools::before {
+  content: '';
+  position: absolute;
+  top: -200px;
+  right: -200px;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, var(--ot-accent-glow) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.online-tools::after {
+  content: '';
+  position: absolute;
+  bottom: -200px;
+  left: -200px;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ===== 左侧导航栏 ===== */
+.ot-sidebar {
+  width: 280px;
+  min-width: 280px;
+  background: linear-gradient(180deg, var(--ot-bg-secondary) 0%, var(--ot-bg-primary) 100%);
+  border-right: 1px solid var(--ot-border);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.ot-sidebar__header {
+  padding: 0 12px 24px;
+  border-bottom: 1px solid var(--ot-border);
+  margin-bottom: 20px;
+}
+
+.ot-sidebar__title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ot-text-primary);
+  margin: 0 0 6px;
+  letter-spacing: 0.3px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ot-sidebar__title-icon {
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--ot-accent) 0%, var(--ot-info) 100%);
+  border-radius: var(--ot-radius-sm);
+  font-size: 16px;
+  font-weight: 700;
+  box-shadow: var(--ot-shadow-glow);
+  color: #fff;
+}
+
+.ot-sidebar__subtitle {
+  font-size: 13px;
+  color: var(--ot-text-muted);
+  margin: 0;
+}
+
+.ot-sidebar__nav-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--ot-text-muted);
+  letter-spacing: 1.5px;
+  padding: 0 12px 10px;
+  font-weight: 600;
+}
+
+.ot-sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.ot-sidebar__item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 16px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--ot-radius-md);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-align: left;
+  font-family: inherit;
+  position: relative;
+  overflow: hidden;
+}
+
+.ot-sidebar__item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%) scaleY(0);
+  width: 3px;
+  height: 20px;
+  background: linear-gradient(180deg, var(--ot-accent) 0%, var(--ot-info) 100%);
+  border-radius: 0 2px 2px 0;
+  transition: transform 0.25s ease;
+}
+
+.ot-sidebar__item:hover {
+  background: var(--ot-bg-card);
+  border-color: var(--ot-border);
+}
+
+.ot-sidebar__item.active {
+  background: var(--ot-bg-card);
+  border-color: var(--ot-border-accent);
+  box-shadow: var(--ot-shadow-glow);
+}
+
+.ot-sidebar__item.active::before {
+  transform: translateY(-50%) scaleY(1);
+}
+
+.ot-sidebar__item-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ot-sidebar__icon {
+  display: inline-flex;
+  width: 34px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  background: var(--ot-bg-input);
+  border: 1px solid var(--ot-border);
+  border-radius: var(--ot-radius-sm);
+  font-family: 'Cascadia Code', 'Consolas', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ot-accent-light);
+  transition: all 0.25s ease;
+}
+
+.ot-sidebar__item.active .ot-sidebar__icon {
+  background: linear-gradient(135deg, var(--ot-accent) 0%, var(--ot-info) 100%);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 0 20px var(--ot-accent-glow);
+}
+
+.ot-sidebar__name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ot-text-primary);
+}
+
+.ot-sidebar__desc {
+  font-size: 12px;
+  color: var(--ot-text-muted);
+  padding-left: 46px;
+  margin-top: 2px;
+}
+
+/* ===== 右侧主内容区 ===== */
+.ot-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 28px 36px;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
+.ot-tool-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--ot-border);
+}
+
+.ot-tool-header__info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ot-tool-header__name {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ot-text-primary);
+  margin: 0;
+  letter-spacing: 0.3px;
+}
+
+.ot-tool-header__desc {
+  font-size: 13px;
+  color: var(--ot-text-secondary);
+  margin: 0;
+}
+
+.ot-tool-header__tags {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.ot-tool-tag {
+  font-size: 11px;
+  padding: 4px 10px;
+  background: var(--ot-info-bg);
+  color: var(--ot-info);
+  border-radius: 12px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+/* ===== 通用卡片容器 ===== */
+.ot-card {
+  background: var(--ot-bg-card);
+  border: 1px solid var(--ot-border);
+  border-radius: var(--ot-radius-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.ot-card:focus-within {
+  border-color: var(--ot-border-accent);
+  box-shadow: var(--ot-shadow-glow);
+}
+
+.ot-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  background: var(--ot-bg-secondary);
+  border-bottom: 1px solid var(--ot-border);
+}
+
+.ot-card__title {
+  font-size: 12px;
+  color: var(--ot-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  font-weight: 600;
+}
+
+.ot-card__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.ot-card__body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== 按钮样式 ===== */
+.ot-btn {
+  padding: 7px 14px;
+  border: 1px solid var(--ot-border);
+  border-radius: var(--ot-radius-sm);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  color: var(--ot-text-secondary);
+  background: var(--ot-bg-input);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: 0.2px;
+}
+
+.ot-btn:hover:not(:disabled) {
+  background: var(--ot-bg-card-hover);
+  border-color: var(--ot-accent);
+  color: var(--ot-text-primary);
+}
+
+.ot-btn--primary {
+  background: linear-gradient(135deg, var(--ot-accent) 0%, var(--ot-accent-hover) 100%);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 2px 8px var(--ot-accent-glow);
+}
+
+.ot-btn--primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--ot-accent-hover) 0%, #1d4ed8 100%);
+  color: #fff;
+  box-shadow: 0 4px 16px var(--ot-accent-glow);
+  transform: translateY(-1px);
+}
+
+.ot-btn--primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.ot-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===== 文本输入区 ===== */
+.ot-textarea {
+  flex: 1;
+  width: 100%;
+  padding: 18px;
+  border: none;
+  background: var(--ot-bg-input);
+  color: var(--ot-text-primary);
+  font-family: 'Cascadia Code', 'Fira Code', 'Consolas', 'Microsoft YaHei', monospace;
+  font-size: 13.5px;
+  line-height: 1.75;
+  resize: none;
+  outline: none;
+  letter-spacing: 0.2px;
+}
+
+.ot-textarea::placeholder {
+  color: var(--ot-text-muted);
+}
+
+.ot-textarea--output {
+  background: var(--ot-bg-secondary);
+}
+
+/* ===== 内容区容器 ===== */
+.ot-tool-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* ===== 自定义滚动条 ===== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--ot-bg-input);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e3a5f;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2563eb;
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 720px) {
+  .ot-sidebar {
+    width: 220px;
+    min-width: 220px;
+  }
+  .ot-main {
+    padding: 18px 20px;
+  }
+}
