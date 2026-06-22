@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/myself/static/css/main.dcaa5b2b.css",
-    "main.js": "/myself/static/js/main.b424ebdc.js",
+    "main.css": "/myself/static/css/main.02fafc6f.css",
+    "main.js": "/myself/static/js/main.a2e9f559.js",
     "static/js/510.03e488e9.chunk.js": "/myself/static/js/510.03e488e9.chunk.js",
     "static/media/狙击枪_ar-15.glb": "/myself/static/media/狙击枪_ar-15.11739dd9547babb3f7a5.glb",
     "static/media/supermarket.glb": "/myself/static/media/supermarket.3df4865ca2229163dc1c.glb",
@@ -416,7 +416,7 @@
     "ThirdParty/Workers/package.json": "/myself/ThirdParty/Workers/package.json"
   },
   "entrypoints": [
-    "static/css/main.dcaa5b2b.css",
-    "static/js/main.b424ebdc.js"
+    "static/css/main.02fafc6f.css",
+    "static/js/main.a2e9f559.js"
   ]
 }
