@@ -2,13 +2,13 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import './index.scss';
-import { getRandomReply } from './mockData';
+import { streamChat, simulateLocalStream } from './api';
 
 const initialMessages = [
   {
     id: '1',
     role: 'assistant',
-    content: '你好，我是你的 AI 助手。有什么可以帮到你吗？\n\n你可以问我任何问题，回答将实时流式输出。(只展示流式响应效果，实际并未调用 AI 接口)',
+    content: '你好，我是你的 AI 助手。有什么可以帮到你吗？\n\n基于 DeepSeek-R1 模型，支持深度推理和实时流式响应。',
     isStreaming: false,
   },
 ];
@@ -17,9 +17,13 @@ export default function AIChat() {
   const [messages, setMessages] = useState(initialMessages);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isReasoning, setIsReasoning] = useState(false);
   const [isError, setIsError] = useState(false);
+  const [useMock, setUseMock] = useState(false);
+  const [stoppedMessageId, setStoppedMessageId] = useState(null);
   const messagesEndRef = useRef(null);
-  const timerRef = useRef(null);
+  const abortRef = useRef(null);
+  const mockAbortRef = useRef(null);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -31,11 +35,80 @@ export default function AIChat() {
 
   useEffect(() => {
     return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
+      if (abortRef.current) {
+        abortRef.current.abort();
+      }
+      if (mockAbortRef.current) {
+        mockAbortRef.current();
       }
     };
   }, []);
+
+  const startStream = (assistantMessageId, chatHistory, isContinue = false) => {
+    const appendChunk = (chunk) => {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === assistantMessageId
+            ? { ...msg, content: msg.content + chunk }
+            : msg
+        )
+      );
+    };
+
+    const finishStream = () => {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === assistantMessageId ? { ...msg, isStreaming: false } : msg
+        )
+      );
+      setIsLoading(false);
+      setIsReasoning(false);
+      setStoppedMessageId(null);
+    };
+
+    if (useMock) {
+      const lastUserMsg = isContinue
+        ? '继续'
+        : chatHistory[chatHistory.length - 1]?.content || '';
+      mockAbortRef.current = simulateLocalStream(
+        lastUserMsg,
+        appendChunk,
+        finishStream
+      );
+    } else {
+      const controller = new AbortController();
+      abortRef.current = controller;
+
+      streamChat(
+        chatHistory,
+        controller.signal,
+        appendChunk,
+        () => setIsReasoning(true),
+        () => {
+          abortRef.current = null;
+          finishStream();
+        },
+        (error) => {
+          abortRef.current = null;
+          console.warn('API 调用失败，降级到本地模拟:', error.message);
+          setUseMock(true);
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === assistantMessageId ? { ...msg, content: '' } : msg
+            )
+          );
+          const lastUserMsg = isContinue
+            ? '继续'
+            : chatHistory[chatHistory.length - 1]?.content || '';
+          mockAbortRef.current = simulateLocalStream(
+            lastUserMsg,
+            appendChunk,
+            finishStream
+          );
+        }
+      );
+    }
+  };
 
   const handleSend = async () => {
     const trimmed = inputValue.trim();
@@ -43,7 +116,9 @@ export default function AIChat() {
 
     setInputValue('');
     setIsLoading(true);
+    setIsReasoning(false);
     setIsError(false);
+    setStoppedMessageId(null);
 
     const userMessage = {
       id: Date.now().toString(),
@@ -62,56 +137,80 @@ export default function AIChat() {
 
     setMessages((prev) => [...prev, userMessage, assistantMessage]);
 
-    try {
-      const reply = getRandomReply(trimmed);
-      const chars = reply.split('');
-      let index = 0;
+    const chatHistory = [...messages, userMessage].map(({ role, content }) => ({
+      role,
+      content,
+    }));
 
-      const initialDelay = 400 + Math.random() * 400;
-      await new Promise((resolve) => setTimeout(resolve, initialDelay));
+    startStream(assistantMessageId, chatHistory);
+  };
 
-      timerRef.current = setInterval(() => {
-        if (index >= chars.length) {
-          clearInterval(timerRef.current);
-          timerRef.current = null;
-          setMessages((prev) =>
-            prev.map((msg) =>
-              msg.id === assistantMessageId ? { ...msg, isStreaming: false } : msg
-            )
-          );
-          setIsLoading(false);
-          return;
-        }
-
-        let chunk = chars[index];
-        const remaining = chars.length - index;
-        if (remaining > 3 && Math.random() < 0.3) {
-          const extra = Math.min(Math.floor(Math.random() * 4), remaining - 1);
-          chunk = chars.slice(index, index + 1 + extra).join('');
-          index += extra;
-        }
-
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === assistantMessageId
-              ? { ...msg, content: msg.content + chunk }
-              : msg
-          )
-        );
-        index++;
-      }, 20 + Math.random() * 30);
-    } catch (error) {
-      console.error('Stream error:', error);
-      setIsError(true);
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === assistantMessageId
-            ? { ...msg, content: '抱歉，出现了问题，请稍后再试。', isStreaming: false }
-            : msg
-        )
-      );
-      setIsLoading(false);
+  const handleStop = () => {
+    // 中断当前请求
+    if (abortRef.current) {
+      abortRef.current.abort();
+      abortRef.current = null;
     }
+    if (mockAbortRef.current) {
+      mockAbortRef.current();
+      mockAbortRef.current = null;
+    }
+
+    // 找到当前正在流式输出的消息
+    setMessages((prev) => {
+      const streamingMsg = prev.find((msg) => msg.isStreaming && msg.role === 'assistant');
+      if (streamingMsg) {
+        setStoppedMessageId(streamingMsg.id);
+      }
+      return prev.map((msg) =>
+        msg.isStreaming && msg.role === 'assistant'
+          ? { ...msg, isStreaming: false }
+          : msg
+      );
+    });
+
+    setIsLoading(false);
+    setIsReasoning(false);
+  };
+
+  const handleContinue = () => {
+    if (!stoppedMessageId) return;
+
+    setIsLoading(true);
+    setIsReasoning(false);
+    setStoppedMessageId(null);
+
+    // 找到被中断的消息
+    const stoppedMsg = messages.find((msg) => msg.id === stoppedMessageId);
+    if (!stoppedMsg) return;
+
+    // 更新消息为流式状态
+    setMessages((prev) =>
+      prev.map((msg) =>
+        msg.id === stoppedMessageId ? { ...msg, isStreaming: true } : msg
+      )
+    );
+
+    // 构建上下文：取到被中断消息为止的历史
+    const historyIndex = messages.findIndex((msg) => msg.id === stoppedMessageId);
+    const contextMessages = messages.slice(0, historyIndex).map(({ role, content }) => ({
+      role,
+      content,
+    }));
+
+    // 添加被中断的 assistant 消息（作为上下文的一部分）
+    contextMessages.push({
+      role: 'assistant',
+      content: stoppedMsg.content,
+    });
+
+    // 添加 "继续" 用户消息
+    contextMessages.push({
+      role: 'user',
+      content: '请继续',
+    });
+
+    startStream(stoppedMessageId, contextMessages, true);
   };
 
   const handleKeyDown = (e) => {
@@ -134,13 +233,19 @@ export default function AIChat() {
   };
 
   const handleClear = () => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
+    if (abortRef.current) {
+      abortRef.current.abort();
+      abortRef.current = null;
+    }
+    if (mockAbortRef.current) {
+      mockAbortRef.current();
+      mockAbortRef.current = null;
     }
     setMessages(initialMessages);
     setIsError(false);
     setIsLoading(false);
+    setIsReasoning(false);
+    setStoppedMessageId(null);
   };
 
   return (
@@ -148,15 +253,35 @@ export default function AIChat() {
       <header className="ai-chat__header">
         <div className="ai-chat__title-wrap">
           <h1 className="ai-chat__title">AI 对话</h1>
-          <p className="ai-chat__subtitle">实时流式响应</p>
+          <p className="ai-chat__subtitle">
+            {useMock ? '本地模拟模式' : 'DeepSeek-R1 · 深度推理'}
+          </p>
         </div>
         <div className="ai-chat__actions">
           <div className={`ai-chat__status ${isLoading ? 'loading' : 'online'}`}>
             <span className="ai-chat__status-dot" />
             <span className="ai-chat__status-text">
-              {isLoading ? '正在思考' : '在线'}
+              {isReasoning ? '深度思考中' : isLoading ? '正在思考' : useMock ? '模拟' : '在线'}
             </span>
           </div>
+          <button
+            className="ai-chat__mode-btn"
+            onClick={() => setUseMock((v) => !v)}
+            title={useMock ? '切换到 API 模式' : '切换到模拟模式'}
+          >
+            {useMock ? (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
+                <path d="M12 6v6l4 2" />
+              </svg>
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="2" y1="12" x2="22" y2="12" />
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+              </svg>
+            )}
+          </button>
           <button className="ai-chat__clear-btn" onClick={handleClear} title="清空对话">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 6h18" />
@@ -199,14 +324,29 @@ export default function AIChat() {
               <div className="ai-chat__content">
                 {msg.role === 'assistant' ? (
                   <>
-                    {msg.isStreaming ? (
-                      <div className="ai-chat__stream-text">{msg.content || ''}</div>
+                    {msg.isStreaming && msg.content === '' && isReasoning ? (
+                      <div className="ai-chat__reasoning">
+                        <div className="ai-chat__reasoning-icon">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M12 16v-4" />
+                            <path d="M12 8h.01" />
+                          </svg>
+                        </div>
+                        <span>深度思考中...</span>
+                      </div>
                     ) : (
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {typeof msg.content === 'string' ? msg.content : ''}
-                      </ReactMarkdown>
+                      <>
+                        {msg.isStreaming ? (
+                          <div className="ai-chat__stream-text">{msg.content || ''}</div>
+                        ) : (
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {typeof msg.content === 'string' ? msg.content : ''}
+                          </ReactMarkdown>
+                        )}
+                        {msg.isStreaming && <span className="ai-chat__typing-dot" />}
+                      </>
                     )}
-                    {msg.isStreaming && <span className="ai-chat__typing-dot" />}
                   </>
                 ) : (
                   <p>{msg.content}</p>
@@ -232,6 +372,19 @@ export default function AIChat() {
             </button>
           </div>
         )}
+
+        {stoppedMessageId && !isLoading && (
+          <div className="ai-chat__continue-hint">
+            <span>回答已中断</span>
+            <button className="ai-chat__continue-btn" onClick={handleContinue}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="5 3 19 12 5 21 5 3" />
+              </svg>
+              继续回答
+            </button>
+          </div>
+        )}
+
         <div className="ai-chat__input-wrap">
           <textarea
             className="ai-chat__input"
@@ -242,20 +395,29 @@ export default function AIChat() {
             disabled={isLoading}
             rows={1}
           />
-          <button
-            className="ai-chat__send-btn"
-            onClick={handleSend}
-            disabled={isLoading || !inputValue.trim()}
-          >
-            {isLoading ? (
-              <span className="ai-chat__send-loading" />
-            ) : (
+          {isLoading ? (
+            <button
+              className="ai-chat__stop-btn"
+              onClick={handleStop}
+              title="停止生成"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="6" y="6" width="12" height="12" rx="2" />
+              </svg>
+              停止
+            </button>
+          ) : (
+            <button
+              className="ai-chat__send-btn"
+              onClick={handleSend}
+              disabled={!inputValue.trim()}
+            >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="22" y1="2" x2="11" y2="13" />
                 <polygon points="22 2 15 22 11 13 2 9 22 2" />
               </svg>
-            )}
-          </button>
+            </button>
+          )}
         </div>
         <p className="ai-chat__hint">Enter 发送 · Shift + Enter 换行</p>
       </div>
