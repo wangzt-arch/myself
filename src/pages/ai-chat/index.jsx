@@ -2,165 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import './index.scss';
-
-const mockReplies = [
-  `好的，我来帮你解答这个问题。
-
-## 核心思路
-
-这个问题可以从以下几个方面来分析：
-
-1. **理解需求**：先明确你想要达成什么目标
-2. **拆解问题**：把大问题拆成多个小步骤
-3. **逐步实现**：从最简单的部分开始做起
-4. **验证结果**：每一步都确认是否正确
-
-\`\`\`javascript
-// 示例代码
-function greet(name) {
-  return \`Hello, \${name}!\`;
-}
-\`\`\`
-
-> 记住：复杂的问题都是由简单问题组合而成的。
-
-希望这个回答对你有帮助！如果还有其他问题，随时问我。`,
-
-  `这是一个很有意思的问题！让我详细解释一下。
-
-### 什么是流式响应？
-
-**流式响应（Streaming Response）** 是一种服务器端逐步推送数据的技术。相比传统的"一次性返回全部内容"，它有这些优势：
-
-- **更快的首屏时间**：用户不需要等待全部内容生成
-- **更好的体验**：像真人对话一样逐字输出
-- **降低感知延迟**：即使总耗时相同，感觉上也更快
-
-### 工作原理
-
-1. 客户端发起请求
-2. 服务器边生成边发送数据块
-3. 客户端收到一块就渲染一块
-4. 直到所有数据发送完毕
-
-这种方式在 **AI 对话**、**实时翻译**、**大文件下载** 等场景中非常常用。
-
-还有什么想了解的吗？`,
-
-  `当然可以！我来给你一些建议。
-
-## 提高代码质量的几个要点
-
-### 1. 命名规范
-- 变量名要有意义，避免 \`a\`、\`b\`、\`temp\` 这种
-- 函数名用动词开头，如 \`getUserInfo\`、\`calculateTotal\`
-- 常量全大写，如 \`MAX_COUNT\`
-
-### 2. 代码结构
-- 一个函数只做一件事（单一职责原则）
-- 避免过深的嵌套（超过 3 层就要考虑重构）
-- 合理使用注释，但不要写"废话注释"
-
-### 3. 错误处理
-- 不要忽略错误
-- 使用 try-catch 捕获异常
-- 给用户友好的错误提示
-
-\`\`\`js
-// ❌ 不好
-if (data) {
-  if (data.user) {
-    if (data.user.name) {
-      console.log(data.user.name);
-    }
-  }
-}
-
-// ✅ 好
-const name = data?.user?.name;
-if (name) console.log(name);
-\`\`\`
-
-坚持这些习惯，代码质量会稳步提升！`,
-
-  `关于这个话题，我可以分享一些见解。
-
-在软件开发中，**持续学习**是最重要的能力之一。技术日新月异，保持好奇心和学习热情非常关键。
-
-### 推荐的学习路径
-
-1. **打好基础** — 数据结构、算法、网络、操作系统
-2. **精通一门语言** — 不要浅尝辄止
-3. **了解设计模式** — 复用前人的智慧
-4. **阅读优秀源码** — 学习高手怎么写代码
-5. **动手实践** — 纸上得来终觉浅
-
-> "Talk is cheap. Show me the code." — Linus Torvalds
-
-你对哪个方向最感兴趣呢？我可以给你更具体的建议。`,
-
-  `好问题！让我来详细解答。
-
-首先，我们需要理解**问题的本质**。很多时候，答案就藏在问题本身里面。
-
-### 分析步骤
-
-- 第一步：明确问题是什么
-- 第二步：收集相关信息
-- 第三步：提出假设
-- 第四步：验证假设
-- 第五步：得出结论
-
-这个过程看似简单，但实际应用中需要不断练习。
-
-**记住**：没有愚蠢的问题，只有不去思考的头脑。
-
-还有其他疑问吗？欢迎继续提问！`,
-];
-
-function getRandomReply(prompt) {
-  const lower = prompt.toLowerCase();
-  if (lower.includes('代码') || lower.includes('code') || lower.includes('编程')) {
-    return mockReplies[2];
-  }
-  if (lower.includes('流') || lower.includes('stream') || lower.includes('实时')) {
-    return mockReplies[1];
-  }
-  if (lower.includes('学习') || lower.includes('学习') || lower.includes('学')) {
-    return mockReplies[3];
-  }
-  return mockReplies[Math.floor(Math.random() * mockReplies.length)];
-}
-
-async function simulateStreamResponse(prompt, onChunk, onComplete) {
-  const reply = getRandomReply(prompt);
-  const chars = reply.split('');
-  let index = 0;
-
-  const initialDelay = 400 + Math.random() * 400;
-  await new Promise((resolve) => setTimeout(resolve, initialDelay));
-
-  const timer = setInterval(() => {
-    if (index >= chars.length) {
-      clearInterval(timer);
-      onComplete?.();
-      return;
-    }
-
-    let chunk = chars[index];
-    const remaining = chars.length - index;
-    if (remaining > 3 && Math.random() < 0.3) {
-      const extra = Math.min(Math.floor(Math.random() * 3), remaining - 1);
-      chunk = chars.slice(index, index + 1 + extra).join('');
-      index += extra;
-    }
-
-    onChunk?.(chunk);
-    index++;
-  }, 25 + Math.random() * 35);
-
-  return () => clearInterval(timer);
-}
+import { getRandomReply } from './mockData';
 
 const initialMessages = [
   {
@@ -177,6 +19,7 @@ export default function AIChat() {
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
   const messagesEndRef = useRef(null);
+  const timerRef = useRef(null);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -185,6 +28,14 @@ export default function AIChat() {
   useEffect(() => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, []);
 
   const handleSend = async () => {
     const trimmed = inputValue.trim();
@@ -211,34 +62,44 @@ export default function AIChat() {
 
     setMessages((prev) => [...prev, userMessage, assistantMessage]);
 
-    let completed = false;
-    const finish = () => {
-      if (completed) return;
-      completed = true;
-      setIsLoading(false);
-    };
-
     try {
-      simulateStreamResponse(
-        trimmed,
-        (chunk) => {
-          setMessages((prev) =>
-            prev.map((msg) =>
-              msg.id === assistantMessageId
-                ? { ...msg, content: msg.content + chunk }
-                : msg
-            )
-          );
-        },
-        () => {
+      const reply = getRandomReply(trimmed);
+      const chars = reply.split('');
+      let index = 0;
+
+      const initialDelay = 400 + Math.random() * 400;
+      await new Promise((resolve) => setTimeout(resolve, initialDelay));
+
+      timerRef.current = setInterval(() => {
+        if (index >= chars.length) {
+          clearInterval(timerRef.current);
+          timerRef.current = null;
           setMessages((prev) =>
             prev.map((msg) =>
               msg.id === assistantMessageId ? { ...msg, isStreaming: false } : msg
             )
           );
-          finish();
+          setIsLoading(false);
+          return;
         }
-      );
+
+        let chunk = chars[index];
+        const remaining = chars.length - index;
+        if (remaining > 3 && Math.random() < 0.3) {
+          const extra = Math.min(Math.floor(Math.random() * 4), remaining - 1);
+          chunk = chars.slice(index, index + 1 + extra).join('');
+          index += extra;
+        }
+
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === assistantMessageId
+              ? { ...msg, content: msg.content + chunk }
+              : msg
+          )
+        );
+        index++;
+      }, 20 + Math.random() * 30);
     } catch (error) {
       console.error('Stream error:', error);
       setIsError(true);
@@ -249,7 +110,7 @@ export default function AIChat() {
             : msg
         )
       );
-      finish();
+      setIsLoading(false);
     }
   };
 
@@ -273,8 +134,13 @@ export default function AIChat() {
   };
 
   const handleClear = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
     setMessages(initialMessages);
     setIsError(false);
+    setIsLoading(false);
   };
 
   return (
@@ -333,12 +199,14 @@ export default function AIChat() {
               <div className="ai-chat__content">
                 {msg.role === 'assistant' ? (
                   <>
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {typeof msg.content === 'string' ? msg.content : ''}
-                    </ReactMarkdown>
-                    {msg.isStreaming && (
-                      <span className="ai-chat__typing-dot" />
+                    {msg.isStreaming ? (
+                      <div className="ai-chat__stream-text">{msg.content || ''}</div>
+                    ) : (
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {typeof msg.content === 'string' ? msg.content : ''}
+                      </ReactMarkdown>
                     )}
+                    {msg.isStreaming && <span className="ai-chat__typing-dot" />}
                   </>
                 ) : (
                   <p>{msg.content}</p>
