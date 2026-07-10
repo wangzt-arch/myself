@@ -42,6 +42,30 @@ const featureItems = [
         category: "CesiumJS",
         description: "CesiumJS 驱动的 3D 地球，支持卫星影像、行政区划和城市标记交互。",
     },
+    {
+        title: "AI 对话",
+        path: "/ai-chat",
+        category: "Streaming",
+        description: "模拟 AI 流式响应的对话界面，支持 Markdown 实时渲染与打字机效果。",
+    },
+    {
+        title: "在线工具",
+        path: "/online-tools",
+        category: "Utilities",
+        description: "收录 JSON 格式化、正则测试、时间戳转换等前端常用小工具。",
+    },
+    {
+        title: "虚拟列表",
+        path: "/virtual-list",
+        category: "Performance",
+        description: "大数据量场景下的虚拟滚动方案，含分组折叠与搜索过滤。",
+    },
+    {
+        title: "翻译",
+        path: "/translate",
+        category: "i18n",
+        description: "多语言文本翻译与对照查看，用于验证前端国际化方案。",
+    },
 ];
 
 const skillItems = [

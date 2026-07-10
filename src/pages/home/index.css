@@ -253,6 +253,8 @@
 .reveal--delay-6 { transition-delay: 0.48s; }
 .reveal--delay-7 { transition-delay: 0.56s; }
 .reveal--delay-8 { transition-delay: 0.64s; }
+.reveal--delay-9 { transition-delay: 0.72s; }
+.reveal--delay-10 { transition-delay: 0.80s; }
 
 /* Hero 区块使用更柔和的入场 */
 .home-hero.reveal {
