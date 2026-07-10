@@ -1,57 +1,105 @@
-const STORAGE_KEY = 'ai-chat-messages';
+const STORAGE_KEY = 'ai-chat-sessions';
 const META_KEY = 'ai-chat-meta';
-const MAX_MESSAGES = 200;
-const MAX_AGE_DAYS = 7;
+const MAX_SESSIONS = 50;
+const MAX_AGE_DAYS = 30;
 
-export function saveMessages(messages) {
+function getDefaultSession() {
+  return {
+    id: 'session-' + Date.now(),
+    title: '新对话',
+    messages: [
+      {
+        id: '1',
+        role: 'assistant',
+        content: '你好，我是你的 AI 助手。有什么可以帮到你吗？\n\n基于 DeepSeek-R1 模型，支持深度推理和实时流式响应。',
+        isStreaming: false,
+      },
+    ],
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+  };
+}
+
+function extractTitle(messages) {
+  const userMsg = messages.find((msg) => msg.role === 'user');
+  if (!userMsg) return '新对话';
+  const title = userMsg.content.slice(0, 20);
+  return title.length < userMsg.content.length ? title + '...' : title;
+}
+
+export function saveSessions(sessions, currentSessionId) {
   try {
-    // 只保存已完成的对话（isStreaming 状态不需要持久化）
-    const persistable = messages
-      .filter((msg) => !msg.isStreaming && msg.content)
-      .slice(-MAX_MESSAGES);
+    const persistable = sessions
+      .map((session) => ({
+        ...session,
+        messages: session.messages
+          .filter((msg) => !msg.isStreaming && msg.content)
+          .slice(-100),
+        title: session.title || extractTitle(session.messages),
+      }))
+      .sort((a, b) => b.updatedAt - a.updatedAt)
+      .slice(0, MAX_SESSIONS);
 
     const meta = {
       savedAt: Date.now(),
-      version: 1,
+      version: 2,
+      currentSessionId,
     };
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(persistable));
     localStorage.setItem(META_KEY, JSON.stringify(meta));
   } catch (error) {
-    console.warn('保存对话到本地缓存失败:', error);
+    console.warn('保存会话到本地缓存失败:', error);
   }
 }
 
-export function loadMessages() {
+export function loadSessions() {
   try {
     const metaStr = localStorage.getItem(META_KEY);
     if (metaStr) {
       const meta = JSON.parse(metaStr);
       const ageMs = Date.now() - meta.savedAt;
       if (ageMs > MAX_AGE_DAYS * 24 * 60 * 60 * 1000) {
-        // 缓存过期，清理掉
-        clearMessages();
-        return null;
+        clearSessions();
+        return { sessions: [getDefaultSession()], currentSessionId: null };
       }
     }
 
     const data = localStorage.getItem(STORAGE_KEY);
-    if (!data) return null;
+    if (!data) {
+      const defaultSession = getDefaultSession();
+      return { sessions: [defaultSession], currentSessionId: defaultSession.id };
+    }
 
-    const messages = JSON.parse(data);
-    if (!Array.isArray(messages) || messages.length === 0) return null;
+    const sessions = JSON.parse(data);
+    if (!Array.isArray(sessions) || sessions.length === 0) {
+      const defaultSession = getDefaultSession();
+      return { sessions: [defaultSession], currentSessionId: defaultSession.id };
+    }
 
-    return messages.map((msg) => ({
-      ...msg,
-      isStreaming: false,
+    const restored = sessions.map((session) => ({
+      ...session,
+      messages: session.messages.map((msg) => ({
+        ...msg,
+        isStreaming: false,
+      })),
     }));
+
+    const meta = metaStr ? JSON.parse(metaStr) : {};
+    const currentSessionId =
+      meta.currentSessionId && restored.find((s) => s.id === meta.currentSessionId)
+        ? meta.currentSessionId
+        : restored[0].id;
+
+    return { sessions: restored, currentSessionId };
   } catch (error) {
-    console.warn('从本地缓存读取对话失败:', error);
-    return null;
+    console.warn('从本地缓存读取会话失败:', error);
+    const defaultSession = getDefaultSession();
+    return { sessions: [defaultSession], currentSessionId: defaultSession.id };
   }
 }
 
-export function clearMessages() {
+export function clearSessions() {
   try {
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(META_KEY);
@@ -68,10 +116,11 @@ export function getStorageInfo() {
     const meta = JSON.parse(metaStr);
     const dataStr = localStorage.getItem(STORAGE_KEY) || '[]';
     const size = new Blob([dataStr]).size;
+    const sessions = JSON.parse(dataStr);
 
     return {
       savedAt: meta.savedAt,
-      messageCount: JSON.parse(dataStr).length,
+      sessionCount: sessions.length,
       sizeKB: (size / 1024).toFixed(2),
     };
   } catch {
