@@ -3,15 +3,23 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import './index.scss';
 import { streamChat, simulateLocalStream } from './api';
+import { saveMessages, loadMessages, clearMessages } from './storage';
 
-const initialMessages = [
-  {
-    id: '1',
-    role: 'assistant',
-    content: '你好，我是你的 AI 助手。有什么可以帮到你吗？\n\n基于 DeepSeek-R1 模型，支持深度推理和实时流式响应。',
-    isStreaming: false,
-  },
-];
+const initialMessages = (() => {
+  // 优先从 localStorage 恢复
+  const cached = loadMessages();
+  if (cached && cached.length > 0) {
+    return cached;
+  }
+  return [
+    {
+      id: '1',
+      role: 'assistant',
+      content: '你好，我是你的 AI 助手。有什么可以帮到你吗？\n\n基于 DeepSeek-R1 模型，支持深度推理和实时流式响应。',
+      isStreaming: false,
+    },
+  ];
+})();
 
 export default function AIChat() {
   const [messages, setMessages] = useState(initialMessages);
@@ -32,6 +40,11 @@ export default function AIChat() {
   useEffect(() => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
+
+  // 监听 messages 变化，自动持久化到 localStorage
+  useEffect(() => {
+    saveMessages(messages);
+  }, [messages]);
 
   useEffect(() => {
     return () => {
@@ -241,11 +254,20 @@ export default function AIChat() {
       mockAbortRef.current();
       mockAbortRef.current = null;
     }
-    setMessages(initialMessages);
+    const welcome = [
+      {
+        id: '1',
+        role: 'assistant',
+        content: '你好，我是你的 AI 助手。有什么可以帮到你吗？\n\n基于 DeepSeek-R1 模型，支持深度推理和实时流式响应。',
+        isStreaming: false,
+      },
+    ];
+    setMessages(welcome);
     setIsError(false);
     setIsLoading(false);
     setIsReasoning(false);
     setStoppedMessageId(null);
+    clearMessages();
   };
 
   return (
