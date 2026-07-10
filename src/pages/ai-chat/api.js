@@ -4,12 +4,7 @@ const MODEL = 'deepseek-ai/DeepSeek-R1-0528-Qwen3-8B';
 
 const SYSTEM_PROMPT = `你是一个专业、友好的AI助手。请遵循以下原则回答问题：
 
-1. 结构清晰：使用标题、列表、段落组织内容
-2. 简洁明了：避免冗余，直接回答核心问题
-3. 适当举例：用代码块或实例帮助理解复杂概念
-4. 友好语气：保持礼貌和专业，但不过于正式
-
-如果问题不明确，可以请用户澄清。回答使用中文。`;
+简洁明了：避免冗余，直接回答核心问题,回答使用中文。`;
 
 export async function streamChat(messages, signal, onChunk, onReasoning, onComplete, onError) {
   try {
