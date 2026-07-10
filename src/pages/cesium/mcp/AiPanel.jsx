@@ -62,7 +62,7 @@ function AiPanel({ isOpen, onToggle, engine }) {
 
         {isOpen && (
           <div className="ai-panel__body">
-            <div className="ai-chat" ref={scrollRef}>
+            <div className="ai-chat-box" ref={scrollRef}>
               {messages.map((msg, idx) => (
                 <div className={msg.role === "user" ? "ai-bubble ai-bubble--user" : "ai-bubble ai-bubble--ai"} key={idx}>
                   {msg.text.split("\n").map((line, i) => (

@@ -13,6 +13,7 @@ import Video from "./pages/video"
 import CesiumPage from "./pages/cesium"
 import VirtualListPage from "./pages/virtual-list"
 import OnlineTools from "./pages/online-tools"
+import AIChat from "./pages/ai-chat"
 
 function App() {
     return (
@@ -51,6 +52,8 @@ function App() {
                         element={<VirtualListPage />} />
                     <Route path="/online-tools"
                         element={<OnlineTools />} />
+                    <Route path="/ai-chat"
+                        element={<AIChat />} />
                     <Route path="*"
                         element={<NoFound />} />
                 </Routes>

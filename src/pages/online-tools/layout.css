@@ -408,25 +408,6 @@
   overflow: hidden;
 }
 
-/* ===== 自定义滚动条 ===== */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--ot-bg-input);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #1e3a5f;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #2563eb;
-}
 
 /* ===== 响应式 ===== */
 @media (max-width: 720px) {
