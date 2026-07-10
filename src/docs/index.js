@@ -12,6 +12,7 @@ import ai from "./ai.md";
 import codexStart from "./codex-start.md";
 import aiPrompts from "./ai-prompts.md";
 import aiHotTerms from "./ai-hot-terms.md";
+import aiStream from "./ai-stream.md";
 import jsInterview from "./js-interview.md";
 import htmlInterview from "./html-interview.md";
 import cssInterview from "./css-interview.md";
@@ -44,6 +45,12 @@ const docs = [
     category: "AI 工具",
     tags: ["AI", "术语", "百科"],
     value: aiHotTerms,
+  },
+  {
+    title: "前端流式输出实现",
+    category: "AI 工具",
+    tags: ["AI", "流式输出", "SSE", "ReadableStream"],
+    value: aiStream,
   },
   {
     title: "常用正则",
