@@ -33,7 +33,7 @@ function PageLoader() {
 function App() {
   useEffect(() => {
     if ("requestIdleCallback" in window) {
-      requestIdleCallback(() => {
+      requestIdleCallback(() => {        
         preloadRoutes.forEach((preload) => preload().catch(() => {}));
       });
     } else {

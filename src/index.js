@@ -4,7 +4,6 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import 'lib-flexible'
-import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 
 
 import { createRoot } from 'react-dom/client';
@@ -23,7 +22,5 @@ root.render(
     <App />
   </React.StrictMode>
 );
-
-serviceWorkerRegistration.register();
 
 reportWebVitals();
