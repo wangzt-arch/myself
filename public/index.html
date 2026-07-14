@@ -11,43 +11,56 @@
   <meta name="apple-mobile-web-app-title" content="举个栗子" />
   <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
   <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-  <!-- <link rel="stylesheet" href="./live2d/live.css"> -->
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; }
+    #root { height: 100%; display: flex; flex-direction: column; }
+    .app-content { flex: 1; overflow-y: auto; }
+    .page-loader { position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f9fafb; }
+    .page-loader__spinner { width: 40px; height: 40px; border: 3px solid #e5e7eb; border-top-color: #4b5563; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    .page-loader__text { margin-top: 16px; color: #6b7280; font-size: 14px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .header { position: sticky; top: 0; z-index: 1200; width: 100%; background: rgba(255,255,255,0.92); }
+  </style>
   <title>举个栗子 🌰</title>
 </head>
 
 <body>
   <noscript>You need to enable JavaScript to run this app.</noscript>
-  <div id="root"></div>
-  <div id="live2d-widget"></div>
-  <script src="https://cdn.jsdelivr.net/npm/live2d-widget@3.x/lib/L2Dwidget.min.js"></script>
-
+  <div id="root">
+    <div class="page-loader">
+      <div class="page-loader__spinner"></div>
+      <span class="page-loader__text">加载中...</span>
+    </div>
+  </div>
+  <!--
   <script>
-    L2Dwidget.init({
-      "model": {
-        jsonPath: "https://unpkg.com/live2d-widget-model-hijiki/assets/hijiki.model.json",
-        "scale": 1
-      },
-      "display": {
-        "position": "right",
-        "width": 100,
-        "height": 200,
-        "hOffset": -20,
-        "vOffset": -100
-      },
-      "mobile": {
-        "show": true,
-        "scale": 0.5
-      },
-      name: {
-        div: 'live2d-widget',
-      },
-      "react": {
-        "opacityDefault": 0.7,
-        "opacityOnHover": 0.3
-      }
-    });
-
+    if (!('ontouchstart' in window) && window.innerWidth > 768) {
+      var script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/live2d-widget@3.x/lib/L2Dwidget.min.js';
+      script.onload = function() {
+        L2Dwidget.init({
+          "model": {
+            jsonPath: "https://unpkg.com/live2d-widget-model-hijiki/assets/hijiki.model.json",
+            "scale": 1
+          },
+          "display": {
+            "position": "right",
+            "width": 100,
+            "height": 200,
+            "hOffset": -20,
+            "vOffset": -100
+          },
+          "react": {
+            "opacityDefault": 0.7,
+            "opacityOnHover": 0.3
+          }
+        });
+      };
+      document.body.appendChild(script);
+    }
   </script>
+  -->
 </body>
 
 </html>

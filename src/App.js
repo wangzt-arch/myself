@@ -1,34 +1,24 @@
 import React, { Suspense, lazy, useEffect } from "react";
 import { HashRouter, Route, Routes } from "react-router-dom";
 import Header from "./components/Header";
+import Home from "./pages/home";
+import Docs from "./pages/docs";
+import About from "./pages/about";
+import Chart from "./pages/yq-distribution";
+import NoFound from "./pages/no-found";
+import Translate from "./pages/translate";
+import ModelPreview from "./pages/model-preview";
+import LogicFlow from "./pages/logicflow";
+import Video from "./pages/video";
+import VirtualListPage from "./pages/virtual-list";
+import OnlineTools from "./pages/online-tools";
+import AIChat from "./pages/ai-chat";
 import "./App.css";
 
-const Home = lazy(() => import("./pages/home"));
-const Docs = lazy(() => import("./pages/docs"));
-const About = lazy(() => import("./pages/about"));
-const Chart = lazy(() => import("./pages/yq-distribution"));
-const NoFound = lazy(() => import("./pages/no-found"));
-const Translate = lazy(() => import("./pages/translate"));
-const ModelPreview = lazy(() => import("./pages/model-preview"));
-const LogicFlow = lazy(() => import("./pages/logicflow"));
-const Video = lazy(() => import("./pages/video"));
 const CesiumPage = lazy(() => import("./pages/cesium"));
-const VirtualListPage = lazy(() => import("./pages/virtual-list"));
-const OnlineTools = lazy(() => import("./pages/online-tools"));
-const AIChat = lazy(() => import("./pages/ai-chat"));
 
 const preloadRoutes = [
-  () => import("./pages/docs"),
-  () => import("./pages/about"),
-  () => import("./pages/yq-distribution"),
-  () => import("./pages/translate"),
-  () => import("./pages/model-preview"),
-  () => import("./pages/logicflow"),
-  () => import("./pages/video"),
   () => import("./pages/cesium"),
-  () => import("./pages/virtual-list"),
-  () => import("./pages/online-tools"),
-  () => import("./pages/ai-chat"),
 ];
 
 function PageLoader() {
