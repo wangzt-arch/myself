@@ -9,6 +9,7 @@ import { CESIUM_TOKEN, INITIAL_CAMERA, STATS, VIEWER_OPTIONS } from "./constants
 import { DRONE_ROUTE_OPTIONS, createDronePatrol, updateDroneFollowCamera } from "./drone";
 import { createWebGLEffect, removeWebGLEffect } from "./effects";
 import EmberSphereEffect from './effect/EmberSphereEffect'
+import { createBallisticController, getBallisticStatusText, BALLISTIC_TYPES } from "./ballistic";
 
 import {
   INITIAL_LAYERS,
@@ -308,6 +309,7 @@ function CesiumPage() {
   const droneControllerRef = useRef(null);
   const activeEffectTypeRef = useRef(null);
   const isFollowingSatelliteRef = useRef(false);
+  const ballisticControllerRef = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isInfoPanelOpen, setIsInfoPanelOpen] = useState(false);
   const [isToolPanelOpen, setIsToolPanelOpen] = useState(false);
@@ -328,7 +330,14 @@ function CesiumPage() {
   const [coordinates, setCoordinates] = useState({ lon: "105.0000", lat: "35.0000", height: 8000000 });
   const [selectedCity, setSelectedCity] = useState(null);
   const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 });
-  const [isAiPanelOpen, setIsAiPanelOpen] = useState(true);
+  const [isAiPanelOpen, setIsAiPanelOpen] = useState(false);
+  const [ballisticState, setBallisticState] = useState({
+    status: "idle",
+    statusText: "空闲",
+    curveType: "parabola",
+    startLonLat: null,
+    endLonLat: null,
+  });
 
   // 关闭城市信息弹窗。
   const handleClosePopup = useCallback(() => setSelectedCity(null), []);
@@ -447,6 +456,38 @@ function CesiumPage() {
     }
     syncDroneState();
   }, [syncDroneState]);
+
+  // 弹道打击相关函数
+  const syncBallisticState = useCallback(() => {
+    const controller = ballisticControllerRef.current;
+    if (!controller) return;
+    const snapshot = controller.getSnapshot();
+    setBallisticState({
+      ...snapshot,
+      statusText: getBallisticStatusText(snapshot.status),
+      curveType: controller.curveType,
+    });
+  }, []);
+
+  const startBallisticSelecting = useCallback(() => {
+    ballisticControllerRef.current?.startSelecting();
+  }, []);
+
+  const fireBallistic = useCallback(() => {
+    ballisticControllerRef.current?.fire();
+  }, []);
+
+  const stopBallistic = useCallback(() => {
+    ballisticControllerRef.current?.stop();
+  }, []);
+
+  const resetBallistic = useCallback(() => {
+    ballisticControllerRef.current?.reset();
+  }, []);
+
+  const setBallisticCurveType = useCallback((type) => {
+    ballisticControllerRef.current?.setCurveType(type);
+  }, []);
 
   // 删除指定 WebGL 特效，并同步右侧列表。
   const deleteWebGLEffect = useCallback((id) => {
@@ -660,6 +701,11 @@ function CesiumPage() {
     coverageEntitiesRef.current = createCoverageAreas(viewer);
     droneControllerRef.current = createDronePatrol(viewer, "city");
     setDroneState(droneControllerRef.current.getSnapshot());
+
+    ballisticControllerRef.current = createBallisticController(viewer, () => {
+      syncBallisticState();
+    });
+
     applyInitialLayerVisibility({
       city: cityEntitiesRef,
       satellite: satelliteEntitiesRef,
@@ -682,6 +728,8 @@ function CesiumPage() {
       coverageEntitiesRef.current = [];
       droneControllerRef.current?.remove();
       droneControllerRef.current = null;
+      ballisticControllerRef.current?.destroy();
+      ballisticControllerRef.current = null;
       webGLEffectsRef.current.forEach((effect) => removeWebGLEffect(viewer, effect));
       webGLEffectsRef.current = [];
       if (viewerRef.current) {
@@ -689,7 +737,7 @@ function CesiumPage() {
         viewerRef.current = null;
       }
     };
-  }, [addWebGLEffect]);
+  }, [addWebGLEffect, syncBallisticState]);
 
   return (
     <div className="cesium-page">
@@ -836,6 +884,66 @@ function CesiumPage() {
                 </div>
               </section>
 
+              <section className="feature-section ballistic-panel">
+                <div className="ballistic-panel__title">
+                  <div>
+                    <span>Ballistic Strike</span>
+                    <strong>弹道打击</strong>
+                  </div>
+                  <i>{ballisticState.statusText}</i>
+                </div>
+
+                <div className="ballistic-panel__type">
+                  <span className="ballistic-panel__type-label">弹道类型</span>
+                  <div className="ballistic-panel__type-options">
+                    {BALLISTIC_TYPES.map((type) => (
+                      <button
+                        key={type.key}
+                        type="button"
+                        className={`ballistic-panel__type-btn ${ballisticState.curveType === type.key ? "ballistic-panel__type-btn--active" : ""}`}
+                        onClick={() => setBallisticCurveType(type.key)}
+                        title={type.description}
+                      >
+                        {type.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="ballistic-panel__info">
+                  {ballisticState.startLonLat && (
+                    <div className="ballistic-panel__row">
+                      <span>起点</span>
+                      <strong>{ballisticState.startLonLat.lon}°, {ballisticState.startLonLat.lat}°</strong>
+                    </div>
+                  )}
+                  {ballisticState.endLonLat && (
+                    <div className="ballistic-panel__row">
+                      <span>终点</span>
+                      <strong>{ballisticState.endLonLat.lon}°, {ballisticState.endLonLat.lat}°</strong>
+                    </div>
+                  )}
+                </div>
+
+                <div className="ballistic-panel__actions">
+                  {ballisticState.status === "idle" && (
+                    <button type="button" onClick={startBallisticSelecting}>选择目标</button>
+                  )}
+                  {(ballisticState.status === "selecting_start" || ballisticState.status === "selecting_end") && (
+                    <button type="button" onClick={resetBallistic}>取消选择</button>
+                  )}
+                  {ballisticState.status === "ready" && (
+                    <button type="button" className="ballistic-btn-fire" onClick={fireBallistic}>发射</button>
+                  )}
+                  {ballisticState.status === "firing" && (
+                    <button type="button" className="ballistic-btn-stop" onClick={stopBallistic}>停止</button>
+                  )}
+                  {ballisticState.status !== "idle" && ballisticState.status !== "firing" && ballisticState.status !== "selecting_start" && ballisticState.status !== "selecting_end" && (
+                    <button type="button" onClick={resetBallistic}>重置</button>
+                  )}
+                </div>
+              </section>
+
             </div>
           )}
         </div>
@@ -851,6 +959,8 @@ function CesiumPage() {
           onClearEffects={clearWebGLEffects}
           onDeleteEffect={deleteWebGLEffect}
         />
+
+
 
         <AiPanel
           isOpen={isAiPanelOpen}
