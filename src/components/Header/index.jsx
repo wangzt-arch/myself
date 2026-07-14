@@ -24,6 +24,7 @@ function Header() {
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const currentPath = useMemo(() => {
     return location.pathname === "/" || location.pathname === "/myself"
@@ -31,13 +32,27 @@ function Header() {
       : location.pathname;
   }, [location.pathname]);
 
+  // 路由变化后隐藏加载指示器
+  React.useEffect(() => {
+    setIsNavigating(false);
+  }, [location.pathname]);
+
   const navigateTo = (path) => {
+    if (currentPath !== path) {
+      setIsNavigating(true);
+    }
     navigate(path);
     setMenuOpen(false);
   };
 
   return (
     <header className="header">
+      {/* 顶部加载进度条 */}
+      {isNavigating && (
+        <div className="header-loading-bar">
+          <div className="header-loading-bar__progress"></div>
+        </div>
+      )}
       <div className="header-brand-wrapper">
         <button
           className="header-brand"

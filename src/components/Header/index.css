@@ -16,6 +16,35 @@
     backdrop-filter: blur(14px);
 }
 
+/* 顶部加载进度条 */
+.header-loading-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: rgba(75, 85, 99, 0.1);
+    overflow: hidden;
+    z-index: 1;
+}
+
+.header-loading-bar__progress {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #4b5563 0%, #6b7280 50%, #4b5563 100%);
+    animation: header-loading-slide 1.5s ease-in-out infinite;
+    transform-origin: left;
+}
+
+@keyframes header-loading-slide {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
 .header-brand-wrapper {
     box-sizing: border-box;
     display: inline-flex;
