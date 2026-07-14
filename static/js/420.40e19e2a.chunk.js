@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkmyself=self.webpackChunkmyself||[]).push([[420],{71420(e,s,n){n.r(s),n.d(s,{default:()=>r});n(76998);var c=n(81365);var l=n(23446);function r(){const e=(0,c.Zp)();return(0,l.jsx)("div",{onClick:()=>e("/home"),children:"404 \u4ec0\u4e48\u4e5f\u6ca1\u6709\u5462,\u70b9\u51fb\u8fd4\u56de\u9996\u9875"})}}}]);
