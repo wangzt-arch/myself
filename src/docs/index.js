@@ -13,6 +13,7 @@ import codexStart from "./codex-start.md";
 import aiPrompts from "./ai-prompts.md";
 import aiHotTerms from "./ai-hot-terms.md";
 import aiStream from "./ai-stream.md";
+import gisBasics from "./gis-basics.md";
 import jsInterview from "./js-interview.md";
 import htmlInterview from "./html-interview.md";
 import cssInterview from "./css-interview.md";
@@ -93,6 +94,12 @@ const docs = [
     category: "能力地图",
     tags: ["Frontend", "Skill"],
     value: skills,
+  },
+  {
+    title: "GIS 相关基础知识",
+    category: "GIS 可视化",
+    tags: ["GIS", "投影", "坐标系", "瓦片", "EPSG"],
+    value: gisBasics,
   },
   {
     title: "OpenLayers 方法",
