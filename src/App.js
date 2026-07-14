@@ -7,7 +7,6 @@ import About from "./pages/about";
 import Chart from "./pages/yq-distribution";
 import NoFound from "./pages/no-found";
 import Translate from "./pages/translate";
-import ModelPreview from "./pages/model-preview";
 import LogicFlow from "./pages/logicflow";
 import Video from "./pages/video";
 import VirtualListPage from "./pages/virtual-list";
@@ -16,8 +15,10 @@ import AIChat from "./pages/ai-chat";
 import "./App.css";
 
 const CesiumPage = lazy(() => import("./pages/cesium"));
+const ModelPreview = lazy(() => import("./pages/model-preview"));
 
 const preloadRoutes = [
+  () => import("./pages/model-preview"),
   () => import("./pages/cesium"),
 ];
 
