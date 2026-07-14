@@ -110,6 +110,7 @@ export default function AIChat() {
   const [isError, setIsError] = useState(false);
   const [useMock, setUseMock] = useState(false);
   const [stoppedMessageId, setStoppedMessageId] = useState(null);
+  const [lengthLimitedMessageId, setLengthLimitedMessageId] = useState(null);
   const messagesEndRef = useRef(null);
   const abortRef = useRef(null);
   const mockAbortRef = useRef(null);
@@ -164,7 +165,7 @@ export default function AIChat() {
       }));
     };
 
-    const finishStream = () => {
+    const finishStream = (isLengthLimited = false) => {
       updateSession(sessionId, (s) => ({
         messages: s.messages.map((msg) =>
           msg.id === assistantMessageId ? { ...msg, isStreaming: false } : msg
@@ -173,6 +174,10 @@ export default function AIChat() {
       setIsLoading(false);
       setIsReasoning(false);
       setStoppedMessageId(null);
+      // 如果达到 token 限制，记录消息 ID 以显示"继续生成"按钮
+      if (isLengthLimited) {
+        setLengthLimitedMessageId(assistantMessageId);
+      }
     };
 
     if (useMock) {
@@ -182,7 +187,7 @@ export default function AIChat() {
       mockAbortRef.current = simulateLocalStream(
         lastUserMsg,
         appendChunk,
-        finishStream
+        () => finishStream(false)
       );
     } else {
       const controller = new AbortController();
@@ -195,7 +200,7 @@ export default function AIChat() {
         () => setIsReasoning(true),
         () => {
           abortRef.current = null;
-          finishStream();
+          finishStream(false);
         },
         (error) => {
           abortRef.current = null;
@@ -212,8 +217,13 @@ export default function AIChat() {
           mockAbortRef.current = simulateLocalStream(
             lastUserMsg,
             appendChunk,
-            finishStream
+            () => finishStream(false)
           );
+        },
+        (finishReason) => {
+          if (finishReason === 'length') {
+            finishStream(true);
+          }
         }
       );
     }
@@ -228,6 +238,7 @@ export default function AIChat() {
     setIsReasoning(false);
     setIsError(false);
     setStoppedMessageId(null);
+    setLengthLimitedMessageId(null);
 
     const userMessage = {
       id: Date.now().toString(),
@@ -286,33 +297,37 @@ export default function AIChat() {
 
     setIsLoading(false);
     setIsReasoning(false);
+    // 用户主动停止时，清除 lengthLimitedMessageId（不显示"继续生成"）
+    setLengthLimitedMessageId(null);
   };
 
   const handleContinue = () => {
-    if (!stoppedMessageId) return;
+    const messageId = stoppedMessageId || lengthLimitedMessageId;
+    if (!messageId) return;
 
     setIsLoading(true);
     setIsReasoning(false);
     setStoppedMessageId(null);
+    setLengthLimitedMessageId(null);
 
     const session = sessions.find((s) => s.id === currentSessionId);
-    const stoppedMsg = session?.messages.find((msg) => msg.id === stoppedMessageId);
-    if (!stoppedMsg) return;
+    const targetMsg = session?.messages.find((msg) => msg.id === messageId);
+    if (!targetMsg) return;
 
     updateSession(currentSessionId, (s) => ({
       messages: s.messages.map((msg) =>
-        msg.id === stoppedMessageId ? { ...msg, isStreaming: true } : msg
+        msg.id === messageId ? { ...msg, isStreaming: true } : msg
       ),
     }));
 
-    const historyIndex = session.messages.findIndex((msg) => msg.id === stoppedMessageId);
+    const historyIndex = session.messages.findIndex((msg) => msg.id === messageId);
     const contextMessages = session.messages
       .slice(0, historyIndex)
       .map(({ role, content }) => ({ role, content }));
-    contextMessages.push({ role: 'assistant', content: stoppedMsg.content });
+    contextMessages.push({ role: 'assistant', content: targetMsg.content });
     contextMessages.push({ role: 'user', content: '请继续' });
 
-    startStream(currentSessionId, stoppedMessageId, contextMessages, true);
+    startStream(currentSessionId, messageId, contextMessages, true);
   };
 
   const handleKeyDown = (e) => {
@@ -342,6 +357,7 @@ export default function AIChat() {
     setInputValue('');
     setIsError(false);
     setStoppedMessageId(null);
+    setLengthLimitedMessageId(null);
   };
 
   const handleSelectSession = (sessionId) => {
@@ -349,6 +365,7 @@ export default function AIChat() {
     setInputValue('');
     setIsError(false);
     setStoppedMessageId(null);
+    setLengthLimitedMessageId(null);
   };
 
   const handleDeleteSession = (sessionId) => {
@@ -408,6 +425,7 @@ export default function AIChat() {
     setIsLoading(false);
     setIsReasoning(false);
     setStoppedMessageId(null);
+    setLengthLimitedMessageId(null);
     clearSessions();
   };
 
@@ -531,14 +549,14 @@ export default function AIChat() {
         </div>
 
         <div className="ai-chat__input-area">
-          {stoppedMessageId && !isLoading && (
+          {(stoppedMessageId || lengthLimitedMessageId) && !isLoading && (
             <div className="ai-chat__continue-hint">
-              <span>回答已中断</span>
+              <span>{lengthLimitedMessageId ? '回答已达到长度限制' : '回答已中断'}</span>
               <button className="ai-chat__continue-btn" onClick={handleContinue}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polygon points="5 3 19 12 5 21 5 3" />
                 </svg>
-                继续回答
+                {lengthLimitedMessageId ? '继续生成' : '继续回答'}
               </button>
             </div>
           )}

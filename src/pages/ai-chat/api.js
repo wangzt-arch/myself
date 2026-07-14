@@ -1,12 +1,13 @@
 const API_URL = 'https://api.siliconflow.cn/v1/chat/completions';
-const API_KEY = 'sk-nerczbcdluymsyoblxxgebtesyzebshuopmaorwcxkpbpjom';
+const API_KEY = 'sk-xbjccnsbkazvwtzlthasaqtjivezcdtuptjjteuwltjfbgxl'
 const MODEL = 'deepseek-ai/DeepSeek-R1-0528-Qwen3-8B';
+
 
 const SYSTEM_PROMPT = `你是一个专业、友好的AI助手。请遵循以下原则回答问题：
 
 简洁明了：避免冗余，直接回答核心问题,回答使用中文。`;
 
-export async function streamChat(messages, signal, onChunk, onReasoning, onComplete, onError) {
+export async function streamChat(messages, signal, onChunk, onReasoning, onComplete, onError, onFinishReason) {
   try {
     const fullMessages = [
       { role: 'system', content: SYSTEM_PROMPT },
@@ -23,7 +24,7 @@ export async function streamChat(messages, signal, onChunk, onReasoning, onCompl
         model: MODEL,
         messages: fullMessages,
         stream: true,
-        max_tokens: 2048,
+        max_tokens: 16384,
         temperature: 0.7,
         top_p: 0.9,
       }),
@@ -38,6 +39,7 @@ export async function streamChat(messages, signal, onChunk, onReasoning, onCompl
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
+    let lastFinishReason = null;
 
     while (true) {
       const { done, value } = await reader.read();
@@ -53,13 +55,23 @@ export async function streamChat(messages, signal, onChunk, onReasoning, onCompl
 
         const data = trimmed.slice(6);
         if (data === '[DONE]') {
+          // 如果是因为达到 token 限制而结束，通知调用方
+          if (lastFinishReason === 'length' && onFinishReason) {
+            onFinishReason('length');
+          }
           onComplete?.();
           return;
         }
 
         try {
           const json = JSON.parse(data);
-          const delta = json.choices?.[0]?.delta;
+          const choice = json.choices?.[0];
+          const delta = choice?.delta;
+
+          // 记录 finish_reason
+          if (choice?.finish_reason) {
+            lastFinishReason = choice.finish_reason;
+          }
           
           if (delta?.reasoning_content) {
             onReasoning?.(delta.reasoning_content);
@@ -77,7 +89,11 @@ export async function streamChat(messages, signal, onChunk, onReasoning, onCompl
     if (buffer.trim().startsWith('data: ') && buffer.trim().slice(6) !== '[DONE]') {
       try {
         const json = JSON.parse(buffer.trim().slice(6));
-        const delta = json.choices?.[0]?.delta;
+        const choice = json.choices?.[0];
+        const delta = choice?.delta;
+        if (choice?.finish_reason) {
+          lastFinishReason = choice.finish_reason;
+        }
         if (delta?.reasoning_content) onReasoning?.(delta.reasoning_content);
         if (delta?.content) onChunk?.(delta.content);
       } catch {
@@ -85,6 +101,10 @@ export async function streamChat(messages, signal, onChunk, onReasoning, onCompl
       }
     }
 
+    // 如果是因为达到 token 限制而结束，通知调用方
+    if (lastFinishReason === 'length' && onFinishReason) {
+      onFinishReason('length');
+    }
     onComplete?.();
   } catch (error) {
     if (error.name === 'AbortError') {
