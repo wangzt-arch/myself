@@ -10,6 +10,7 @@ import { DRONE_ROUTE_OPTIONS, createDronePatrol, updateDroneFollowCamera } from 
 import { createWebGLEffect, removeWebGLEffect } from "./effects";
 import EmberSphereEffect from './effect/EmberSphereEffect'
 import { createBallisticController, getBallisticStatusText, BALLISTIC_TYPES } from "./ballistic";
+import MilitarySymbolPanel from "./components/MilitarySymbolPanel";
 
 import {
   INITIAL_LAYERS,
@@ -943,6 +944,8 @@ function CesiumPage() {
                   )}
                 </div>
               </section>
+
+              <MilitarySymbolPanel viewerRef={viewerRef} />
 
             </div>
           )}
