@@ -8,7 +8,6 @@ import Chart from "./pages/yq-distribution";
 import NoFound from "./pages/no-found";
 import Translate from "./pages/translate";
 import LogicFlow from "./pages/logicflow";
-import Video from "./pages/video";
 import VirtualListPage from "./pages/virtual-list";
 import OnlineTools from "./pages/online-tools";
 import AIChat from "./pages/ai-chat";
@@ -16,10 +15,12 @@ import "./App.css";
 
 const CesiumPage = lazy(() => import("./pages/cesium"));
 const ModelPreview = lazy(() => import("./pages/model-preview"));
+const Video = lazy(() => import("./pages/video"));
 
 const preloadRoutes = [
   () => import("./pages/model-preview"),
   () => import("./pages/cesium"),
+  () => import("./pages/video"),
 ];
 
 function PageLoader() {
