@@ -134,7 +134,7 @@ async function loadIonImagery(viewerRef) {
 // 加载中国行政区划 GeoJSON，并为省份中心点创建标签。
 async function loadChinaBoundary(viewerRef, provinceLabelEntitiesRef, updateLoading, applyProvinceVisibility) {
   try {
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     const viewer = viewerRef.current;
     if (!viewer) return;
 
