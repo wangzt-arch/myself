@@ -76,7 +76,8 @@
   },
   "scripts": {
     "start": "node scripts/start.js --watch",
-    "build": "node scripts/build.js",
+    "build:relative": "node scripts/build.js",
+    "build": "node -e \"process.env.PUBLIC_URL='.';require('./scripts/build.js')\"",
     "test": "node scripts/test.js",
     "prepare": "husky install",
     "commit": "git-cz"
