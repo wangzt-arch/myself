@@ -1,36 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { createMilitarySymbolController, MILITARY_SYMBOLS } from '../militarySymbol';
+import { useCallback, useRef } from 'react';
+import { MILITARY_SYMBOLS } from '../militarySymbol';
 
 /**
- * 军标标注面板组件
- * 在功能面板中渲染军标选择网格，点击军标后在地球上放置
- * 右键取消添加，支持清空所有军标
+ * 军标标注面板组件（纯 UI，不含右键菜单和编辑面板）
  */
-function MilitarySymbolPanel({ viewerRef }) {
-  const controllerRef = useRef(null);
-  const [state, setState] = useState({
-    activeSymbolId: null,
-    isPlacing: false,
-    count: 0,
-    symbols: [],
-  });
+function MilitarySymbolPanel({ controllerRef, state }) {
+  const panelRef = useRef(null);
 
-  // 初始化控制器
-  useEffect(() => {
-    const viewer = viewerRef.current;
-    if (!viewer) return;
-
-    controllerRef.current = createMilitarySymbolController(viewer, (snapshot) => {
-      setState(snapshot);
-    });
-
-    return () => {
-      controllerRef.current?.destroy();
-      controllerRef.current = null;
-    };
-  }, [viewerRef]);
-
-  // 点击军标图标，选中/取消选中
   const handleSelectSymbol = useCallback((symbolId) => {
     const controller = controllerRef.current;
     if (!controller) return;
@@ -39,15 +15,14 @@ function MilitarySymbolPanel({ viewerRef }) {
     } else {
       controller.setActiveSymbol(symbolId);
     }
-  }, []);
+  }, [controllerRef]);
 
-  // 清空所有军标
   const handleClearAll = useCallback(() => {
     controllerRef.current?.clearAll();
-  }, []);
+  }, [controllerRef]);
 
   return (
-    <section className="feature-section military-symbol-panel">
+    <section className="feature-section military-symbol-panel" ref={panelRef}>
       <div className="military-symbol-panel__title">
         <div>
           <span>Military Symbols</span>
@@ -59,7 +34,9 @@ function MilitarySymbolPanel({ viewerRef }) {
       <div className="military-symbol-panel__hint">
         {state.isPlacing
           ? '点击地图放置军标，右键取消'
-          : '选择军标后在地图上点击放置'}
+          : state.selectedSymbolId
+            ? '已选中军标，右键打开菜单'
+            : '选择军标后在地图上点击放置，左键拾取'}
       </div>
 
       <div className="military-symbol-panel__grid">

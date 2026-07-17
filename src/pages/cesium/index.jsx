@@ -11,6 +11,7 @@ import { createWebGLEffect, removeWebGLEffect } from "./effects";
 import EmberSphereEffect from './effect/EmberSphereEffect'
 import { createBallisticController, getBallisticStatusText, BALLISTIC_TYPES } from "./ballistic";
 import MilitarySymbolPanel from "./components/MilitarySymbolPanel";
+import { createMilitarySymbolController } from "./militarySymbol";
 
 import {
   INITIAL_LAYERS,
@@ -311,6 +312,15 @@ function CesiumPage() {
   const activeEffectTypeRef = useRef(null);
   const isFollowingSatelliteRef = useRef(false);
   const ballisticControllerRef = useRef(null);
+  const militarySymbolControllerRef = useRef(null);
+  const [militarySymbolState, setMilitarySymbolState] = useState({
+    activeSymbolId: null,
+    isPlacing: false,
+    count: 0,
+    symbols: [],
+    selectedSymbolId: null,
+  });
+  const [militaryEditPanel, setMilitaryEditPanel] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isInfoPanelOpen, setIsInfoPanelOpen] = useState(false);
   const [isToolPanelOpen, setIsToolPanelOpen] = useState(false);
@@ -657,6 +667,15 @@ function CesiumPage() {
     activeEffectTypeRef.current = activeEffectType;
   }, [activeEffectType]);
 
+  // 取消选中军标时关闭右键菜单和编辑面板
+  const prevSelectedSymbolIdRef = useRef(null);
+  useEffect(() => {
+    if (prevSelectedSymbolIdRef.current && !militarySymbolState.selectedSymbolId) {
+      setMilitaryEditPanel(null);
+    }
+    prevSelectedSymbolIdRef.current = militarySymbolState.selectedSymbolId;
+  }, [militarySymbolState.selectedSymbolId]);
+
   // 初始化 Cesium Viewer、地图底图、行政区划、城市点和演示图层。
   useEffect(() => {
     if (!cesiumContainerRef.current) return;
@@ -707,6 +726,13 @@ function CesiumPage() {
       syncBallisticState();
     });
 
+    // 初始化军标控制器
+    militarySymbolControllerRef.current = createMilitarySymbolController(
+      viewer,
+      (snapshot) => setMilitarySymbolState(snapshot),
+      (menuData) => setMilitaryEditPanel(menuData)
+    );
+
     applyInitialLayerVisibility({
       city: cityEntitiesRef,
       satellite: satelliteEntitiesRef,
@@ -715,6 +741,14 @@ function CesiumPage() {
     });
     addSun(viewer)
 
+    // 点击空白区域关闭军标编辑面板
+    const closeEditPanel = (e) => {
+      if (!e.target.closest('.mil-edit-panel')) {
+        setMilitaryEditPanel(null);
+      }
+    };
+    document.addEventListener('mousedown', closeEditPanel);
+
     // 组件卸载时销毁 Cesium 事件和 Viewer，避免 WebGL 资源泄漏。
     return () => {
       isFollowingSatelliteRef.current = false;
@@ -722,6 +756,7 @@ function CesiumPage() {
       removeFollowTick();
       mouseMoveHandler.destroy();
       clickHandler.destroy();
+      document.removeEventListener('mousedown', closeEditPanel);
       cityEntitiesRef.current = [];
       provinceLabelEntitiesRef.current = [];
       satelliteEntitiesRef.current = [];
@@ -731,6 +766,8 @@ function CesiumPage() {
       droneControllerRef.current = null;
       ballisticControllerRef.current?.destroy();
       ballisticControllerRef.current = null;
+      militarySymbolControllerRef.current?.destroy();
+      militarySymbolControllerRef.current = null;
       webGLEffectsRef.current.forEach((effect) => removeWebGLEffect(viewer, effect));
       webGLEffectsRef.current = [];
       if (viewerRef.current) {
@@ -945,7 +982,10 @@ function CesiumPage() {
                 </div>
               </section>
 
-              <MilitarySymbolPanel viewerRef={viewerRef} />
+              <MilitarySymbolPanel
+                controllerRef={militarySymbolControllerRef}
+                state={militarySymbolState}
+              />
 
             </div>
           )}
@@ -1000,6 +1040,156 @@ function CesiumPage() {
         )}
 
         <div ref={cesiumContainerRef} className="cesium-container" />
+
+        {/* 军标右键菜单 - 放在最外层，不受面板开关影响 */}
+        {/* 军标属性编辑面板 - 右键直接弹出 */}
+        {militaryEditPanel && (
+          <div
+            className="mil-edit-panel mil-edit-panel--context"
+            style={{
+              left: Math.min(militaryEditPanel.x, window.innerWidth - 270),
+              top: Math.min(militaryEditPanel.y, window.innerHeight - 420),
+            }}
+          >
+            <div className="mil-edit-panel__header">
+              <span>编辑军标属性</span>
+              <button type="button" onClick={() => setMilitaryEditPanel(null)}>✕</button>
+            </div>
+            <div className="mil-edit-panel__field">
+              <label>名称</label>
+              <input
+                type="text"
+                value={militaryEditPanel.label}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  militarySymbolControllerRef.current?.updateSymbolProperties(militaryEditPanel.id, { labelText: val });
+                  setMilitaryEditPanel((prev) => ({ ...prev, label: val }));
+                }}
+              />
+            </div>
+            <div className="mil-edit-panel__field mil-edit-panel__field--row">
+              <label>名称颜色</label>
+              <input
+                type="color"
+                value={militaryEditPanel.labelColor}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  militarySymbolControllerRef.current?.updateSymbolProperties(militaryEditPanel.id, { labelColor: val });
+                  setMilitaryEditPanel((prev) => ({ ...prev, labelColor: val }));
+                }}
+              />
+            </div>
+            <div className="mil-edit-panel__field mil-edit-panel__field--row">
+              <label>军标颜色</label>
+              <input
+                type="color"
+                value={militaryEditPanel.billboardColor}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  militarySymbolControllerRef.current?.updateSymbolProperties(militaryEditPanel.id, { billboardColor: val });
+                  setMilitaryEditPanel((prev) => ({ ...prev, billboardColor: val }));
+                }}
+              />
+            </div>
+            <div className="mil-edit-panel__field">
+              <label>大小 <strong>{militaryEditPanel.size}px</strong></label>
+              <input
+                type="range" min="24" max="96" step="4"
+                value={militaryEditPanel.size}
+                onChange={(e) => {
+                  const val = Number(e.target.value);
+                  militarySymbolControllerRef.current?.updateSymbolProperties(militaryEditPanel.id, { size: val });
+                  setMilitaryEditPanel((prev) => ({ ...prev, size: val }));
+                }}
+              />
+            </div>
+            <div className="mil-edit-panel__field">
+              <label>透明度 <strong>{Math.round(militaryEditPanel.opacity * 100)}%</strong></label>
+              <input
+                type="range" min="0.1" max="1" step="0.05"
+                value={militaryEditPanel.opacity}
+                onChange={(e) => {
+                  const val = Number(e.target.value);
+                  militarySymbolControllerRef.current?.updateSymbolProperties(militaryEditPanel.id, { opacity: val });
+                  setMilitaryEditPanel((prev) => ({ ...prev, opacity: val }));
+                }}
+              />
+            </div>
+            <div className="mil-edit-panel__field mil-edit-panel__field--toggle">
+              <label>显示名称</label>
+              <button
+                type="button"
+                className={`mil-edit-panel__toggle ${militaryEditPanel.showLabel ? 'mil-edit-panel__toggle--on' : ''}`}
+                onClick={() => {
+                  const val = !militaryEditPanel.showLabel;
+                  militarySymbolControllerRef.current?.updateSymbolProperties(militaryEditPanel.id, { showLabel: val });
+                  setMilitaryEditPanel((prev) => ({ ...prev, showLabel: val }));
+                }}
+              >
+                {militaryEditPanel.showLabel ? 'ON' : 'OFF'}
+              </button>
+            </div>
+            <div className="mil-edit-panel__divider" />
+            <div className="mil-edit-panel__section-title">位置信息</div>
+            <div className="mil-edit-panel__field mil-edit-panel__field--row">
+              <label>经度</label>
+              <input
+                type="number" step="0.0001"
+                value={militaryEditPanel.lon?.toFixed(4) || 0}
+                onChange={(e) => {
+                  const val = Number(e.target.value);
+                  if (!isNaN(val)) {
+                    militarySymbolControllerRef.current?.updateSymbolProperties(militaryEditPanel.id, { lon: val });
+                    setMilitaryEditPanel((prev) => ({ ...prev, lon: val }));
+                  }
+                }}
+              />
+            </div>
+            <div className="mil-edit-panel__field mil-edit-panel__field--row">
+              <label>纬度</label>
+              <input
+                type="number" step="0.0001"
+                value={militaryEditPanel.lat?.toFixed(4) || 0}
+                onChange={(e) => {
+                  const val = Number(e.target.value);
+                  if (!isNaN(val)) {
+                    militarySymbolControllerRef.current?.updateSymbolProperties(militaryEditPanel.id, { lat: val });
+                    setMilitaryEditPanel((prev) => ({ ...prev, lat: val }));
+                  }
+                }}
+              />
+            </div>
+            <div className="mil-edit-panel__field mil-edit-panel__field--row">
+              <label>高度(m)</label>
+              <input
+                type="number" step="1"
+                value={Math.round(militaryEditPanel.height || 0)}
+                onChange={(e) => {
+                  const val = Number(e.target.value);
+                  if (!isNaN(val)) {
+                    militarySymbolControllerRef.current?.updateSymbolProperties(militaryEditPanel.id, { height: val });
+                    setMilitaryEditPanel((prev) => ({ ...prev, height: val }));
+                  }
+                }}
+              />
+            </div>
+            <div className="mil-edit-panel__divider" />
+            <div className="mil-edit-panel__actions">
+              <button type="button" className="mil-edit-panel__action-btn mil-edit-panel__action-btn--primary" onClick={() => {
+                militarySymbolControllerRef.current?.flyToSymbol(militaryEditPanel.id);
+                setMilitaryEditPanel(null);
+              }}>
+                ◎ 定位到此
+              </button>
+              <button type="button" className="mil-edit-panel__action-btn mil-edit-panel__action-btn--danger" onClick={() => {
+                militarySymbolControllerRef.current?.removeSymbol(militaryEditPanel.id);
+                setMilitaryEditPanel(null);
+              }}>
+                ✕ 删除军标
+              </button>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

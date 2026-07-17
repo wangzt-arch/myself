@@ -899,6 +899,333 @@
   }
 }
 
+/* ========== 军标右键菜单 ========== */
+.mil-ctx-menu {
+  position: fixed;
+  z-index: 1000000;
+  min-width: 140px;
+  padding: 4px 0;
+  border: 1px solid rgba(0, 245, 255, 0.35);
+  border-radius: 8px;
+  background: rgba(10, 18, 30, 0.95);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 12px rgba(0, 245, 255, 0.15);
+  animation: mil-ctx-fadein 0.15s ease;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 14px;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.85);
+    cursor: pointer;
+    font-size: 12px;
+    text-align: left;
+    transition: all 0.15s ease;
+
+    &:hover {
+      background: rgba(0, 245, 255, 0.12);
+      color: #00f5ff;
+    }
+
+    &.mil-ctx-menu__item--danger {
+      color: rgba(255, 100, 100, 0.85);
+
+      &:hover {
+        background: rgba(255, 68, 68, 0.15);
+        color: #ff6666;
+      }
+    }
+  }
+
+  &__icon {
+    flex: 0 0 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    font-size: 13px;
+  }
+
+  &__divider {
+    margin: 4px 8px;
+    border-top: 1px solid rgba(0, 245, 255, 0.15);
+  }
+}
+
+@keyframes mil-ctx-fadein {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ========== 军标属性编辑面板 ========== */
+.mil-edit-panel {
+  position: fixed;
+  z-index: 999;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 220px;
+  padding: 0;
+  border: 1px solid rgba(0, 245, 255, 0.35);
+  border-radius: 10px;
+  background: rgba(10, 18, 30, 0.95);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5), 0 0 16px rgba(0, 245, 255, 0.12);
+  animation: mil-edit-slidein 0.2s ease;
+  overflow: hidden;
+    &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 2px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 245, 255, 0.3);
+    border-radius: 2px;
+
+    &:hover {
+      background: rgba(0, 245, 255, 0.5);
+    }
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(0, 245, 255, 0.15);
+    background: rgba(0, 245, 255, 0.06);
+
+    span {
+      color: #00f5ff;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    button {
+      padding: 2px 6px;
+      border: none;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+      font-size: 14px;
+
+      &:hover {
+        color: #ffffff;
+      }
+    }
+  }
+
+  &__field {
+    padding: 10px 14px 6px;
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: rgba(255, 255, 255, 0.55);
+      font-size: 11px;
+
+      strong {
+        color: #00f5ff;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 11px;
+        font-weight: 600;
+      }
+    }
+
+    input[type="text"] {
+      width: 90%;
+      padding: 6px 10px;
+      border: 1px solid rgba(0, 245, 255, 0.25);
+      border-radius: 4px;
+      background: rgba(0, 245, 255, 0.06);
+      color: #ffffff;
+      font-size: 12px;
+      outline: none;
+      transition: border-color 0.2s ease;
+
+      &:focus {
+        border-color: rgba(0, 245, 255, 0.7);
+      }
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.1);
+      -webkit-appearance: none;
+      outline: none;
+
+      &::-webkit-slider-thumb {
+        width: 14px;
+        height: 14px;
+        border: 2px solid rgba(0, 245, 255, 0.8);
+        border-radius: 50%;
+        background: rgba(0, 245, 255, 0.3);
+        cursor: pointer;
+        -webkit-appearance: none;
+      }
+    }
+
+    &--toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 10px;
+
+      label {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  &__toggle {
+    padding: 3px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    font-size: 11px;
+    font-family: 'Orbitron', sans-serif;
+    transition: all 0.2s ease;
+
+    &--on {
+      border-color: rgba(0, 245, 255, 0.6);
+      background: rgba(0, 245, 255, 0.15);
+      color: #00f5ff;
+    }
+  }
+
+  &--wide {
+    width: 260px;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  &__divider {
+    height: 1px;
+    margin: 8px 14px;
+    background: rgba(0, 245, 255, 0.15);
+  }
+
+  &__section-title {
+    padding: 4px 14px;
+    color: rgba(0, 245, 255, 0.7);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+  &__field--row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    label {
+      margin-bottom: 0;
+      flex-shrink: 0;
+    }
+
+    input[type="color"] {
+      width: 50px;
+      height: 24px;
+      padding: 0;
+      border: 1px solid rgba(0, 245, 255, 0.25);
+      border-radius: 4px;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    input[type="number"] {
+      width: 100px;
+      padding: 4px 8px;
+      border: 1px solid rgba(0, 245, 255, 0.25);
+      border-radius: 4px;
+      background: rgba(0, 245, 255, 0.06);
+      color: #ffffff;
+      font-size: 11px;
+      text-align: right;
+      outline: none;
+
+      &:focus {
+        border-color: rgba(0, 245, 255, 0.7);
+      }
+    }
+  }
+
+  // 右键弹出的编辑面板定位
+  &--context {
+    right: auto;
+    top: auto;
+    transform: none;
+    width: 260px;
+    max-height: 320px;
+    overflow-y: auto;
+    animation: mil-ctx-fadein 0.15s ease;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 8px;
+    padding: 10px 14px 14px;
+  }
+
+  &__action-btn {
+    flex: 1;
+    padding: 7px 8px;
+    border: 1px solid rgba(0, 245, 255, 0.25);
+    border-radius: 6px;
+    background: rgba(0, 245, 255, 0.08);
+    color: #00f5ff;
+    font-size: 11px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(0, 245, 255, 0.15);
+      border-color: rgba(0, 245, 255, 0.5);
+    }
+
+    &--danger {
+      border-color: rgba(255, 80, 80, 0.3);
+      background: rgba(255, 80, 80, 0.08);
+      color: rgba(255, 100, 100, 0.9);
+
+      &:hover {
+        background: rgba(255, 80, 80, 0.15);
+        border-color: rgba(255, 80, 80, 0.5);
+      }
+    }
+  }
+}
+
+@keyframes mil-edit-slidein {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+}
+
 .drone-panel__title {
   display: flex;
   align-items: flex-start;
