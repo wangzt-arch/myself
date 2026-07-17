@@ -19,7 +19,7 @@ function VideoPage() {
     return items;
   };
 
-  const videos = importAll(require.context("../../videos", false, /\.mp4$/));
+  const videos = importAll(require.context("./videos", false, /\.mp4$/));
   const [activeFilter, setActiveFilter] = useState("全部");
   const [playingId, setPlayingId] = useState(null);
 
