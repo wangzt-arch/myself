@@ -178,6 +178,7 @@
   background: rgba(255, 255, 255, 0.72);
   color: #14191f;
   cursor: pointer;
+  text-decoration: none;
   box-shadow: 0 14px 32px rgba(15, 23, 42, 0.08);
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -255,6 +256,7 @@
 .reveal--delay-8 { transition-delay: 0.64s; }
 .reveal--delay-9 { transition-delay: 0.72s; }
 .reveal--delay-10 { transition-delay: 0.80s; }
+.reveal--delay-11 { transition-delay: 0.88s; }
 
 /* Hero 区块使用更柔和的入场 */
 .home-hero.reveal {

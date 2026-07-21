@@ -66,6 +66,12 @@ const featureItems = [
         category: "i18n",
         description: "多语言文本翻译与对照查看，用于验证前端国际化方案。",
     },
+    {
+        title: "AI 生图生视频",
+        externalUrl: "https://wangzt-arch.github.io/wztagent/",
+        category: "AIGC",
+        description: "基于 AI 的文生图、文生视频创作工具，支持多种风格与参数调整。",
+    },
 ];
 
 const skillItems = [
@@ -151,16 +157,30 @@ function Home() {
                     </div>
                     <div className="feature-grid">
                         {featureItems.map((item, index) => (
-                            <button
-                                className={`feature-card reveal reveal--delay-${index + 1} ${featureReveal.isVisible ? "reveal--visible" : ""}`}
-                                key={item.path}
-                                type="button"
-                                onClick={() => navigate(item.path)}
-                            >
-                                <span className="feature-category">{item.category}</span>
-                                <strong>{item.title}</strong>
-                                <span>{item.description}</span>
-                            </button>
+                            item.externalUrl ? (
+                                <a
+                                    className={`feature-card reveal reveal--delay-${index + 1} ${featureReveal.isVisible ? "reveal--visible" : ""}`}
+                                    key={item.externalUrl}
+                                    href={item.externalUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    <span className="feature-category">{item.category}</span>
+                                    <strong>{item.title}</strong>
+                                    <span>{item.description}</span>
+                                </a>
+                            ) : (
+                                <button
+                                    className={`feature-card reveal reveal--delay-${index + 1} ${featureReveal.isVisible ? "reveal--visible" : ""}`}
+                                    key={item.path}
+                                    type="button"
+                                    onClick={() => navigate(item.path)}
+                                >
+                                    <span className="feature-category">{item.category}</span>
+                                    <strong>{item.title}</strong>
+                                    <span>{item.description}</span>
+                                </button>
+                            )
                         ))}
                     </div>
                 </section>
