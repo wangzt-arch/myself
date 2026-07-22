@@ -212,7 +212,102 @@ billboards.add({
   dataSource.clustering.minimumClusterSize = 3;
   ```
 
-### 3.5 数据分页与视域加载
+### 3.5 第三方 GPU 点云图层 — cesium-gpu-points-layer
+
+当 `BillboardCollection` 在数十万级别标记点场景下出现性能瓶颈时，可引入第三方库 [cesium-gpu-points-layer](https://github.com/vadimrostok/cesium-gpu-points-layer) 进行进一步优化。该库将标记点属性打包到 GPU 浮点纹理中，每层仅提交一个 Primitive（单次 Draw Call），实测可支撑百万级标记点的流畅渲染。
+
+#### 核心原理
+
+| 阶段 | 说明 |
+|------|------|
+| **数据预处理** | 将每个点的经度、纬度、高度、朝向打包为 RGBA 浮点纹理的一个纹素 |
+| **运动纹理** | 启用动画时，额外分配一张纹理存储速度、方向、时间戳 |
+| **顶点着色器** | 通过顶点索引从纹理中读取属性，计算屏幕空间位置 |
+| **片元着色器** | 直接采样 Sprite Atlas 纹理，支持逐点旋转 |
+| **半球剔除** | 基于相机方向与预计算的地心方向向量做背面剔除 |
+
+#### 安装与使用
+
+```bash
+npm install cesium-gpu-points-layer
+```
+
+```js
+import * as Cesium from 'cesium';
+import { GpuPointLayer } from 'cesium-gpu-points-layer';
+
+const points = [
+  {
+    id: 'ship-1',
+    longitude: 121.47,
+    latitude: 31.23,
+    altitudeMeters: 0,
+    rotationRadians: 1.3,
+    speedMetersPerSecond: 120,        // 速度（米/秒）
+    movementDirectionRadians: 1.571, // 运动方向（弧度）
+  },
+  {
+    id: 'marker-2',
+    longitude: 116.40,
+    latitude: 39.90,
+  },
+];
+
+const layer = new GpuPointLayer(points, {
+  name: 'ships',
+  sprite: { width: 64, height: 64, pixels: spriteUint8Array },
+  pointScale: 40_000_000,  // 控制像素大小随距离衰减
+  minPointSize: 16,
+  maxPointSize: 96,
+  rotationEnabled: true,   // 逐点旋转
+  enableAnimation: true,   // 速度外推动画
+  drawOrder: 10,           // 渲染顺序（低值先绘制）
+});
+
+viewer.scene.primitives.add(layer.primitive);
+```
+
+#### 关键配置项
+
+| 参数 | 默认值 | 说明 |
+|------|--------|------|
+| `pointScale` | `40_000_000` | 控制标记点像素大小随相机距离的衰减速率 |
+| `minPointSize` / `maxPointSize` | `30` / `128` | 标记点像素大小上下限 |
+| `cullDotThreshold` | `0.5` | 半球剔除阈值，值越大剔除越激进 |
+| `rotationEnabled` | `true` | 是否启用逐点精灵旋转 |
+| `enableAnimation` | `true` | 是否启用基于速度的位置外推 |
+| `alignWithGround` | `false` | 贴地压缩：斜视时将精灵压缩为细线 |
+| `drawOrder` | `0` | 同场景无深度测试时的绘制顺序 |
+
+#### 运行时更新
+
+```js
+// 更新数据（无需重建 Primitive）
+layer.setRecords(newPoints);
+
+// 按需过滤可见点（不重建输入数据）
+layer.setVisiblePointIds(['ship-1', 'ship-3']);
+
+// 替换精灵图集
+layer.setSprite(newSpriteAtlas);
+```
+
+#### 与 BillboardCollection 的性能对比
+
+以下数据来自官方基准测试（34833 个点：飞机 6559 + 船舶 28264 + 地震 10）：
+
+| 场景 | BillboardCollection | GPU Points Layer | 提升幅度 |
+|------|:-------------------:|:----------------:|:--------:|
+| 静态（高性能模式） | 36-40 fps | 46-47 fps | +17%~28% |
+| 运动（高性能模式） | 30-33 fps | 40-43 fps | +30%~33% |
+| 缩放（高性能模式） | 26-45 fps | 36-50 fps | +11%~38% |
+| 静态（CPU x6 节流） | 30-31 fps | 46-47 fps | +52%~53% |
+| 运动（CPU x6 节流） | 21-22 fps | 38-42 fps | +17%~91% |
+| 缩放（CPU x6 节流） | 16-21 fps | 26-34 fps | +62%~63% |
+
+> **选型建议**：点数 < 1 万时 `BillboardCollection` 足够；1 万~10 万可考虑 `PointPrimitiveCollection`；超过 10 万且需要图标精灵 + 动态更新时，`cesium-gpu-points-layer` 是当前最优方案。
+
+### 3.6 数据分页与视域加载
 
 无论使用何种渲染技术，数据量超过视域可见范围时都应做分页：
 
@@ -412,7 +507,7 @@ Cesium 的性能优化是一个系统工程，建议按照以下优先级逐步�
 
 1. **先做运行时调优**：`requestRenderMode`、`resolutionScale`、`targetFrameRate` 等配置零成本见效
 2. **再优化数据加载**：3D Tiles LOD、Draco/KTX2 压缩、影像格式选择，从源头减少数据量
-3. **然后下沉图元层级**：Entity → Primitive → Custom Primitive，根据数据规模选择合适 API
+3. **然后下沉图元层级**：Entity → Primitive → Custom Primitive，根据数据规模选择合适 API；十万级以上标记点可引入 `cesium-gpu-points-layer` 利用 GPU 纹理打包实现单 Draw Call 渲染
 4. **深入渲染管线**：合批、实例化、着色器优化，压榨每一帧的性能
 5. **管好 GPU 资源**：纹理压缩、顶点精简、及时释放，避免内存泄漏
 6. **关注 WebGPU 未来**：计算着色器、显式内存管理、Indirect Draw 将带来下一代性能突破
