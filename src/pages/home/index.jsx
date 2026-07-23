@@ -98,8 +98,42 @@ const skillUrls = {
     Vue: "https://vuejs.org",
 };
 
+const heroRoutes = [
+    {
+        label: "Three",
+        title: "三维智慧园区",
+        description: "进入可交互的模型与场景预览。",
+        path: "/preview",
+    },
+    {
+        label: "Docs",
+        title: "技术文档与笔记",
+        description: "阅读工程实践、问题拆解和实现记录。",
+        path: "/docs",
+    },
+    {
+        label: "AIGC",
+        title: "AI 生图生视频",
+        description: "用自然语言创作图像与视频。",
+        externalUrl: "https://wangzt-arch.github.io/wztagent/",
+    },
+    {
+        label: "Earth",
+        title: "3D 地球",
+        description: "CesiumJS 驱动的 3D 地球，支持卫星影像、行政区划和城市标记交互。",
+        path: "/cesium",
+    },
+];
+
 function Home() {
     const navigate = useNavigate();
+
+    const scrollToFeatured = () => {
+        document.getElementById("featured-works")?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+        });
+    };
 
     // 各区块的滚动入场动画
     const heroReveal = useScrollReveal({ threshold: 0.1 });
@@ -114,40 +148,69 @@ function Home() {
                     className={`home-hero reveal ${heroReveal.isVisible ? "reveal--visible" : ""}`}
                     ref={heroReveal.ref}
                 >
-                    <div className="hero-copy">
+                    <div className="hero-intro">
+                        <div className="hero-overline">
+                            <span className="hero-status-dot" aria-hidden="true"></span>
+                            <span>FRONTEND LAB</span>
+                            <span className="hero-overline-muted">持续更新中</span>
+                        </div>
                         <p className="hero-kicker">个人技术实验室</p>
-                        <h1>把前端想法做成可以打开、可以操作、可以复盘的作品。</h1>
+                        <h1>前端实验，做成可以打开的作品。</h1>
                         <p className="hero-summary">
-                            这里收纳 React 工程实践、3D 可视化、流程图编辑、技术文档和媒体案例。首页会作为作品导航，
-                            帮你快速进入最值得看的内容。
+                            React 工程实践、3D 可视化、AI 交互和技术笔记，集中在一个可以直接体验的实验室里。
                         </p>
                         <div className="hero-actions">
-                            <button className="hero-button hero-button--primary" type="button" onClick={() => navigate("/preview")}>
-                                查看 3D 作品
+                            <button className="hero-button hero-button--primary" type="button" onClick={scrollToFeatured}>
+                                查看精选项目 <span aria-hidden="true">↓</span>
                             </button>
-                            <button className="hero-button" type="button" onClick={() => navigate("/docs")}>
-                                阅读技术笔记
-                            </button>
+                        </div>
+                        <div className="hero-stats" aria-label="实验室内容统计">
+                            <div><strong>11</strong><span>个作品</span></div>
+                            <div><strong>21</strong><span>篇笔记</span></div>
                         </div>
                     </div>
 
-                    <div className="hero-panel" aria-label="站点概览">
-                        <div className="panel-row">
-                            <span>当前重点</span>
-                            <strong>作品集首页改造</strong>
+                    <div className="hero-showcase-column">
+                        <div className="hero-route-list" aria-label="实验室入口">
+                            <p className="hero-route-heading">继续探索</p>
+                            {heroRoutes.map((route) => (
+                                route.externalUrl ? (
+                                    <a
+                                        className="hero-route"
+                                        key={route.externalUrl}
+                                        href={route.externalUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        <span className="hero-route-label">{route.label}</span>
+                                        <span className="hero-route-copy">
+                                            <strong>{route.title}</strong>
+                                            <span>{route.description}</span>
+                                        </span>
+                                        <span className="hero-route-arrow" aria-hidden="true">→</span>
+                                    </a>
+                                ) : (
+                                    <button
+                                        className="hero-route"
+                                        key={route.path}
+                                        type="button"
+                                        onClick={() => navigate(route.path)}
+                                    >
+                                        <span className="hero-route-label">{route.label}</span>
+                                        <span className="hero-route-copy">
+                                            <strong>{route.title}</strong>
+                                            <span>{route.description}</span>
+                                        </span>
+                                        <span className="hero-route-arrow" aria-hidden="true">→</span>
+                                    </button>
+                                )
+                            ))}
                         </div>
-                        <div className="panel-row">
-                            <span>内容方向</span>
-                            <strong>工具、文档、可视化</strong>
-                        </div>
-                        <div className="panel-meter">
-                            <span style={{ width: "72%" }}></span>
-                        </div>
-                        <p>下一步可以继续完善项目详情、移动端导航和主题装饰。</p>
                     </div>
                 </section>
 
                 <section
+                    id="featured-works"
                     className={`home-section reveal ${featureReveal.isVisible ? "reveal--visible" : ""}`}
                     ref={featureReveal.ref}
                 >

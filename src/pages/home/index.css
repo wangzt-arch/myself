@@ -1,27 +1,49 @@
 .home {
   min-height: 100vh;
-  background:
-    radial-gradient(circle at 12% 20%, rgba(200, 30, 30, 0.08), transparent 26%),
-    linear-gradient(135deg, #fffaf5 0%, #f6fbff 44%, #f8faf7 100%);
+  background: #f5f6f3;
   color: #14191f;
 }
 
 .home-main {
   width: min(1180px, calc(100% - 48px));
   margin: 0 auto;
-  padding: 96px 0 72px;
+  padding: 12px 0 64px;
 }
 
 .home-hero {
-  min-height: calc(100vh - 180px);
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(300px, 0.72fr);
-  align-items: center;
-  gap: 56px;
+  grid-template-columns: minmax(0, 0.85fr) minmax(420px, 1.15fr);
+  align-items: start;
+  gap: clamp(32px, 4vw, 64px);
+  padding: 38px 0 46px;
 }
 
-.hero-copy {
-  max-width: 760px;
+.hero-intro {
+  max-width: 600px;
+}
+
+.hero-overline {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #1f7a6d;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.hero-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #1f7a6d;
+  box-shadow: 0 0 0 4px rgba(31, 122, 109, 0.12);
+}
+
+.hero-overline-muted {
+  color: #8a939b;
+  font-weight: 600;
+  letter-spacing: 0;
 }
 
 .hero-kicker,
@@ -34,31 +56,32 @@
   letter-spacing: 0;
 }
 
-.hero-copy h1 {
-  margin: 14px 0 22px;
-  font-size: clamp(40px, 6vw, 74px);
-  line-height: 1.04;
+.hero-intro h1 {
+  max-width: 500px;
+  margin: 13px 0 16px;
+  font-size: clamp(28px, 2.8vw, 20px);
+  line-height: 1.2;
   letter-spacing: 0;
   color: #101418;
 }
 
 .hero-summary {
-  max-width: 680px;
+  max-width: 480px;
   margin: 0;
   color: #46515f;
-  font-size: 18px;
-  line-height: 1.8;
+  font-size: 15px;
+  line-height: 1.7;
 }
 
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-top: 34px;
+  margin-top: 26px;
 }
 
 .hero-button {
-  min-width: 148px;
+  min-width: 152px;
   height: 46px;
   padding: 0 20px;
   border: 1px solid rgba(16, 20, 24, 0.16);
@@ -72,6 +95,11 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
+.hero-button span {
+  margin-left: 8px;
+  font-size: 17px;
+}
+
 .hero-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
@@ -83,67 +111,110 @@
   color: #fff;
 }
 
-.hero-panel {
-  position: relative;
-  padding: 28px;
-  border: 1px solid rgba(15, 23, 42, 0.1);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.78);
-  box-shadow: 0 24px 60px rgba(34, 52, 77, 0.16);
-  backdrop-filter: blur(14px);
-}
-
-.hero-panel::before {
-  content: "";
-  position: absolute;
-  left: 28px;
-  top: -18px;
-  width: 72px;
-  height: 6px;
-  border-radius: 999px;
-  background: #1f7a6d;
-}
-
-.panel-row {
+.hero-stats {
   display: flex;
-  justify-content: space-between;
-  gap: 18px;
-  padding: 16px 0;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  gap: 22px;
+  margin-top: 38px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(15, 23, 42, 0.12);
+}
+
+.hero-stats div {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.hero-stats strong {
+  color: #101418;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 25px;
+  font-weight: 500;
+}
+
+.hero-stats span {
   color: #6b7280;
-  font-size: 14px;
+  font-size: 13px;
 }
 
-.panel-row strong {
-  color: #14191f;
-  font-size: 15px;
-  text-align: right;
+.hero-showcase-column {
+  display: flex;
+  flex-direction: column;
+  padding-top: 3px;
 }
 
-.panel-meter {
-  height: 8px;
-  margin: 24px 0 18px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: rgba(31, 122, 109, 0.14);
+.hero-route-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  border-top: 1px solid rgba(15, 23, 42, 0.12);
 }
 
-.panel-meter span {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(90deg, #1f7a6d, #3577c8);
-}
-
-.hero-panel p {
+.hero-route-heading {
   margin: 0;
-  color: #52606f;
-  font-size: 15px;
-  line-height: 1.7;
+  padding: 0 4px 12px;
+  color: #46515f;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.hero-route {
+  /* height: 62px; */
+  padding: 12px 4px;
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  border: 0;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 0;
+  background: transparent;
+  margin-bottom: 10px;
+  color: #14191f;
+  cursor: pointer;
+  text-align: left;
+  text-decoration: none;
+  transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.hero-route:hover {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.hero-route-label {
+  color: #b91c1c;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.hero-route-copy {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.hero-route-copy strong {
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.hero-route-copy span {
+  color: #6b7280;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.hero-route-arrow {
+  align-self: center;
+  color: #1f7a6d;
+  font-size: 18px;
 }
 
 .home-section {
-  padding: 48px 0 16px;
+  padding: 28px 0 16px;
+}
+
+#featured-works {
+  scroll-margin-top: 82px;
 }
 
 .section-heading {
@@ -260,7 +331,7 @@
 
 /* Hero 区块使用更柔和的入场 */
 .home-hero.reveal {
-  transform: translateY(48px);
+  transform: translateY(18px);
 }
 
 /* 技能标签使用缩放入场 */
@@ -271,11 +342,10 @@
 @media (max-width: 1080px) {
   .home-main {
     width: min(100% - 32px, 920px);
-    padding-top: 78px;
+    padding-top: 52px;
   }
 
   .home-hero {
-    min-height: auto;
     grid-template-columns: 1fr;
     gap: 34px;
   }
@@ -296,13 +366,21 @@
     padding: 46px 0 48px;
   }
 
-  .hero-copy h1 {
-    font-size: 34px;
-    line-height: 1.12;
+  .hero-overline {
+    font-size: 10px;
+  }
+
+  .hero-overline-muted {
+    display: none;
+  }
+
+  .hero-intro h1 {
+    font-size: 24px;
+    line-height: 1.14;
   }
 
   .hero-summary {
-    font-size: 16px;
+    font-size: 15px;
   }
 
   .hero-actions {
@@ -313,8 +391,36 @@
     width: 100%;
   }
 
-  .hero-panel {
-    padding: 22px;
+  .hero-stats {
+    gap: 18px;
+    margin-top: 38px;
+  }
+
+  .hero-stats strong {
+    font-size: 25px;
+  }
+
+  .hero-route-list {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-route {
+    min-height: 58px;
+    display: grid;
+    grid-template-columns: 54px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 4px;
+  }
+
+  .hero-route-copy {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .hero-route-arrow {
+    align-self: center;
   }
 
   .feature-grid {
