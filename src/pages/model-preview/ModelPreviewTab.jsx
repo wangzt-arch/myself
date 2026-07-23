@@ -59,8 +59,48 @@ const sharedParamsRef = {
   wireframe: false,
   modelOpacity: 1.0,
   modelColor: '#ffffff',
+  modelColorEnabled: false,
   metalness: 0.3,
   roughness: 0.5,
+  restoreMaterialToken: 0,
+};
+
+const initialMaterialSnapshots = new WeakMap();
+
+const getMaterialList = (material) => {
+  if (!material) return [];
+  return Array.isArray(material) ? material : [material];
+};
+
+const getInitialMaterialSnapshots = (scene) => {
+  if (initialMaterialSnapshots.has(scene)) {
+    return initialMaterialSnapshots.get(scene);
+  }
+
+  const snapshots = new Map();
+  scene.traverse((child) => {
+    if (child.isMesh && child.material) {
+      snapshots.set(child.uuid, getMaterialList(child.material).map((material) => material.clone()));
+    }
+  });
+  initialMaterialSnapshots.set(scene, snapshots);
+  return snapshots;
+};
+
+const restoreInitialMaterials = (scene, snapshots) => {
+  scene.traverse((child) => {
+    if (!child.isMesh || !child.material) return;
+
+    const materialSnapshots = snapshots.get(child.uuid);
+    if (!materialSnapshots) return;
+
+    getMaterialList(child.material).forEach((material, index) => {
+      const snapshot = materialSnapshots[index] || materialSnapshots[0];
+      if (!snapshot) return;
+      material.copy(snapshot);
+      material.needsUpdate = true;
+    });
+  });
 };
 
 // Model 组件移到外部，使用共享 ref 读取参数，props 只有 currentModel（不会变）
@@ -69,6 +109,7 @@ const Model = React.memo(({ currentModel }) => {
   const groupRef = useRef();
   const fitRef = useRef(null);
   const nodesRef = useRef(null);
+  const materialSnapshots = useMemo(() => getInitialMaterialSnapshots(glb.scene), [glb]);
 
   const fit = useMemo(() => {
     if (fitRef.current && fitRef.current.model === glb.scene) {
@@ -108,8 +149,10 @@ const Model = React.memo(({ currentModel }) => {
     wireframe: false,
     opacity: 1.0,
     color: '#ffffff',
+    colorEnabled: false,
     metalness: 0.3,
     roughness: 0.5,
+    restoreMaterialToken: 0,
   });
 
   useFrame(() => {
@@ -119,24 +162,38 @@ const Model = React.memo(({ currentModel }) => {
 
     // 更新材质（仅在参数变化时）
     const ms = prevMaterialState.current;
-    if (ms.wireframe !== params.wireframe ||
+    if (ms.restoreMaterialToken !== params.restoreMaterialToken) {
+      restoreInitialMaterials(glb.scene, materialSnapshots);
+      ms.wireframe = params.wireframe;
+      ms.opacity = params.modelOpacity;
+      ms.color = params.modelColor;
+      ms.colorEnabled = params.modelColorEnabled;
+      ms.metalness = params.metalness;
+      ms.roughness = params.roughness;
+      ms.restoreMaterialToken = params.restoreMaterialToken;
+    } else if (ms.wireframe !== params.wireframe ||
         ms.opacity !== params.modelOpacity ||
         ms.color !== params.modelColor ||
+        ms.colorEnabled !== params.modelColorEnabled ||
         ms.metalness !== params.metalness ||
         ms.roughness !== params.roughness) {
       glb.scene.traverse((child) => {
         if (child.isMesh && child.material) {
-          child.material.wireframe = params.wireframe;
-          child.material.transparent = params.modelOpacity < 1;
-          child.material.opacity = params.modelOpacity;
-          child.material.color.set(params.modelColor);
-          if (child.material.metalness !== undefined) child.material.metalness = params.metalness;
-          if (child.material.roughness !== undefined) child.material.roughness = params.roughness;
+          getMaterialList(child.material).forEach((material) => {
+            material.wireframe = params.wireframe;
+            material.transparent = params.modelOpacity < 1;
+            material.opacity = params.modelOpacity;
+            if (params.modelColorEnabled && material.color) material.color.set(params.modelColor);
+            if (material.metalness !== undefined) material.metalness = params.metalness;
+            if (material.roughness !== undefined) material.roughness = params.roughness;
+            material.needsUpdate = true;
+          });
         }
       });
       ms.wireframe = params.wireframe;
       ms.opacity = params.modelOpacity;
       ms.color = params.modelColor;
+      ms.colorEnabled = params.modelColorEnabled;
       ms.metalness = params.metalness;
       ms.roughness = params.roughness;
     }
@@ -198,12 +255,14 @@ function ModelPreviewTab() {
   const [metalness, setMetalness] = useState(0.3);
   const [roughness, setRoughness] = useState(0.5);
   const [modelColor, setModelColor] = useState('#ffffff');
+  const [modelColorEnabled, setModelColorEnabled] = useState(false);
   const [enableShadows, setEnableShadows] = useState(false);
   const [fov, setFov] = useState(45);
   const [showToolbar, setShowToolbar] = useState(true);
 
   // 爆炸图参数
   const [explodeFactor, setExplodeFactor] = useState(0);
+  const [restoreMaterialToken, setRestoreMaterialToken] = useState(0);
 
   // 同步所有可变参数到 sharedParamsRef，避免 Model 因 props 变化重渲染
   sharedParamsRef.modelScale = modelScale;
@@ -211,8 +270,10 @@ function ModelPreviewTab() {
   sharedParamsRef.wireframe = wireframe;
   sharedParamsRef.modelOpacity = modelOpacity;
   sharedParamsRef.modelColor = modelColor;
+  sharedParamsRef.modelColorEnabled = modelColorEnabled;
   sharedParamsRef.metalness = metalness;
   sharedParamsRef.roughness = roughness;
+  sharedParamsRef.restoreMaterialToken = restoreMaterialToken;
 
   // 判断当前模型是否支持爆炸图（小米SU7）
   const isExplodeSupported = useMemo(() => {
@@ -544,7 +605,10 @@ function ModelPreviewTab() {
             {/* 模型颜色 */}
             <div className="toolbar-item">
               <label>模型颜色</label>
-              <input type="color" value={modelColor} onChange={(e) => setModelColor(e.target.value)} />
+              <input type="color" value={modelColor} onChange={(e) => {
+                setModelColor(e.target.value);
+                setModelColorEnabled(true);
+              }} />
             </div>
 
             {/* 金属度 */}
@@ -601,11 +665,13 @@ function ModelPreviewTab() {
                 setModelScale(1.0);
                 setModelOpacity(1.0);
                 setModelColor('#ffffff');
+                setModelColorEnabled(false);
                 setMetalness(0.3);
                 setRoughness(0.5);
                 setEnableShadows(false);
                 setFov(45);
                 setExplodeFactor(0);
+                setRestoreMaterialToken((token) => token + 1);
               }}>
                 🔄 重置默认
               </button>
