@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useMemo, useState, useRef } from "react";
+import React, { Suspense, useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { Canvas, useFrame } from '@react-three/fiber'
 import { useLoader, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
@@ -87,6 +87,16 @@ const getInitialMaterialSnapshots = (scene) => {
   return snapshots;
 };
 
+const getInitialModelColor = (snapshots) => {
+  for (const materialSnapshots of snapshots.values()) {
+    const material = materialSnapshots.find((item) => item.color);
+    if (material?.color) {
+      return `#${material.color.getHexString()}`;
+    }
+  }
+  return '#ffffff';
+};
+
 const restoreInitialMaterials = (scene, snapshots) => {
   scene.traverse((child) => {
     if (!child.isMesh || !child.material) return;
@@ -104,12 +114,16 @@ const restoreInitialMaterials = (scene, snapshots) => {
 };
 
 // Model 组件移到外部，使用共享 ref 读取参数，props 只有 currentModel（不会变）
-const Model = React.memo(({ currentModel }) => {
+const Model = React.memo(({ currentModel, onInitialMaterialColor }) => {
   const glb = useLoader(GLTFLoader, currentModel);
   const groupRef = useRef();
   const fitRef = useRef(null);
   const nodesRef = useRef(null);
   const materialSnapshots = useMemo(() => getInitialMaterialSnapshots(glb.scene), [glb]);
+
+  useEffect(() => {
+    onInitialMaterialColor(getInitialModelColor(materialSnapshots));
+  }, [materialSnapshots, onInitialMaterialColor]);
 
   const fit = useMemo(() => {
     if (fitRef.current && fitRef.current.model === glb.scene) {
@@ -162,6 +176,9 @@ const Model = React.memo(({ currentModel }) => {
 
     // 更新材质（仅在参数变化时）
     const ms = prevMaterialState.current;
+    const colorOverrideChanged = params.modelColorEnabled && (
+      ms.color !== params.modelColor || !ms.colorEnabled
+    );
     if (ms.restoreMaterialToken !== params.restoreMaterialToken) {
       restoreInitialMaterials(glb.scene, materialSnapshots);
       ms.wireframe = params.wireframe;
@@ -173,8 +190,7 @@ const Model = React.memo(({ currentModel }) => {
       ms.restoreMaterialToken = params.restoreMaterialToken;
     } else if (ms.wireframe !== params.wireframe ||
         ms.opacity !== params.modelOpacity ||
-        ms.color !== params.modelColor ||
-        ms.colorEnabled !== params.modelColorEnabled ||
+        colorOverrideChanged ||
         ms.metalness !== params.metalness ||
         ms.roughness !== params.roughness) {
       glb.scene.traverse((child) => {
@@ -196,6 +212,9 @@ const Model = React.memo(({ currentModel }) => {
       ms.colorEnabled = params.modelColorEnabled;
       ms.metalness = params.metalness;
       ms.roughness = params.roughness;
+    } else if (!params.modelColorEnabled && ms.colorEnabled) {
+      ms.color = params.modelColor;
+      ms.colorEnabled = false;
     }
 
     // 更新缩放
@@ -255,6 +274,7 @@ function ModelPreviewTab() {
   const [metalness, setMetalness] = useState(0.3);
   const [roughness, setRoughness] = useState(0.5);
   const [modelColor, setModelColor] = useState('#ffffff');
+  const [initialModelColor, setInitialModelColor] = useState('#ffffff');
   const [modelColorEnabled, setModelColorEnabled] = useState(false);
   const [enableShadows, setEnableShadows] = useState(false);
   const [fov, setFov] = useState(45);
@@ -263,6 +283,12 @@ function ModelPreviewTab() {
   // 爆炸图参数
   const [explodeFactor, setExplodeFactor] = useState(0);
   const [restoreMaterialToken, setRestoreMaterialToken] = useState(0);
+
+  const handleInitialMaterialColor = useCallback((color) => {
+    setInitialModelColor(color);
+    setModelColor(color);
+    setModelColorEnabled(false);
+  }, []);
 
   // 同步所有可变参数到 sharedParamsRef，避免 Model 因 props 变化重渲染
   sharedParamsRef.modelScale = modelScale;
@@ -358,7 +384,7 @@ function ModelPreviewTab() {
             <pointLight position={[-5, 5, -5]} intensity={fillLightIntensity} color={fillLightColor} />
           )}
           <Suspense fallback={<Loader />}>
-            {currentModel && <Model key={currentModel} currentModel={currentModel} />}
+            {currentModel && <Model key={currentModel} currentModel={currentModel} onInitialMaterialColor={handleInitialMaterialColor} />}
             <OrbitControls
               target={[0, 0, 0]}
               enableDamping
@@ -664,7 +690,7 @@ function ModelPreviewTab() {
                 setAutoRotateSpeed(2);
                 setModelScale(1.0);
                 setModelOpacity(1.0);
-                setModelColor('#ffffff');
+                setModelColor(initialModelColor);
                 setModelColorEnabled(false);
                 setMetalness(0.3);
                 setRoughness(0.5);
