@@ -60,23 +60,26 @@ function LineAreaPlottingPanel({ viewerRef }) {
 
   return (
     <aside className={isOpen ? "line-area-plotting" : "line-area-plotting line-area-plotting--collapsed"}>
-      <button
-        className="line-area-plotting__toggle"
-        type="button"
-        onClick={() => setIsOpen((open) => !open)}
-        aria-expanded={isOpen}
-        aria-label={isOpen ? "收起线面标绘面板" : "展开线面标绘面板"}
-      >
-        {isOpen ? "收起" : "线面标绘"}
-      </button>
+      <div className="line-area-plotting__panel-header">
+        <div>
+          <span>Tactical Plotting</span>
+          <strong>线面标绘</strong>
+        </div>
+        <button
+          className="line-area-plotting__toggle"
+          type="button"
+          onClick={() => setIsOpen((open) => !open)}
+          aria-expanded={isOpen}
+          aria-label={isOpen ? "收起线面标绘面板" : "展开线面标绘面板"}
+        >
+          {isOpen ? "收起" : "展开"}
+        </button>
+      </div>
 
       {isOpen && (
         <div className="line-area-plotting__body">
           <div className="line-area-plotting__header">
-            <div>
-              <span>TACTICAL PLOTTING</span>
-              <strong>线面标绘</strong>
-            </div>
+            <span>当前标绘</span>
             <i>{isDrawing ? `${plottingState.vertexCount} 点` : `${plottingState.count} 个图形`}</i>
           </div>
 
