@@ -11,6 +11,7 @@ import { createWebGLEffect, removeWebGLEffect } from "./effects";
 import EmberSphereEffect from './effect/EmberSphereEffect'
 import { createBallisticController, getBallisticStatusText, BALLISTIC_TYPES } from "./ballistic";
 import MilitarySymbolPanel from "./components/MilitarySymbolPanel";
+import LineAreaPlottingPanel from "./components/LineAreaPlottingPanel";
 import { createMilitarySymbolController } from "./militarySymbol";
 
 import {
@@ -1002,6 +1003,8 @@ function CesiumPage() {
           onClearEffects={clearWebGLEffects}
           onDeleteEffect={deleteWebGLEffect}
         />
+
+        <LineAreaPlottingPanel viewerRef={viewerRef} />
 
 
 
