@@ -591,6 +591,16 @@ export function createLineAreaPlottingController(viewer, onStateChange) {
   };
   const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 
+  function getActiveScene() {
+    try {
+      if (!viewer || viewer.isDestroyed?.()) return null;
+      return viewer.scene || null;
+    } catch {
+      // React may unmount this controller after the parent Viewer has released its scene.
+      return null;
+    }
+  }
+
   function snapshot() {
     return {
       status: state.status,
@@ -623,19 +633,22 @@ export function createLineAreaPlottingController(viewer, onStateChange) {
     state.positions = [];
     state.previewPosition = null;
     state.freehandActive = false;
-    viewer.scene.canvas.style.cursor = "default";
+    const scene = getActiveScene();
+    if (scene?.canvas) scene.canvas.style.cursor = "default";
   }
 
   function disableCameraRotate() {
-    const controller = viewer.scene.screenSpaceCameraController;
     if (state.previousRotateEnabled !== null) return;
+    const controller = getActiveScene()?.screenSpaceCameraController;
+    if (!controller) return;
     state.previousRotateEnabled = controller.enableRotate;
     controller.enableRotate = false;
   }
 
   function restoreCameraRotate() {
     if (state.previousRotateEnabled === null) return;
-    viewer.scene.screenSpaceCameraController.enableRotate = state.previousRotateEnabled;
+    const controller = getActiveScene()?.screenSpaceCameraController;
+    if (controller) controller.enableRotate = state.previousRotateEnabled;
     state.previousRotateEnabled = null;
   }
 
@@ -789,9 +802,11 @@ export function createLineAreaPlottingController(viewer, onStateChange) {
   function start(drawType) {
     if (!TYPE_META[drawType]) return;
     resetDrawing();
+    const scene = getActiveScene();
+    if (!scene?.canvas) return;
     state.status = "drawing";
     state.drawType = drawType;
-    viewer.scene.canvas.style.cursor = "crosshair";
+    scene.canvas.style.cursor = "crosshair";
     createPreviewEntities();
     notify();
   }
@@ -908,7 +923,7 @@ export function createLineAreaPlottingController(viewer, onStateChange) {
       handler.destroy();
       window.removeEventListener("keydown", keydownHandler);
       resetDrawing();
-      if (!viewer.isDestroyed?.()) viewer.dataSources.remove(dataSource, true);
+      if (getActiveScene()) viewer.dataSources.remove(dataSource, true);
     },
   };
 }

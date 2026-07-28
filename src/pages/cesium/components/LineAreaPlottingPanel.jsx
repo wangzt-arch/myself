@@ -40,7 +40,7 @@ function LineAreaPlottingPanel({ viewerRef }) {
     return () => {
       disposed = true;
       if (animationFrameId) window.cancelAnimationFrame(animationFrameId);
-      controllerRef.current?.destroy();
+      controllerRef?.current?.destroy();
       controllerRef.current = null;
     };
   }, [viewerRef]);
