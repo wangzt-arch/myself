@@ -1,0 +1,2 @@
+/*! For license information please see chunk-7PSAWR6C.js.LICENSE.txt */
+import{a as w}from"./chunk-PZM5FOOW.js";var C={computePositions:function(t,o,a,r,n){let s,e=.5*t,i=-e,c=r+r,u=new Float64Array(3*(n?2*c:c)),f=0,h=0,l=n?3*c:0,m=n?3*(c+r):3*r;for(s=0;s<r;s++){let t=s/r*w.TWO_PI,c=Math.cos(t),p=Math.sin(t),M=c*a,O=p*a,P=c*o,C=p*o;u[h+l]=M,u[h+l+1]=O,u[h+l+2]=i,u[h+m]=P,u[h+m+1]=C,u[h+m+2]=e,h+=3,n&&(u[f++]=M,u[f++]=O,u[f++]=i,u[f++]=P,u[f++]=C,u[f++]=e)}return u}},Y=C;export{Y as a};

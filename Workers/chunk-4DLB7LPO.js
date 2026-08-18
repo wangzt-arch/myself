@@ -1,0 +1,2 @@
+/*! For license information please see chunk-4DLB7LPO.js.LICENSE.txt */
+import{b as r}from"./chunk-HHFPYI7Q.js";import{c as m}from"./chunk-SWCW4GSU.js";import{a as i}from"./chunk-3MNKUQ6L.js";import{f as t}from"./chunk-J4SK6SKL.js";function d(e){if(e=e??m.EMPTY_OBJECT,!t(e.geometry))throw new i("options.geometry is required.");this.geometry=e.geometry,this.modelMatrix=r.clone(e.modelMatrix??r.IDENTITY),this.id=e.id,this.pickPrimitive=e.pickPrimitive,this.attributes=e.attributes??{},this.westHemisphereGeometry=void 0,this.eastHemisphereGeometry=void 0}var a=d;export{a};
