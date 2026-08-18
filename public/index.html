@@ -4,6 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   <meta name="theme-color" content="#4b5563" />
   <meta name="description" content="一个集AI对话、3D地球可视化、在线工具、文档库等功能于一体的个人作品集网站" />
   <meta name="mobile-web-app-capable" content="yes" />
@@ -11,6 +12,20 @@
   <meta name="apple-mobile-web-app-title" content="举个栗子" />
   <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
   <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+  
+  <!-- DNS 预取 -->
+  <link rel="dns-prefetch" href="//api.interpreter.caiyunai.com" />
+  <link rel="dns-prefetch" href="//github.com" />
+  <link rel="dns-prefetch" href="//cesium.com" />
+  
+  <!-- 预连接 -->
+  <link rel="preconnect" href="https://api.interpreter.caiyunai.com" crossorigin />
+  <link rel="preconnect" href="https://github.com" crossorigin />
+  <link rel="preconnect" href="https://cesium.com" crossorigin />
+  
+  <!-- 关键资源预加载 -->
+  <link rel="preload" href="%PUBLIC_URL%/static/js/chunk-react.[contenthash].js" as="script" crossorigin />
+  <link rel="preload" href="%PUBLIC_URL%/static/css/main.[contenthash].css" as="style" />
   <style>
     html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; }

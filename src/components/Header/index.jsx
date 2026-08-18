@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, memo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import WztButton from "../wzt-button";
 import MusicPlayer from "../MusicPlayer";
@@ -19,6 +19,17 @@ const navItems = [
   { text: "在线工具", path: "/online-tools" },
   { text: "AI对话", path: "/ai-chat" }
 ];
+
+// 优化的导航按钮组件
+const NavButton = memo(function NavButton({ text, active, onClick }) {
+  return (
+    <WztButton
+      text={text}
+      active={active}
+      onNavigate={onClick}
+    />
+  );
+});
 
 function Header() {
   const navigate = useNavigate();
@@ -76,7 +87,7 @@ function Header() {
           rel="noreferrer"
           aria-label="GitHub"
         >
-          <img className="header-logo" src={logo} alt="" />
+          <img className="header-logo" src={logo} alt="" loading="lazy" />
         </a>
         <button
           className={menuOpen ? "menu-toggle menu-toggle--open" : "menu-toggle"}
@@ -96,11 +107,11 @@ function Header() {
         aria-label="主导航"
       >
         {navItems.map((item) => (
-          <WztButton
+          <NavButton
             key={item.path}
             text={item.text}
             active={currentPath === item.path}
-            onNavigate={() => navigateTo(item.path)}
+            onClick={() => navigateTo(item.path)}
           />
         ))}
       </nav>

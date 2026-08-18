@@ -1,7 +1,24 @@
 import React, { useEffect, useRef, useState } from "react";
-import * as echarts from "echarts";
+import * as echarts from "echarts/core";
+import { CanvasRenderer } from "echarts/renderers";
+import { BarChart, LineChart, PieChart, RadarChart, GaugeChart, ScatterChart, EffectScatterChart } from "echarts/charts";
+import {
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  GridComponent,
+  DatasetComponent,
+  GeoComponent
+} from "echarts/components";
 import china from "./china.json";
 import "./index.scss";
+
+// 注册必要的组件
+echarts.use([
+  CanvasRenderer,
+  BarChart, LineChart, PieChart, RadarChart, GaugeChart, ScatterChart, EffectScatterChart,
+  TitleComponent, TooltipComponent, LegendComponent, GridComponent, DatasetComponent, GeoComponent
+]);
 
 const cityScatterData = [
   { name: "北京", value: [116.41, 39.92, 120] },

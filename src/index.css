@@ -11,6 +11,9 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* 减少布局抖动 */
+  text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
 }
 
 #root {
@@ -24,12 +27,25 @@ body {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
+  /* 启用 GPU 加速 */
+  will-change: scroll-position;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
 div{
   box-sizing: border-box;
+}
+
+/* 滚动优化 */
+* {
+  scroll-behavior: smooth;
+}
+
+/* 减少重绘 */
+.reveal {
+  will-change: transform, opacity;
 }
