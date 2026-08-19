@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "./static/css/main.dc40e27a.css",
-    "main.js": "./static/js/main.f417e6e2.js",
+    "main.js": "./static/js/main.c20e8715.js",
     "static/css/412.82972cb1.chunk.css": "./static/css/412.82972cb1.chunk.css",
     "static/js/412.9b5fd223.chunk.js": "./static/js/412.9b5fd223.chunk.js",
     "static/css/490.ed6a5460.chunk.css": "./static/css/490.ed6a5460.chunk.css",
@@ -10,7 +10,7 @@
     "static/js/83.b6a86960.chunk.js": "./static/js/83.b6a86960.chunk.js",
     "static/js/510.09f029f8.chunk.js": "./static/js/510.09f029f8.chunk.js",
     "static/css/228.f5d5e06c.chunk.css": "./static/css/228.f5d5e06c.chunk.css",
-    "static/js/228.efb39267.chunk.js": "./static/js/228.efb39267.chunk.js",
+    "static/js/228.e7b49b7f.chunk.js": "./static/js/228.e7b49b7f.chunk.js",
     "static/js/578.6d72d6c3.chunk.js": "./static/js/578.6d72d6c3.chunk.js",
     "static/media/狙击枪_ar-15.glb": "./static/media/狙击枪_ar-15.11739dd9547babb3f7a5.glb",
     "static/media/supermarket.glb": "./static/media/supermarket.3df4865ca2229163dc1c.glb",
@@ -273,7 +273,6 @@
     "Widgets/Timeline/Timeline.css": "./Widgets/Timeline/Timeline.css",
     "Workers/chunk-PAAWQOJA.js": "./Workers/chunk-PAAWQOJA.js",
     "Assets/Textures/maki/religious-jewish.png": "./Assets/Textures/maki/religious-jewish.png",
-    "index.html": "./index.html",
     "Workers/chunk-LXB5W3RT.js": "./Workers/chunk-LXB5W3RT.js",
     "Widgets/Animation/Animation.css": "./Widgets/Animation/Animation.css",
     "Assets/Textures/maki/park2.png": "./Assets/Textures/maki/park2.png",
@@ -285,6 +284,7 @@
     "Workers/chunk-3MNKUQ6L.js": "./Workers/chunk-3MNKUQ6L.js",
     "Assets/Textures/maki/wetland.png": "./Assets/Textures/maki/wetland.png",
     "Widgets/CesiumInspector/CesiumInspector.css": "./Widgets/CesiumInspector/CesiumInspector.css",
+    "index.html": "./index.html",
     "Assets/Textures/maki/village.png": "./Assets/Textures/maki/village.png",
     "Assets/Textures/maki/triangle.png": "./Assets/Textures/maki/triangle.png",
     "Workers/chunk-4XQS6KUO.js": "./Workers/chunk-4XQS6KUO.js",
@@ -465,6 +465,6 @@
   },
   "entrypoints": [
     "static/css/main.dc40e27a.css",
-    "static/js/main.f417e6e2.js"
+    "static/js/main.c20e8715.js"
   ]
 }
