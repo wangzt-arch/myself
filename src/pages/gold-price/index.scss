@@ -1,24 +1,57 @@
-$gold: #f0c85a;
-$gold-soft: rgba(240, 200, 90, 0.12);
-$up: #ff5c7a;
-$down: #33d69f;
-$bg: #070d18;
-$card: #0d1524;
-$card-soft: #111b2d;
-$border: rgba(120, 152, 200, 0.16);
-$text: #e6edf7;
-$text-dim: #8fa3bf;
-$text-muted: #64748b;
+/* ================================
+   金价行情 · 浅色主题
+   风格：财经公报 / 纸张质感 + 金色点缀
+   ================================ */
+
+$paper: #f7f2e7;
+$paper-card: #fffdf8;
+$paper-soft: #f1ead9;
+$ink: #1f1b14;
+$ink-soft: #3a3329;
+$text-dim: #6f6656;
+$text-muted: #938a79;
+$gold: #a8791f;
+$gold-bright: #c79a34;
+$up: #c1462f;
+$down: #1f7a5a;
+$border: rgba(31, 27, 20, 0.12);
+$border-soft: rgba(31, 27, 20, 0.07);
+
+$font-display: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', 'Songti SC', 'Noto Serif SC', 'Source Han Serif SC', serif;
+$font-body: 'Avenir Next', 'Optima', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+$font-mono: 'Cascadia Code', 'Consolas', 'SFMono-Regular', 'Menlo', monospace;
+
+@keyframes gp-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes gp-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(31, 122, 90, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 5px rgba(31, 122, 90, 0);
+  }
+}
 
 .gold-price {
   min-height: calc(100vh - 64px);
-  padding: 28px clamp(16px, 4vw, 48px) 48px;
+  padding: 30px clamp(16px, 4vw, 48px) 48px;
   background:
-    radial-gradient(circle at 12% 0%, rgba(240, 200, 90, 0.1), transparent 42%),
-    radial-gradient(circle at 88% 18%, rgba(59, 130, 246, 0.1), transparent 46%),
-    $bg;
-  color: $text;
-  font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    radial-gradient(1100px 480px at 6% -8%, rgba(199, 154, 52, 0.16), transparent 62%),
+    radial-gradient(900px 460px at 100% 0%, rgba(31, 122, 90, 0.07), transparent 60%),
+    repeating-linear-gradient(90deg, rgba(31, 27, 20, 0.025) 0 1px, transparent 1px 92px),
+    $paper;
+  color: $ink;
+  font-family: $font-body;
   box-sizing: border-box;
 
   * {
@@ -28,31 +61,49 @@ $text-muted: #64748b;
 
 /* ---------- 页头 ---------- */
 .gp-header {
+  position: relative;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
-  margin-bottom: 20px;
+  padding-bottom: 18px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid $border;
+  animation: gp-rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    width: 68px;
+    height: 2px;
+    background: linear-gradient(90deg, $gold, rgba(168, 121, 31, 0));
+  }
 
   &__kicker {
-    margin: 0 0 6px;
-    font-size: 11px;
-    letter-spacing: 0.24em;
+    margin: 0 0 8px;
+    font-family: $font-mono;
+    font-size: 10px;
+    letter-spacing: 0.32em;
     text-transform: uppercase;
-    color: rgba(240, 200, 90, 0.75);
+    color: $gold;
   }
 
   &__title {
     margin: 0;
-    font-size: 26px;
+    font-family: $font-display;
+    font-size: clamp(26px, 2.6vw, 32px);
     font-weight: 600;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.01em;
+    color: $ink;
   }
 
   &__desc {
-    margin: 8px 0 0;
+    margin: 9px 0 0;
     font-size: 13px;
+    line-height: 1.7;
     color: $text-dim;
   }
 
@@ -60,8 +111,11 @@ $text-muted: #64748b;
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 12px;
-    color: $text-dim;
+    padding-bottom: 3px;
+    font-family: $font-mono;
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    color: $text-muted;
   }
 }
 
@@ -70,50 +124,56 @@ $text-muted: #64748b;
   height: 7px;
   border-radius: 50%;
   background: $down;
-  box-shadow: 0 0 10px rgba(51, 214, 159, 0.8);
+  animation: gp-pulse 2.4s ease-in-out infinite;
 }
 
 /* ---------- 报价卡 ---------- */
 .gp-quote {
   display: flex;
   align-items: stretch;
-  gap: clamp(16px, 4vw, 48px);
+  gap: clamp(16px, 4vw, 52px);
   flex-wrap: wrap;
-  padding: 20px 24px;
-  background: linear-gradient(135deg, rgba(240, 200, 90, 0.08), rgba(12, 20, 33, 0.9) 55%);
-  border: 1px solid rgba(240, 200, 90, 0.22);
-  border-radius: 14px;
+  padding: 22px 26px 22px 24px;
+  background: $paper-card;
+  border: 1px solid $border;
+  border-left: 3px solid $gold;
+  border-radius: 6px;
+  box-shadow: 0 22px 44px -38px rgba(56, 42, 18, 0.75);
   margin-bottom: 18px;
+  animation: gp-rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) 0.06s both;
 
   &__block {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    min-width: 240px;
+    gap: 7px;
+    min-width: 220px;
     padding-right: clamp(0px, 3vw, 40px);
 
     & + & {
-      border-left: 1px solid $border;
-      padding-left: clamp(16px, 3vw, 40px);
+      border-left: 1px solid $border-soft;
+      padding-left: clamp(18px, 3vw, 44px);
     }
   }
 
   &__label {
-    font-size: 11px;
-    letter-spacing: 0.08em;
+    font-family: $font-mono;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
     color: $text-muted;
   }
 
   &__price {
-    font-size: clamp(28px, 3.4vw, 36px);
+    font-family: $font-display;
+    font-size: clamp(30px, 3.6vw, 42px);
     font-weight: 600;
-    line-height: 1.1;
-    color: $gold;
-    text-shadow: 0 0 24px rgba(240, 200, 90, 0.25);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    color: $ink;
+    font-variant-numeric: tabular-nums;
 
     &--domestic {
-      color: #5ee0ff;
-      text-shadow: 0 0 24px rgba(94, 224, 255, 0.22);
+      color: $gold;
     }
   }
 
@@ -121,12 +181,14 @@ $text-muted: #64748b;
     display: flex;
     align-items: baseline;
     gap: 8px;
-    font-size: 14px;
+    font-family: $font-mono;
+    font-size: 13px;
     font-weight: 600;
     color: $text-dim;
 
     em {
       font-style: normal;
+      font-family: $font-body;
       font-size: 11px;
       font-weight: 400;
       color: $text-muted;
@@ -146,6 +208,7 @@ $text-muted: #64748b;
   }
 
   &__meta {
+    font-family: $font-mono;
     font-size: 11px;
     color: $text-muted;
   }
@@ -154,8 +217,10 @@ $text-muted: #64748b;
     margin: 0 0 0 auto;
     align-self: center;
     max-width: 280px;
+    padding-left: 18px;
+    border-left: 1px solid $border-soft;
     font-size: 11px;
-    line-height: 1.7;
+    line-height: 1.8;
     color: $text-muted;
   }
 }
@@ -163,71 +228,78 @@ $text-muted: #64748b;
 /* ---------- 按钮 ---------- */
 .gp-btn {
   padding: 8px 16px;
+  font-family: $font-body;
   font-size: 12px;
-  border-radius: 8px;
+  letter-spacing: 0.02em;
+  border-radius: 4px;
   border: 1px solid transparent;
   cursor: pointer;
   transition: all 0.18s ease;
-  font-family: inherit;
 
   &--primary {
-    background: rgba(240, 200, 90, 0.92);
-    color: #1a1406;
+    background: $ink;
+    color: $paper-card;
     font-weight: 600;
 
     &:hover {
-      background: $gold;
+      background: #000;
     }
   }
 
   &--ghost {
-    background: transparent;
+    background: $paper-card;
     border-color: $border;
-    color: $text-dim;
+    color: $ink-soft;
 
     &:hover {
-      color: $text;
-      border-color: rgba(240, 200, 90, 0.45);
+      color: $gold;
+      border-color: rgba(168, 121, 31, 0.55);
+      background: #fff;
     }
   }
 
   &:disabled {
-    opacity: 0.4;
+    opacity: 0.38;
     cursor: not-allowed;
   }
 }
 
 .gp-link {
+  padding: 0;
   background: none;
   border: none;
-  padding: 0;
+  font-family: $font-body;
   font-size: 12px;
   color: $gold;
   cursor: pointer;
-  font-family: inherit;
+  border-bottom: 1px solid rgba(168, 121, 31, 0.35);
 
   &:hover {
-    text-decoration: underline;
+    color: #8a6112;
+    border-bottom-color: #8a6112;
   }
 }
 
 /* ---------- 提示条 ---------- */
 .gp-banner {
   margin-bottom: 16px;
-  padding: 10px 16px;
-  border-radius: 10px;
+  padding: 11px 16px;
+  border-radius: 4px;
   font-size: 12px;
+  line-height: 1.7;
 
   &--warn {
-    background: rgba(255, 92, 122, 0.1);
-    border: 1px solid rgba(255, 92, 122, 0.3);
-    color: #ffb3c0;
+    background: rgba(193, 70, 47, 0.06);
+    border: 1px solid rgba(193, 70, 47, 0.22);
+    border-left: 3px solid rgba(193, 70, 47, 0.6);
+    color: #8f2f1f;
   }
 
   &--info {
-    background: rgba(94, 224, 255, 0.08);
-    border: 1px solid rgba(94, 224, 255, 0.25);
-    color: #a9e9ff;
+    background: rgba(31, 122, 90, 0.06);
+    border: 1px solid rgba(31, 122, 90, 0.2);
+    border-left: 3px solid rgba(31, 122, 90, 0.5);
+    color: #1a5c46;
   }
 }
 
@@ -237,33 +309,40 @@ $text-muted: #64748b;
   grid-template-columns: 240px minmax(0, 1fr);
   gap: 18px;
   align-items: start;
+  animation: gp-rise 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) 0.14s both;
 }
 
 .gp-filter {
   position: sticky;
   top: 16px;
-  padding: 18px;
-  background: $card;
+  padding: 20px 18px;
+  background: $paper-card;
   border: 1px solid $border;
-  border-radius: 14px;
+  border-radius: 6px;
 
   &__head {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 16px;
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid $border-soft;
 
     h2 {
       margin: 0;
-      font-size: 14px;
+      font-family: $font-display;
+      font-size: 15px;
       font-weight: 600;
+      letter-spacing: 0.02em;
     }
   }
 
   &__hint {
-    margin: 16px 0 0;
+    margin: 18px 0 0;
+    padding-top: 14px;
+    border-top: 1px solid $border-soft;
     font-size: 11px;
-    line-height: 1.7;
+    line-height: 1.75;
     color: $text-muted;
   }
 }
@@ -274,26 +353,29 @@ $text-muted: #64748b;
 
   > span {
     display: block;
-    margin-bottom: 7px;
-    font-size: 11px;
-    letter-spacing: 0.06em;
-    color: $text-dim;
+    margin-bottom: 8px;
+    font-family: $font-mono;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: $text-muted;
   }
 
   select,
   input {
     width: 100%;
     padding: 9px 11px;
-    font-size: 12px;
-    color: $text;
-    background: rgba(6, 11, 20, 0.9);
+    font-family: $font-body;
+    font-size: 12.5px;
+    color: $ink;
+    background: #fffefb;
     border: 1px solid $border;
-    border-radius: 8px;
+    border-radius: 4px;
     outline: none;
-    font-family: inherit;
 
     &:focus {
-      border-color: rgba(240, 200, 90, 0.55);
+      border-color: rgba(168, 121, 31, 0.65);
+      box-shadow: 0 0 0 3px rgba(168, 121, 31, 0.1);
     }
   }
 
@@ -321,6 +403,7 @@ $text-muted: #64748b;
     top: 50%;
     transform: translateY(-50%);
     font-style: normal;
+    font-family: $font-mono;
     font-size: 12px;
     color: $text-muted;
   }
@@ -332,24 +415,25 @@ $text-muted: #64748b;
 
   button {
     flex: 1;
-    padding: 7px 4px;
+    padding: 7px 2px;
+    font-family: $font-body;
     font-size: 12px;
     color: $text-dim;
-    background: rgba(6, 11, 20, 0.7);
+    background: #fffefb;
     border: 1px solid $border;
-    border-radius: 7px;
+    border-radius: 4px;
     cursor: pointer;
-    font-family: inherit;
     transition: all 0.16s ease;
 
     &:hover {
-      color: $text;
+      color: $ink;
+      border-color: rgba(168, 121, 31, 0.5);
     }
 
     &.is-active {
-      color: #1a1406;
-      background: rgba(240, 200, 90, 0.9);
-      border-color: transparent;
+      color: $paper-card;
+      background: $ink;
+      border-color: $ink;
       font-weight: 600;
     }
   }
@@ -364,22 +448,24 @@ $text-muted: #64748b;
 }
 
 .gp-card {
-  padding: 18px 20px;
-  background: $card;
+  padding: 20px 22px;
+  background: $paper-card;
   border: 1px solid $border;
-  border-radius: 14px;
+  border-radius: 6px;
 
   &__head {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
     gap: 12px;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
 
     h2 {
       margin: 0;
-      font-size: 14px;
+      font-family: $font-display;
+      font-size: 15px;
       font-weight: 600;
+      letter-spacing: 0.02em;
     }
 
     p {
@@ -390,10 +476,12 @@ $text-muted: #64748b;
   }
 
   &__count {
-    font-size: 11px;
+    padding: 5px 11px;
+    font-family: $font-mono;
+    font-size: 10px;
+    letter-spacing: 0.08em;
     color: $text-dim;
-    padding: 4px 10px;
-    border: 1px solid $border;
+    background: $paper-soft;
     border-radius: 20px;
     white-space: nowrap;
   }
@@ -426,8 +514,9 @@ $text-muted: #64748b;
 .gp-table-wrap {
   max-height: 420px;
   overflow: auto;
-  border-radius: 10px;
-  border: 1px solid rgba(120, 152, 200, 0.1);
+  background: #fffefb;
+  border: 1px solid $border-soft;
+  border-radius: 4px;
 }
 
 .gp-table {
@@ -438,7 +527,7 @@ $text-muted: #64748b;
 
   th,
   td {
-    padding: 9px 12px;
+    padding: 10px 12px;
     text-align: right;
     white-space: nowrap;
   }
@@ -452,32 +541,47 @@ $text-muted: #64748b;
     position: sticky;
     top: 0;
     z-index: 1;
+    font-family: $font-mono;
+    font-size: 10px;
     font-weight: 500;
-    font-size: 11px;
-    color: $text-dim;
-    background: $card-soft;
-    border-bottom: 1px solid rgba(120, 152, 200, 0.18);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: $text-muted;
+    background: $paper-soft;
+    border-bottom: 1px solid $border;
   }
 
   tbody tr {
-    border-bottom: 1px solid rgba(120, 152, 200, 0.07);
+    border-bottom: 1px solid $border-soft;
     transition: background 0.15s ease;
 
+    &:last-child {
+      border-bottom: none;
+    }
+
     &:hover {
-      background: rgba(240, 200, 90, 0.05);
+      background: rgba(199, 154, 52, 0.07);
     }
   }
 
   td {
-    color: #c8d6ea;
+    color: $ink-soft;
+  }
+
+  td:first-child {
+    font-family: $font-mono;
+    font-size: 11.5px;
+    color: $ink;
   }
 
   .is-up {
     color: $up;
+    font-weight: 600;
   }
 
   .is-down {
     color: $down;
+    font-weight: 600;
   }
 }
 
@@ -488,10 +592,14 @@ $text-muted: #64748b;
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
-  margin-top: 12px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid $border-soft;
 
   &__info {
-    font-size: 11px;
+    font-family: $font-mono;
+    font-size: 10.5px;
+    letter-spacing: 0.02em;
     color: $text-muted;
   }
 
@@ -502,20 +610,22 @@ $text-muted: #64748b;
   }
 
   &__page {
-    min-width: 56px;
+    min-width: 58px;
     text-align: center;
-    font-size: 12px;
-    color: $text-dim;
+    font-family: $font-mono;
+    font-size: 11px;
+    color: $ink-soft;
     font-variant-numeric: tabular-nums;
   }
 }
 
 /* ---------- 空态 / 错误 ---------- */
 .gp-empty {
-  padding: 40px 20px;
+  padding: 44px 20px;
   text-align: center;
-  border: 1px dashed rgba(120, 152, 200, 0.2);
-  border-radius: 10px;
+  background: rgba(255, 253, 248, 0.6);
+  border: 1px dashed rgba(31, 27, 20, 0.18);
+  border-radius: 4px;
 
   p {
     margin: 0 0 8px;
@@ -529,39 +639,41 @@ $text-muted: #64748b;
   }
 
   .gp-btn {
-    margin-top: 12px;
+    margin-top: 14px;
   }
 }
 
 .gp-error {
-  max-width: 420px;
+  max-width: 430px;
   margin: 64px auto;
-  padding: 28px;
+  padding: 30px;
   text-align: center;
-  background: rgba(255, 92, 122, 0.06);
-  border: 1px solid rgba(255, 92, 122, 0.28);
-  border-radius: 14px;
+  background: rgba(193, 70, 47, 0.05);
+  border: 1px solid rgba(193, 70, 47, 0.2);
+  border-top: 3px solid rgba(193, 70, 47, 0.55);
+  border-radius: 6px;
 
   strong {
     display: block;
-    font-size: 15px;
-    color: #ffb3c0;
     margin-bottom: 8px;
+    font-family: $font-display;
+    font-size: 16px;
+    color: #8f2f1f;
   }
 
   p {
-    margin: 0 0 18px;
+    margin: 0 0 20px;
     font-size: 12px;
-    color: $text-dim;
     line-height: 1.7;
+    color: $text-dim;
   }
 }
 
 /* ---------- 页脚 ---------- */
 .gp-footer {
-  margin-top: 28px;
+  margin-top: 30px;
   padding-top: 16px;
-  border-top: 1px solid rgba(120, 152, 200, 0.1);
+  border-top: 1px solid $border;
   text-align: center;
 
   p {
@@ -581,11 +693,25 @@ $text-muted: #64748b;
     position: static;
   }
 
-  .gp-quote > .gp-btn {
+  .gp-quote__note {
     margin-left: 0;
+    padding-left: 0;
+    border-left: none;
   }
 
   .gp-chart {
     height: 300px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gp-header,
+  .gp-quote,
+  .gp-body {
+    animation: none;
+  }
+
+  .gp-status-dot {
+    animation: none;
   }
 }

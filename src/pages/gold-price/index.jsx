@@ -196,22 +196,25 @@ export default function GoldPrice() {
       {
         backgroundColor: 'transparent',
         grid: { top: 26, right: 20, bottom: 34, left: 66 },
+        LargestContentfulPaint: true,
         tooltip: {
           trigger: 'axis',
-          backgroundColor: 'rgba(9, 17, 32, 0.94)',
-          borderColor: 'rgba(240, 200, 90, 0.35)',
+          backgroundColor: 'rgba(255, 253, 248, 0.97)',
+          borderColor: 'rgba(168, 121, 31, 0.35)',
           borderWidth: 1,
-          textStyle: { color: '#e6edf7', fontSize: 12 },
-          axisPointer: { lineStyle: { color: 'rgba(240, 200, 90, 0.45)' } },
+          padding: [10, 12],
+          textStyle: { color: '#1f1b14', fontSize: 12 },
+          extraCssText: 'box-shadow: 0 14px 30px -18px rgba(56, 42, 18, 0.55);',
+          axisPointer: { lineStyle: { color: 'rgba(168, 121, 31, 0.35)' } },
           formatter: (params) => {
             const list = Array.isArray(params) ? params : [params];
             const line = list.find((item) => item.seriesName === '收盘价');
             if (!line) return '';
             const change = line.data ? line.data.changePercent : null;
-            const color = change > 0 ? '#ff5c7a' : change < 0 ? '#33d69f' : '#94a3b8';
+            const color = change > 0 ? '#c1462f' : change < 0 ? '#1f7a5a' : '#938a79';
             const rows = [
-              `<div style="color:#8fa3bf;font-size:11px">${line.axisValue}</div>`,
-              `<div style="color:#f0c85a;font-size:15px;margin-top:4px">¥${formatPrice(line.data.value)} 元/克</div>`,
+              `<div style="color:#938a79;font-size:11px">${line.axisValue}</div>`,
+              `<div style="color:#a8791f;font-size:16px;margin-top:4px">¥${formatPrice(line.data.value)} 元/克</div>`,
             ];
             if (change !== null && change !== undefined) {
               rows.push(`<div style="color:${color};font-size:12px">涨跌 ${formatPercent(change)}</div>`);
@@ -223,19 +226,19 @@ export default function GoldPrice() {
           type: 'category',
           data: dates,
           boundaryGap: false,
-          axisLine: { lineStyle: { color: 'rgba(120, 152, 200, 0.28)' } },
+          axisLine: { lineStyle: { color: 'rgba(31, 27, 20, 0.18)' } },
           axisTick: { show: false },
-          axisLabel: { color: 'rgba(190, 208, 232, 0.7)', fontSize: 11 },
+          axisLabel: { color: 'rgba(58, 51, 41, 0.72)', fontSize: 11 },
         },
         yAxis: {
           type: 'value',
           scale: true,
           axisLabel: {
-            color: 'rgba(190, 208, 232, 0.7)',
+            color: 'rgba(58, 51, 41, 0.72)',
             fontSize: 11,
             formatter: (value) => `${value}`,
           },
-          splitLine: { lineStyle: { color: 'rgba(120, 152, 200, 0.12)' } },
+          splitLine: { lineStyle: { color: 'rgba(31, 27, 20, 0.08)' } },
         },
         series: [
           {
@@ -244,11 +247,11 @@ export default function GoldPrice() {
             data: closes,
             smooth: true,
             symbol: 'none',
-            lineStyle: { width: 2, color: '#f0c85a' },
+            lineStyle: { width: 2, color: '#b5852a' },
             areaStyle: {
               color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                { offset: 0, color: 'rgba(240, 200, 90, 0.32)' },
-                { offset: 1, color: 'rgba(240, 200, 90, 0.02)' },
+                { offset: 0, color: 'rgba(199, 154, 52, 0.26)' },
+                { offset: 1, color: 'rgba(199, 154, 52, 0.02)' },
               ]),
             },
           },
@@ -256,11 +259,11 @@ export default function GoldPrice() {
             name: '筛选命中',
             type: 'scatter',
             data: highlights,
-            symbolSize: 9,
+            symbolSize: 6,
             itemStyle: {
-              color: '#5ee0ff',
-              shadowBlur: 12,
-              shadowColor: 'rgba(94, 224, 255, 0.75)',
+              color: '#1f7a5a',
+              borderColor: '#fffdf8',
+              borderWidth: 1,
             },
             zlevel: 2,
           },
