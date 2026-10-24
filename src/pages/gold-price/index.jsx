@@ -1,0 +1,572 @@
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import * as echarts from 'echarts/core';
+import { CanvasRenderer } from 'echarts/renderers';
+import { LineChart, ScatterChart } from 'echarts/charts';
+import { TooltipComponent, GridComponent } from 'echarts/components';
+import {
+  fetchDomesticBars,
+  fetchDomesticLatest,
+  fetchIntlQuote,
+  isHistoryFresh,
+  localDateKey,
+  readCachedBars,
+  readFilter,
+  saveCachedBars,
+  saveFilter,
+} from './api';
+import {
+  DEFAULT_FILTER,
+  DIRECTION_OPTIONS,
+  GRANULARITY_OPTIONS,
+  RANGE_OPTIONS,
+  aggregateBars,
+  filterByChange,
+  filterByRange,
+  formatDate,
+  formatPercent,
+  formatPrice,
+  toCsv,
+  withChange,
+} from './utils';
+import './index.scss';
+
+echarts.use([CanvasRenderer, LineChart, ScatterChart, TooltipComponent, GridComponent]);
+
+const PAGE_SIZE = 10;
+
+function barLabel(bar) {
+  return bar.label || formatDate(bar.date);
+}
+
+function formatUpdatedAt(iso) {
+  if (!iso) return '—';
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return '—';
+  return date.toLocaleString('zh-CN', {
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  });
+}
+
+export default function GoldPrice() {
+  const initialCache = useMemo(readCachedBars, []);
+  const initialAt = useRef(initialCache.at);
+
+  const [history, setHistory] = useState(initialCache);
+  const [status, setStatus] = useState(initialCache.bars.length ? 'ready' : 'loading');
+  const [intlQuote, setIntlQuote] = useState(null);
+  const [intlError, setIntlError] = useState('');
+  const [domesticLatest, setDomesticLatest] = useState(null);
+  const [domesticError, setDomesticError] = useState('');
+  const [filter, setFilter] = useState(() => ({ ...DEFAULT_FILTER, ...(readFilter() || {}) }));
+  const [page, setPage] = useState(1);
+
+  const chartElement = useRef(null);
+  const chartInstance = useRef(null);
+
+  const loadIntl = useCallback(async () => {
+    try {
+      const quote = await fetchIntlQuote();
+      setIntlQuote(quote);
+      setIntlError('');
+    } catch (err) {
+      setIntlError(err.message || '国际报价获取失败');
+    }
+  }, []);
+
+  const loadDomesticBars = useCallback(async () => {
+    try {
+      const bars = await fetchDomesticBars();
+      saveCachedBars(bars);
+      setHistory({ bars, at: Date.now() });
+      setDomesticError('');
+      setStatus('ready');
+    } catch (err) {
+      setDomesticError(err.message || '国内历史行情加载失败');
+      setStatus((prev) => (prev === 'ready' ? 'ready' : 'error'));
+    }
+  }, []);
+
+  const loadDomesticLatest = useCallback(async () => {
+    try {
+      const latest = await fetchDomesticLatest();
+      if (latest) {
+        setDomesticLatest(latest);
+        setDomesticError('');
+      }
+    } catch (err) {
+      setDomesticError(err.message || '国内最新价获取失败');
+    }
+  }, []);
+
+  useEffect(() => {
+    loadIntl();
+    const timer = setInterval(() => {
+      if (!document.hidden) loadIntl();
+    }, 30000);
+    const handleVisibility = () => {
+      if (!document.hidden) loadIntl();
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [loadIntl]);
+
+  useEffect(() => {
+    if (!isHistoryFresh(initialAt.current)) loadDomesticBars();
+    loadDomesticLatest();
+    const timer = setInterval(() => {
+      if (!document.hidden) loadDomesticLatest();
+    }, 60000);
+    const handleVisibility = () => {
+      if (!document.hidden) loadDomesticLatest();
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [loadDomesticBars, loadDomesticLatest]);
+
+  useEffect(() => {
+    saveFilter(filter);
+    setPage(1);
+  }, [filter]);
+
+  const bars = history.bars;
+  const dailyBars = useMemo(() => withChange(aggregateBars(bars, 'day')), [bars]);
+  const periodBars = useMemo(
+    () => withChange(aggregateBars(bars, filter.granularity)),
+    [bars, filter.granularity]
+  );
+  const rangeBars = useMemo(() => filterByRange(periodBars, filter.range), [periodBars, filter.range]);
+  const resultBars = useMemo(
+    () => filterByChange(rangeBars, filter.threshold, filter.direction),
+    [rangeBars, filter.threshold, filter.direction]
+  );
+
+  const totalPages = Math.max(1, Math.ceil(resultBars.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pagedBars = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return resultBars.slice().reverse().slice(start, start + PAGE_SIZE);
+  }, [resultBars, currentPage]);
+
+  const domesticPrice = domesticLatest
+    ? domesticLatest.price
+    : dailyBars.length
+      ? dailyBars[dailyBars.length - 1].close
+      : null;
+
+  // 最新价对比的基准：当天那根未收盘 K 线要用前一根收盘价
+  const referenceClose = useMemo(() => {
+    if (!dailyBars.length) return null;
+    const last = dailyBars[dailyBars.length - 1];
+    if (last.date === localDateKey() && dailyBars.length > 1) {
+      return dailyBars[dailyBars.length - 2].close;
+    }
+    return last.close;
+  }, [dailyBars]);
+
+  const domesticChange =
+    domesticPrice !== null && referenceClose
+      ? ((domesticPrice - referenceClose) / referenceClose) * 100
+      : null;
+
+  useEffect(() => {
+    if (!chartElement.current) return;
+    if (!chartInstance.current) chartInstance.current = echarts.init(chartElement.current);
+
+    const dates = rangeBars.map((bar) => barLabel(bar));
+    const closes = rangeBars.map((bar) => ({
+      value: Number(bar.close.toFixed(2)),
+      changePercent: bar.changePercent,
+    }));
+    const highlights = resultBars.map((bar) => ({
+      value: [barLabel(bar), Number(bar.close.toFixed(2))],
+      changePercent: bar.changePercent,
+    }));
+
+    chartInstance.current.setOption(
+      {
+        backgroundColor: 'transparent',
+        grid: { top: 26, right: 20, bottom: 34, left: 66 },
+        tooltip: {
+          trigger: 'axis',
+          backgroundColor: 'rgba(9, 17, 32, 0.94)',
+          borderColor: 'rgba(240, 200, 90, 0.35)',
+          borderWidth: 1,
+          textStyle: { color: '#e6edf7', fontSize: 12 },
+          axisPointer: { lineStyle: { color: 'rgba(240, 200, 90, 0.45)' } },
+          formatter: (params) => {
+            const list = Array.isArray(params) ? params : [params];
+            const line = list.find((item) => item.seriesName === '收盘价');
+            if (!line) return '';
+            const change = line.data ? line.data.changePercent : null;
+            const color = change > 0 ? '#ff5c7a' : change < 0 ? '#33d69f' : '#94a3b8';
+            const rows = [
+              `<div style="color:#8fa3bf;font-size:11px">${line.axisValue}</div>`,
+              `<div style="color:#f0c85a;font-size:15px;margin-top:4px">¥${formatPrice(line.data.value)} 元/克</div>`,
+            ];
+            if (change !== null && change !== undefined) {
+              rows.push(`<div style="color:${color};font-size:12px">涨跌 ${formatPercent(change)}</div>`);
+            }
+            return rows.join('');
+          },
+        },
+        xAxis: {
+          type: 'category',
+          data: dates,
+          boundaryGap: false,
+          axisLine: { lineStyle: { color: 'rgba(120, 152, 200, 0.28)' } },
+          axisTick: { show: false },
+          axisLabel: { color: 'rgba(190, 208, 232, 0.7)', fontSize: 11 },
+        },
+        yAxis: {
+          type: 'value',
+          scale: true,
+          axisLabel: {
+            color: 'rgba(190, 208, 232, 0.7)',
+            fontSize: 11,
+            formatter: (value) => `${value}`,
+          },
+          splitLine: { lineStyle: { color: 'rgba(120, 152, 200, 0.12)' } },
+        },
+        series: [
+          {
+            name: '收盘价',
+            type: 'line',
+            data: closes,
+            smooth: true,
+            symbol: 'none',
+            lineStyle: { width: 2, color: '#f0c85a' },
+            areaStyle: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: 'rgba(240, 200, 90, 0.32)' },
+                { offset: 1, color: 'rgba(240, 200, 90, 0.02)' },
+              ]),
+            },
+          },
+          {
+            name: '筛选命中',
+            type: 'scatter',
+            data: highlights,
+            symbolSize: 9,
+            itemStyle: {
+              color: '#5ee0ff',
+              shadowBlur: 12,
+              shadowColor: 'rgba(94, 224, 255, 0.75)',
+            },
+            zlevel: 2,
+          },
+        ],
+      },
+      true
+    );
+  }, [rangeBars, resultBars]);
+
+  useEffect(() => {
+    const element = chartElement.current;
+    if (!element) return undefined;
+    const observer = new ResizeObserver(() => {
+      if (chartInstance.current) chartInstance.current.resize();
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(
+    () => () => {
+      if (chartInstance.current) {
+        chartInstance.current.dispose();
+        chartInstance.current = null;
+      }
+    },
+    []
+  );
+
+  const updateFilter = (patch) => setFilter((prev) => ({ ...prev, ...patch }));
+  const resetFilter = () => setFilter({ ...DEFAULT_FILTER });
+
+  const retry = () => {
+    loadIntl();
+    loadDomesticBars();
+    loadDomesticLatest();
+  };
+
+  const handleExport = () => {
+    const csv = `\uFEFF${toCsv(resultBars)}`;
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `gold-au0-${filter.range}-${Date.now()}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const changeClass =
+    domesticChange === null ? '' : domesticChange > 0 ? 'is-up' : domesticChange < 0 ? 'is-down' : 'is-flat';
+
+  return (
+    <div className="gold-price">
+      <header className="gp-header">
+        <div className="gp-header__main">
+          <p className="gp-header__kicker">Gold Price</p>
+          <h1 className="gp-header__title">金价行情</h1>
+          <p className="gp-header__desc">
+            国际金价与国内金价对照 · 走势与筛选基于国内沪金 AU0（元/克）
+          </p>
+        </div>
+        <div className="gp-header__meta">
+          <span className="gp-status-dot" />
+          <span>国内行情时间 {domesticLatest ? domesticLatest.at : '—'}</span>
+        </div>
+      </header>
+
+      {status === 'error' ? (
+        <section className="gp-error">
+          <strong>国内行情加载失败</strong>
+          <p>{domesticError || '请稍后重试'}</p>
+          <button type="button" className="gp-btn gp-btn--primary" onClick={retry}>
+            重试
+          </button>
+        </section>
+      ) : (
+        <>
+          <section className="gp-quote">
+            <div className="gp-quote__block">
+              <span className="gp-quote__label">国际金价 · XAU/USD · 美元/盎司</span>
+              <strong className="gp-quote__price">
+                {intlQuote ? `$${formatPrice(intlQuote.price)}` : '—'}
+              </strong>
+              <span className="gp-quote__meta">更新于 {formatUpdatedAt(intlQuote?.updatedAt)}</span>
+            </div>
+
+            <div className="gp-quote__block">
+              <span className="gp-quote__label">国内金价 · 沪金 AU0 · 元/克</span>
+              <strong className="gp-quote__price gp-quote__price--domestic">
+                {domesticPrice === null ? '—' : `¥${formatPrice(domesticPrice)}`}
+              </strong>
+              <span className={`gp-quote__change ${changeClass}`}>
+                {formatPercent(domesticChange)}
+                <em>较上一交易日</em>
+              </span>
+            </div>
+
+            <p className="gp-quote__note">
+              国际价格单位为美元/盎司，国内为人民币/克，两者口径不同，仅作参照、不可直接相减。
+            </p>
+          </section>
+
+          {(intlError || domesticError) && status === 'ready' && (
+            <div className="gp-banner gp-banner--warn">
+              {intlError && <div>国际报价刷新失败：{intlError}</div>}
+              {domesticError && <div>国内行情获取失败：{domesticError}（当前展示缓存或上一次成功的数据）</div>}
+            </div>
+          )}
+
+          <section className="gp-body">
+            <aside className="gp-filter">
+              <div className="gp-filter__head">
+                <h2>筛选条件</h2>
+                <button type="button" className="gp-link" onClick={resetFilter}>
+                  重置
+                </button>
+              </div>
+
+              <label className="gp-field">
+                <span>时间范围</span>
+                <select
+                  value={filter.range}
+                  onChange={(event) => updateFilter({ range: event.target.value })}
+                >
+                  {RANGE_OPTIONS.map((option) => (
+                    <option key={option.key} value={option.key}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <div className="gp-field">
+                <span>粒度</span>
+                <div className="gp-segmented">
+                  {GRANULARITY_OPTIONS.map((option) => (
+                    <button
+                      key={option.key}
+                      type="button"
+                      className={filter.granularity === option.key ? 'is-active' : ''}
+                      onClick={() => updateFilter({ granularity: option.key })}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <label className="gp-field">
+                <span>涨跌幅阈值 ≥</span>
+                <div className="gp-threshold">
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    value={filter.threshold}
+                    placeholder="不筛选"
+                    onChange={(event) => updateFilter({ threshold: event.target.value })}
+                  />
+                  <em>%</em>
+                </div>
+              </label>
+
+              <div className="gp-field">
+                <span>方向</span>
+                <div className="gp-segmented">
+                  {DIRECTION_OPTIONS.map((option) => (
+                    <button
+                      key={option.key}
+                      type="button"
+                      className={filter.direction === option.key ? 'is-active' : ''}
+                      onClick={() => updateFilter({ direction: option.key })}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <p className="gp-filter__hint">
+                阈值为空表示不筛选；涨跌幅按所选粒度相对上一根 K 线收盘价计算。
+              </p>
+            </aside>
+
+            <div className="gp-content">
+              <article className="gp-card">
+                <div className="gp-card__head">
+                  <div>
+                    <h2>国内金价走势</h2>
+                    <p>沪金 AU0 日线，单位元/克 · 青色圆点为同时命中全部条件的数据点</p>
+                  </div>
+                  <span className="gp-card__count">{rangeBars.length} 个周期</span>
+                </div>
+                <div className="gp-chart-box">
+                  <div className="gp-chart" ref={chartElement} />
+                  {rangeBars.length === 0 && (
+                    <p className="gp-chart-empty">暂无国内行情数据，请稍后重试或检查网络。</p>
+                  )}
+                </div>
+              </article>
+
+              <article className="gp-card">
+                <div className="gp-card__head">
+                  <div>
+                    <h2>筛选结果</h2>
+                    <p>国内金价 · 共 {resultBars.length} 条记录</p>
+                  </div>
+                  <button
+                    type="button"
+                    className="gp-btn gp-btn--ghost"
+                    onClick={handleExport}
+                    disabled={!resultBars.length}
+                  >
+                    导出 CSV
+                  </button>
+                </div>
+
+                {resultBars.length === 0 ? (
+                  <div className="gp-empty">
+                    <p>当前条件下没有匹配的行情记录。</p>
+                    <p className="gp-empty__hint">试试降低涨跌幅阈值，或扩大时间范围。</p>
+                    <button type="button" className="gp-btn gp-btn--primary" onClick={resetFilter}>
+                      清空条件
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="gp-table-wrap">
+                      <table className="gp-table">
+                        <thead>
+                          <tr>
+                            <th>周期</th>
+                            <th>开盘</th>
+                            <th>最高</th>
+                            <th>最低</th>
+                            <th>收盘</th>
+                            <th>涨跌幅</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {pagedBars.map((bar) => (
+                            <tr key={bar.date}>
+                              <td>{barLabel(bar)}</td>
+                              <td>{formatPrice(bar.open)}</td>
+                              <td>{formatPrice(bar.high)}</td>
+                              <td>{formatPrice(bar.low)}</td>
+                              <td>{formatPrice(bar.close)}</td>
+                              <td
+                                className={
+                                  bar.changePercent > 0
+                                    ? 'is-up'
+                                    : bar.changePercent < 0
+                                      ? 'is-down'
+                                      : ''
+                                }
+                              >
+                                {formatPercent(bar.changePercent)}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div className="gp-pager">
+                      <span className="gp-pager__info">
+                        第 {(currentPage - 1) * PAGE_SIZE + 1}–
+                        {Math.min(currentPage * PAGE_SIZE, resultBars.length)} 条 / 共 {resultBars.length} 条
+                      </span>
+                      <div className="gp-pager__actions">
+                        <button
+                          type="button"
+                          className="gp-btn gp-btn--ghost"
+                          onClick={() => setPage(currentPage - 1)}
+                          disabled={currentPage <= 1}
+                        >
+                          上一页
+                        </button>
+                        <span className="gp-pager__page">
+                          {currentPage} / {totalPages}
+                        </span>
+                        <button
+                          type="button"
+                          className="gp-btn gp-btn--ghost"
+                          onClick={() => setPage(currentPage + 1)}
+                          disabled={currentPage >= totalPages}
+                        >
+                          下一页
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </article>
+            </div>
+          </section>
+
+          <footer className="gp-footer">
+            <p>国际报价来源：gold-api.com · 国内行情来源：新浪财经（沪金 AU0 期货，元/克）</p>
+            <p>数据仅供参考，不构成任何投资建议。</p>
+          </footer>
+        </>
+      )}
+    </div>
+  );
+}

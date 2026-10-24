@@ -1,0 +1,591 @@
+$gold: #f0c85a;
+$gold-soft: rgba(240, 200, 90, 0.12);
+$up: #ff5c7a;
+$down: #33d69f;
+$bg: #070d18;
+$card: #0d1524;
+$card-soft: #111b2d;
+$border: rgba(120, 152, 200, 0.16);
+$text: #e6edf7;
+$text-dim: #8fa3bf;
+$text-muted: #64748b;
+
+.gold-price {
+  min-height: calc(100vh - 64px);
+  padding: 28px clamp(16px, 4vw, 48px) 48px;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(240, 200, 90, 0.1), transparent 42%),
+    radial-gradient(circle at 88% 18%, rgba(59, 130, 246, 0.1), transparent 46%),
+    $bg;
+  color: $text;
+  font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  box-sizing: border-box;
+
+  * {
+    box-sizing: border-box;
+  }
+}
+
+/* ---------- 页头 ---------- */
+.gp-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+
+  &__kicker {
+    margin: 0 0 6px;
+    font-size: 11px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: rgba(240, 200, 90, 0.75);
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  &__desc {
+    margin: 8px 0 0;
+    font-size: 13px;
+    color: $text-dim;
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: $text-dim;
+  }
+}
+
+.gp-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: $down;
+  box-shadow: 0 0 10px rgba(51, 214, 159, 0.8);
+}
+
+/* ---------- 报价卡 ---------- */
+.gp-quote {
+  display: flex;
+  align-items: stretch;
+  gap: clamp(16px, 4vw, 48px);
+  flex-wrap: wrap;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, rgba(240, 200, 90, 0.08), rgba(12, 20, 33, 0.9) 55%);
+  border: 1px solid rgba(240, 200, 90, 0.22);
+  border-radius: 14px;
+  margin-bottom: 18px;
+
+  &__block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 240px;
+    padding-right: clamp(0px, 3vw, 40px);
+
+    & + & {
+      border-left: 1px solid $border;
+      padding-left: clamp(16px, 3vw, 40px);
+    }
+  }
+
+  &__label {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: $text-muted;
+  }
+
+  &__price {
+    font-size: clamp(28px, 3.4vw, 36px);
+    font-weight: 600;
+    line-height: 1.1;
+    color: $gold;
+    text-shadow: 0 0 24px rgba(240, 200, 90, 0.25);
+
+    &--domestic {
+      color: #5ee0ff;
+      text-shadow: 0 0 24px rgba(94, 224, 255, 0.22);
+    }
+  }
+
+  &__change {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: $text-dim;
+
+    em {
+      font-style: normal;
+      font-size: 11px;
+      font-weight: 400;
+      color: $text-muted;
+    }
+
+    &.is-up {
+      color: $up;
+    }
+
+    &.is-down {
+      color: $down;
+    }
+
+    &.is-flat {
+      color: $text-dim;
+    }
+  }
+
+  &__meta {
+    font-size: 11px;
+    color: $text-muted;
+  }
+
+  &__note {
+    margin: 0 0 0 auto;
+    align-self: center;
+    max-width: 280px;
+    font-size: 11px;
+    line-height: 1.7;
+    color: $text-muted;
+  }
+}
+
+/* ---------- 按钮 ---------- */
+.gp-btn {
+  padding: 8px 16px;
+  font-size: 12px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  font-family: inherit;
+
+  &--primary {
+    background: rgba(240, 200, 90, 0.92);
+    color: #1a1406;
+    font-weight: 600;
+
+    &:hover {
+      background: $gold;
+    }
+  }
+
+  &--ghost {
+    background: transparent;
+    border-color: $border;
+    color: $text-dim;
+
+    &:hover {
+      color: $text;
+      border-color: rgba(240, 200, 90, 0.45);
+    }
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.gp-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 12px;
+  color: $gold;
+  cursor: pointer;
+  font-family: inherit;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+/* ---------- 提示条 ---------- */
+.gp-banner {
+  margin-bottom: 16px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 12px;
+
+  &--warn {
+    background: rgba(255, 92, 122, 0.1);
+    border: 1px solid rgba(255, 92, 122, 0.3);
+    color: #ffb3c0;
+  }
+
+  &--info {
+    background: rgba(94, 224, 255, 0.08);
+    border: 1px solid rgba(94, 224, 255, 0.25);
+    color: #a9e9ff;
+  }
+}
+
+/* ---------- 主体 ---------- */
+.gp-body {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.gp-filter {
+  position: sticky;
+  top: 16px;
+  padding: 18px;
+  background: $card;
+  border: 1px solid $border;
+  border-radius: 14px;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+
+    h2 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+    }
+  }
+
+  &__hint {
+    margin: 16px 0 0;
+    font-size: 11px;
+    line-height: 1.7;
+    color: $text-muted;
+  }
+}
+
+.gp-field {
+  display: block;
+  margin-bottom: 16px;
+
+  > span {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: $text-dim;
+  }
+
+  select,
+  input {
+    width: 100%;
+    padding: 9px 11px;
+    font-size: 12px;
+    color: $text;
+    background: rgba(6, 11, 20, 0.9);
+    border: 1px solid $border;
+    border-radius: 8px;
+    outline: none;
+    font-family: inherit;
+
+    &:focus {
+      border-color: rgba(240, 200, 90, 0.55);
+    }
+  }
+
+  input::placeholder {
+    color: $text-muted;
+  }
+
+  input[type='number'] {
+    appearance: textfield;
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      appearance: none;
+      margin: 0;
+    }
+  }
+}
+
+.gp-threshold {
+  position: relative;
+
+  em {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-style: normal;
+    font-size: 12px;
+    color: $text-muted;
+  }
+}
+
+.gp-segmented {
+  display: flex;
+  gap: 4px;
+
+  button {
+    flex: 1;
+    padding: 7px 4px;
+    font-size: 12px;
+    color: $text-dim;
+    background: rgba(6, 11, 20, 0.7);
+    border: 1px solid $border;
+    border-radius: 7px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.16s ease;
+
+    &:hover {
+      color: $text;
+    }
+
+    &.is-active {
+      color: #1a1406;
+      background: rgba(240, 200, 90, 0.9);
+      border-color: transparent;
+      font-weight: 600;
+    }
+  }
+}
+
+/* ---------- 图表与表格 ---------- */
+.gp-content {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+}
+
+.gp-card {
+  padding: 18px 20px;
+  background: $card;
+  border: 1px solid $border;
+  border-radius: 14px;
+
+  &__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+
+    h2 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    p {
+      margin: 6px 0 0;
+      font-size: 11px;
+      color: $text-muted;
+    }
+  }
+
+  &__count {
+    font-size: 11px;
+    color: $text-dim;
+    padding: 4px 10px;
+    border: 1px solid $border;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+}
+
+.gp-chart-box {
+  position: relative;
+}
+
+.gp-chart-empty {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 40px;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.8;
+  color: $text-muted;
+  pointer-events: none;
+}
+
+.gp-chart {
+  width: 100%;
+  height: 360px;
+}
+
+.gp-table-wrap {
+  max-height: 420px;
+  overflow: auto;
+  border-radius: 10px;
+  border: 1px solid rgba(120, 152, 200, 0.1);
+}
+
+.gp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+
+  th,
+  td {
+    padding: 9px 12px;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  th:first-child,
+  td:first-child {
+    text-align: left;
+  }
+
+  thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    font-weight: 500;
+    font-size: 11px;
+    color: $text-dim;
+    background: $card-soft;
+    border-bottom: 1px solid rgba(120, 152, 200, 0.18);
+  }
+
+  tbody tr {
+    border-bottom: 1px solid rgba(120, 152, 200, 0.07);
+    transition: background 0.15s ease;
+
+    &:hover {
+      background: rgba(240, 200, 90, 0.05);
+    }
+  }
+
+  td {
+    color: #c8d6ea;
+  }
+
+  .is-up {
+    color: $up;
+  }
+
+  .is-down {
+    color: $down;
+  }
+}
+
+/* ---------- 分页 ---------- */
+.gp-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+
+  &__info {
+    font-size: 11px;
+    color: $text-muted;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__page {
+    min-width: 56px;
+    text-align: center;
+    font-size: 12px;
+    color: $text-dim;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* ---------- 空态 / 错误 ---------- */
+.gp-empty {
+  padding: 40px 20px;
+  text-align: center;
+  border: 1px dashed rgba(120, 152, 200, 0.2);
+  border-radius: 10px;
+
+  p {
+    margin: 0 0 8px;
+    font-size: 13px;
+    color: $text-dim;
+  }
+
+  &__hint {
+    color: $text-muted !important;
+    font-size: 12px !important;
+  }
+
+  .gp-btn {
+    margin-top: 12px;
+  }
+}
+
+.gp-error {
+  max-width: 420px;
+  margin: 64px auto;
+  padding: 28px;
+  text-align: center;
+  background: rgba(255, 92, 122, 0.06);
+  border: 1px solid rgba(255, 92, 122, 0.28);
+  border-radius: 14px;
+
+  strong {
+    display: block;
+    font-size: 15px;
+    color: #ffb3c0;
+    margin-bottom: 8px;
+  }
+
+  p {
+    margin: 0 0 18px;
+    font-size: 12px;
+    color: $text-dim;
+    line-height: 1.7;
+  }
+}
+
+/* ---------- 页脚 ---------- */
+.gp-footer {
+  margin-top: 28px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(120, 152, 200, 0.1);
+  text-align: center;
+
+  p {
+    margin: 4px 0;
+    font-size: 11px;
+    color: $text-muted;
+  }
+}
+
+/* ---------- 响应式 ---------- */
+@media (max-width: 900px) {
+  .gp-body {
+    grid-template-columns: 1fr;
+  }
+
+  .gp-filter {
+    position: static;
+  }
+
+  .gp-quote > .gp-btn {
+    margin-left: 0;
+  }
+
+  .gp-chart {
+    height: 300px;
+  }
+}

@@ -17,6 +17,7 @@ const navItems = [
   { text: "视频案例", path: "/video" },
   { text: "3D地球", path: "/cesium" },
   { text: "在线工具", path: "/online-tools" },
+  { text: "金价行情", path: "/gold" },
   { text: "AI对话", path: "/ai-chat" }
 ];
 

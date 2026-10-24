@@ -55,6 +55,12 @@ const featureItems = [
         description: "收录 JSON 格式化、正则测试、时间戳转换等前端常用小工具。",
     },
     {
+        title: "金价行情",
+        path: "/gold",
+        category: "ECharts",
+        description: "国际与国内金价对照，支持按时间范围、粒度和涨跌幅筛选国内金价历史行情。",
+    },
+    {
         title: "虚拟列表",
         path: "/virtual-list",
         category: "Performance",

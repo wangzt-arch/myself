@@ -16,6 +16,7 @@ import "./App.css";
 const CesiumPage = lazy(() => import("./pages/cesium"));
 const ModelPreview = lazy(() => import("./pages/model-preview"));
 const Video = lazy(() => import("./pages/video"));
+const GoldPrice = lazy(() => import("./pages/gold-price"));
 
 const preloadRoutes = [
   () => import("./pages/model-preview"),
@@ -70,6 +71,7 @@ function App() {
             <Route path="/cesium" element={<CesiumPage />} />
             <Route path="/virtual-list" element={<VirtualListPage />} />
             <Route path="/online-tools" element={<OnlineTools />} />
+            <Route path="/gold" element={<GoldPrice />} />
             <Route path="/ai-chat" element={<AIChat />} />
             <Route path="*" element={<NoFound />} />
           </Routes>
