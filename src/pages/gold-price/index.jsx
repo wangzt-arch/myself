@@ -6,12 +6,15 @@ import { TooltipComponent, GridComponent } from 'echarts/components';
 import {
   fetchDomesticBars,
   fetchDomesticLatest,
+  fetchIntlBars,
   fetchIntlQuote,
   isHistoryFresh,
   localDateKey,
   readCachedBars,
+  readCachedIntlBars,
   readFilter,
   saveCachedBars,
+  saveCachedIntlBars,
   saveFilter,
 } from './api';
 import {
@@ -59,6 +62,13 @@ export default function GoldPrice() {
   const [status, setStatus] = useState(initialCache.bars.length ? 'ready' : 'loading');
   const [intlQuote, setIntlQuote] = useState(null);
   const [intlError, setIntlError] = useState('');
+  const initialIntlCache = useMemo(readCachedIntlBars, []);
+  const initialIntlAt = useRef(initialIntlCache.at);
+  const [intlHistory, setIntlHistory] = useState(initialIntlCache);
+  const [intlBarsStatus, setIntlBarsStatus] = useState(
+    initialIntlCache.bars.length ? 'ready' : 'loading'
+  );
+  const [intlBarsError, setIntlBarsError] = useState('');
   const [domesticLatest, setDomesticLatest] = useState(null);
   const [domesticError, setDomesticError] = useState('');
   const [filter, setFilter] = useState(() => ({ ...DEFAULT_FILTER, ...(readFilter() || {}) }));
@@ -66,6 +76,8 @@ export default function GoldPrice() {
 
   const chartElement = useRef(null);
   const chartInstance = useRef(null);
+  const intlChartElement = useRef(null);
+  const intlChartInstance = useRef(null);
 
   const loadIntl = useCallback(async () => {
     try {
@@ -74,6 +86,19 @@ export default function GoldPrice() {
       setIntlError('');
     } catch (err) {
       setIntlError(err.message || '国际报价获取失败');
+    }
+  }, []);
+
+  const loadIntlBars = useCallback(async () => {
+    try {
+      const bars = await fetchIntlBars();
+      saveCachedIntlBars(bars);
+      setIntlHistory({ bars, at: Date.now() });
+      setIntlBarsError('');
+      setIntlBarsStatus('ready');
+    } catch (err) {
+      setIntlBarsError(err.message || '国际历史行情加载失败');
+      setIntlBarsStatus((prev) => (prev === 'ready' ? 'ready' : 'error'));
     }
   }, []);
 
@@ -134,15 +159,55 @@ export default function GoldPrice() {
   }, [loadDomesticBars, loadDomesticLatest]);
 
   useEffect(() => {
+    if (!isHistoryFresh(initialIntlAt.current)) loadIntlBars();
+  }, [loadIntlBars]);
+
+  useEffect(() => {
     saveFilter(filter);
     setPage(1);
   }, [filter]);
 
   const bars = history.bars;
-  const dailyBars = useMemo(() => withChange(aggregateBars(bars, 'day')), [bars]);
+  const intlBars = intlHistory.bars;
+  // 日线接口收盘前不含当天，把实时行情合并成今日 K 线
+  const liveBars = useMemo(() => {
+    if (!domesticLatest || !domesticLatest.date || !bars.length) return bars;
+    const last = bars[bars.length - 1];
+    if (domesticLatest.date < last.date) return bars;
+    if (domesticLatest.date === last.date) {
+      return [
+        ...bars.slice(0, -1),
+        {
+          ...last,
+          high: Math.max(last.high, domesticLatest.high),
+          low: Math.min(last.low, domesticLatest.low),
+          close: domesticLatest.price,
+        },
+      ];
+    }
+    return [
+      ...bars,
+      {
+        date: domesticLatest.date,
+        open: domesticLatest.open,
+        high: domesticLatest.high,
+        low: domesticLatest.low,
+        close: domesticLatest.price,
+      },
+    ];
+  }, [bars, domesticLatest]);
+  const dailyBars = useMemo(() => withChange(aggregateBars(liveBars, 'day')), [liveBars]);
+  const intlPeriodBars = useMemo(
+    () => withChange(aggregateBars(intlBars, filter.granularity)),
+    [intlBars, filter.granularity]
+  );
+  const intlRangeBars = useMemo(
+    () => filterByRange(intlPeriodBars, filter.range),
+    [intlPeriodBars, filter.range]
+  );
   const periodBars = useMemo(
-    () => withChange(aggregateBars(bars, filter.granularity)),
-    [bars, filter.granularity]
+    () => withChange(aggregateBars(liveBars, filter.granularity)),
+    [liveBars, filter.granularity]
   );
   const rangeBars = useMemo(() => filterByRange(periodBars, filter.range), [periodBars, filter.range]);
   const resultBars = useMemo(
@@ -195,7 +260,7 @@ export default function GoldPrice() {
     chartInstance.current.setOption(
       {
         backgroundColor: 'transparent',
-        grid: { top: 26, right: 20, bottom: 34, left: 66 },
+        grid: { top: 26, right: 46, bottom: 34, left: 66 },
         LargestContentfulPaint: true,
         tooltip: {
           trigger: 'axis',
@@ -274,10 +339,98 @@ export default function GoldPrice() {
   }, [rangeBars, resultBars]);
 
   useEffect(() => {
+    if (!intlChartElement.current) return;
+    if (!intlChartInstance.current) intlChartInstance.current = echarts.init(intlChartElement.current);
+
+    const dates = intlRangeBars.map((bar) => barLabel(bar));
+    const closes = intlRangeBars.map((bar) => ({
+      value: Number(bar.close.toFixed(2)),
+      changePercent: bar.changePercent,
+    }));
+
+    intlChartInstance.current.setOption(
+      {
+        backgroundColor: 'transparent',
+        grid: { top: 26, right: 46, bottom: 34, left: 66 },
+        tooltip: {
+          trigger: 'axis',
+          backgroundColor: 'rgba(255, 253, 248, 0.97)',
+          borderColor: 'rgba(168, 121, 31, 0.35)',
+          borderWidth: 1,
+          padding: [10, 12],
+          textStyle: { color: '#1f1b14', fontSize: 12 },
+          extraCssText: 'box-shadow: 0 14px 30px -18px rgba(56, 42, 18, 0.55);',
+          axisPointer: { lineStyle: { color: 'rgba(168, 121, 31, 0.35)' } },
+          formatter: (params) => {
+            const list = Array.isArray(params) ? params : [params];
+            const line = list.find((item) => item.seriesName === '收盘价');
+            if (!line) return '';
+            const change = line.data ? line.data.changePercent : null;
+            const color = change > 0 ? '#c1462f' : change < 0 ? '#1f7a5a' : '#938a79';
+            const rows = [
+              `<div style="color:#938a79;font-size:11px">${line.axisValue}</div>`,
+              `<div style="color:#3a3329;font-size:16px;margin-top:4px">$${formatPrice(line.data.value)} 美元/盎司</div>`,
+            ];
+            if (change !== null && change !== undefined) {
+              rows.push(`<div style="color:${color};font-size:12px">涨跌 ${formatPercent(change)}</div>`);
+            }
+            return rows.join('');
+          },
+        },
+        xAxis: {
+          type: 'category',
+          data: dates,
+          boundaryGap: false,
+          axisLine: { lineStyle: { color: 'rgba(31, 27, 20, 0.18)' } },
+          axisTick: { show: false },
+          axisLabel: { color: 'rgba(58, 51, 41, 0.72)', fontSize: 11 },
+        },
+        yAxis: {
+          type: 'value',
+          scale: true,
+          axisLabel: {
+            color: 'rgba(58, 51, 41, 0.72)',
+            fontSize: 11,
+            formatter: (value) => formatPrice(value),
+          },
+          splitLine: { lineStyle: { color: 'rgba(31, 27, 20, 0.08)' } },
+        },
+        series: [
+          {
+            name: '收盘价',
+            type: 'line',
+            data: closes,
+            smooth: true,
+            symbol: 'none',
+            lineStyle: { width: 2, color: '#3a3329' },
+            areaStyle: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: 'rgba(58, 51, 41, 0.2)' },
+                { offset: 1, color: 'rgba(58, 51, 41, 0.02)' },
+              ]),
+            },
+          },
+        ],
+      },
+      true
+    );
+  }, [intlRangeBars]);
+
+  useEffect(() => {
     const element = chartElement.current;
     if (!element) return undefined;
     const observer = new ResizeObserver(() => {
       if (chartInstance.current) chartInstance.current.resize();
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const element = intlChartElement.current;
+    if (!element) return undefined;
+    const observer = new ResizeObserver(() => {
+      if (intlChartInstance.current) intlChartInstance.current.resize();
     });
     observer.observe(element);
     return () => observer.disconnect();
@@ -289,6 +442,10 @@ export default function GoldPrice() {
         chartInstance.current.dispose();
         chartInstance.current = null;
       }
+      if (intlChartInstance.current) {
+        intlChartInstance.current.dispose();
+        intlChartInstance.current = null;
+      }
     },
     []
   );
@@ -298,6 +455,7 @@ export default function GoldPrice() {
 
   const retry = () => {
     loadIntl();
+    loadIntlBars();
     loadDomesticBars();
     loadDomesticLatest();
   };
@@ -325,7 +483,7 @@ export default function GoldPrice() {
           <p className="gp-header__kicker">Gold Price</p>
           <h1 className="gp-header__title">金价行情</h1>
           <p className="gp-header__desc">
-            国际金价与国内金价对照 · 走势与筛选基于国内沪金 AU0（元/克）
+            国际伦敦金与国内沪金走势对照 · 筛选基于国内沪金 AU0（元/克）
           </p>
         </div>
         <div className="gp-header__meta">
@@ -369,9 +527,10 @@ export default function GoldPrice() {
             </p>
           </section>
 
-          {(intlError || domesticError) && status === 'ready' && (
+          {(intlError || intlBarsError || domesticError) && status === 'ready' && (
             <div className="gp-banner gp-banner--warn">
               {intlError && <div>国际报价刷新失败：{intlError}</div>}
+              {intlBarsError && <div>国际历史行情获取失败：{intlBarsError}（当前展示缓存数据）</div>}
               {domesticError && <div>国内行情获取失败：{domesticError}（当前展示缓存或上一次成功的数据）</div>}
             </div>
           )}
@@ -415,6 +574,8 @@ export default function GoldPrice() {
                 </div>
               </div>
 
+              <p className="gp-filter__group-label">仅筛选国内行情</p>
+
               <label className="gp-field">
                 <span>涨跌幅阈值 ≥</span>
                 <div className="gp-threshold">
@@ -447,26 +608,50 @@ export default function GoldPrice() {
               </div>
 
               <p className="gp-filter__hint">
-                阈值为空表示不筛选；涨跌幅按所选粒度相对上一根 K 线收盘价计算。
+                阈值为空表示不筛选；涨跌幅按所选粒度相对上一根 K 线收盘价计算，仅作用于国内行情。
               </p>
             </aside>
 
             <div className="gp-content">
-              <article className="gp-card">
-                <div className="gp-card__head">
-                  <div>
-                    <h2>国内金价走势</h2>
-                    <p>沪金 AU0 日线，单位元/克 · 青色圆点为同时命中全部条件的数据点</p>
+              <div className="gp-charts">
+                <article className="gp-card">
+                  <div className="gp-card__head">
+                    <div>
+                      <h2>国内金价走势</h2>
+                      <p>沪金 AU0 日线，含今日实时行情 · 青色圆点为筛选命中点</p>
+                    </div>
+                    <span className="gp-card__count">{rangeBars.length} 个周期</span>
                   </div>
-                  <span className="gp-card__count">{rangeBars.length} 个周期</span>
-                </div>
-                <div className="gp-chart-box">
-                  <div className="gp-chart" ref={chartElement} />
-                  {rangeBars.length === 0 && (
-                    <p className="gp-chart-empty">暂无国内行情数据，请稍后重试或检查网络。</p>
-                  )}
-                </div>
-              </article>
+                  <div className="gp-chart-box">
+                    <div className="gp-chart" ref={chartElement} />
+                    {rangeBars.length === 0 && (
+                      <p className="gp-chart-empty">暂无国内行情数据，请稍后重试或检查网络。</p>
+                    )}
+                  </div>
+                </article>
+
+                <article className="gp-card">
+                  <div className="gp-card__head">
+                    <div>
+                      <h2>国际金价走势</h2>
+                      <p>伦敦金 XAU 日线，单位美元/盎司 · 与左侧筛选共用时间范围与粒度</p>
+                    </div>
+                    <span className="gp-card__count">{intlRangeBars.length} 个周期</span>
+                  </div>
+                  <div className="gp-chart-box">
+                    <div className="gp-chart" ref={intlChartElement} />
+                    {intlRangeBars.length === 0 && (
+                      <p className="gp-chart-empty">
+                        {intlBarsStatus === 'loading'
+                          ? '国际金价历史数据加载中…'
+                          : intlBarsError
+                            ? '国际金价历史数据加载失败，请稍后重试。'
+                            : '暂无国际金价历史数据，请稍后重试或检查网络。'}
+                      </p>
+                    )}
+                  </div>
+                </article>
+              </div>
 
               <article className="gp-card">
                 <div className="gp-card__head">
@@ -565,7 +750,10 @@ export default function GoldPrice() {
           </section>
 
           <footer className="gp-footer">
-            <p>国际报价来源：gold-api.com · 国内行情来源：新浪财经（沪金 AU0 期货，元/克）</p>
+            <p>
+              国际报价来源：gold-api.com · 国际历史行情来源：新浪财经（伦敦金 XAU）· 国内行情来源：新浪财经（沪金
+              AU0 期货，元/克）
+            </p>
             <p>数据仅供参考，不构成任何投资建议。</p>
           </footer>
         </>
