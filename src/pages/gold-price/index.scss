@@ -534,6 +534,12 @@ $font-mono: 'Cascadia Code', 'Consolas', 'SFMono-Regular', 'Menlo', monospace;
   line-height: 1.8;
   color: $text-muted;
   pointer-events: none;
+
+  &--action {
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: auto;
+  }
 }
 
 .gp-chart {

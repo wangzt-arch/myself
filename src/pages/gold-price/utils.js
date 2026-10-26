@@ -13,6 +13,7 @@ export const RANGE_OPTIONS = [
 ];
 
 export const GRANULARITY_OPTIONS = [
+  { key: '60m', label: '60分' },
   { key: 'day', label: '日' },
   { key: 'week', label: '周' },
   { key: 'month', label: '月' },
@@ -52,6 +53,7 @@ function periodLabel(dateStr, granularity) {
 
 // 把日线聚合成周线 / 月线 / 年线：开盘取首日、收盘取末日、高低取区间极值
 export function aggregateBars(bars, granularity) {
+  if (granularity === '60m') return bars.map((bar) => ({ ...bar, label: bar.date.slice(5) }));
   if (granularity === 'day') return bars.map((bar) => ({ ...bar, label: bar.date }));
   const map = new Map();
   bars.forEach((bar) => {
@@ -86,13 +88,17 @@ export function withChange(bars) {
   });
 }
 
+function parseBarDate(value) {
+  return new Date(value.includes(' ') ? value.replace(' ', 'T') : `${value}T00:00:00Z`);
+}
+
 export function filterByRange(bars, rangeKey) {
   const option = RANGE_OPTIONS.find((item) => item.key === rangeKey) || RANGE_OPTIONS[1];
   if (!bars.length || option.days === Infinity) return bars;
-  const last = new Date(`${bars[bars.length - 1].date}T00:00:00Z`);
+  const last = parseBarDate(bars[bars.length - 1].date);
   const start = new Date(last);
   start.setUTCDate(start.getUTCDate() - option.days + 1);
-  return bars.filter((bar) => new Date(`${bar.date}T00:00:00Z`) >= start);
+  return bars.filter((bar) => parseBarDate(bar.date) >= start);
 }
 
 // threshold 为空字符串表示不筛选

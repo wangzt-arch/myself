@@ -3,6 +3,7 @@ const SINA_BASE = 'https://stock.finance.sina.com.cn/futures/api/jsonp.php';
 // 新浪财经国际/国内期货 JSONP 接口，用 script 标签加载，不受跨域限制
 const SINA_KLINE_URL = `${SINA_BASE}/var%20_AU0=/InnerFuturesNewService.getDailyKLine?symbol=AU0`;
 const SINA_MINUTE_URL = `${SINA_BASE}/var%20_AU0M=/InnerFuturesNewService.getFewMinLine?symbol=AU0&type=1`;
+const SINA_HOUR_URL = `${SINA_BASE}/var%20_AU0H=/InnerFuturesNewService.getFewMinLine?symbol=AU0&type=60`;
 const SINA_XAU_URL = `${SINA_BASE}/var%20_XAU=/GlobalFuturesService.getGlobalFuturesDailyKLine?symbol=XAU`;
 
 const KEY_BARS = 'gold-price:domestic-bars:v3';
@@ -160,6 +161,23 @@ function buildTodayBar(rows) {
     high: highs.length ? Math.max(...highs) : close,
     low: lows.length ? Math.min(...lows) : close,
   };
+}
+
+/* ---------- 国内 60 分钟线（沪金 AU0） ---------- */
+
+export async function fetchDomesticHourBars() {
+  const rows = await loadJsonp(SINA_HOUR_URL, '_AU0H', '国内 60 分钟行情');
+  const bars = (Array.isArray(rows) ? rows : [])
+    .map((row) => ({
+      date: String(row.d).slice(0, 16),
+      open: Number(row.o),
+      high: Number(row.h),
+      low: Number(row.l),
+      close: Number(row.c),
+    }))
+    .filter(isBar);
+  if (!bars.length) throw new Error('国内 60 分钟行情为空');
+  return sortBars(bars);
 }
 
 /* ---------- 本地缓存与筛选条件 ---------- */

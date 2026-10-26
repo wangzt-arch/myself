@@ -5,6 +5,7 @@ import { LineChart, ScatterChart } from 'echarts/charts';
 import { TooltipComponent, GridComponent } from 'echarts/components';
 import {
   fetchDomesticBars,
+  fetchDomesticHourBars,
   fetchDomesticLatest,
   fetchIntlBars,
   fetchIntlQuote,
@@ -71,6 +72,9 @@ export default function GoldPrice() {
   const [intlBarsError, setIntlBarsError] = useState('');
   const [domesticLatest, setDomesticLatest] = useState(null);
   const [domesticError, setDomesticError] = useState('');
+  const [hourBars, setHourBars] = useState([]);
+  const [hourStatus, setHourStatus] = useState('idle');
+  const [hourError, setHourError] = useState('');
   const [filter, setFilter] = useState(() => ({ ...DEFAULT_FILTER, ...(readFilter() || {}) }));
   const [page, setPage] = useState(1);
 
@@ -127,6 +131,19 @@ export default function GoldPrice() {
     }
   }, []);
 
+  const loadHourBars = useCallback(async () => {
+    setHourStatus('loading');
+    try {
+      const bars = await fetchDomesticHourBars();
+      setHourBars(bars);
+      setHourError('');
+      setHourStatus('ready');
+    } catch (err) {
+      setHourError(err.message || '国内 60 分钟行情加载失败');
+      setHourStatus('error');
+    }
+  }, []);
+
   useEffect(() => {
     loadIntl();
     const timer = setInterval(() => {
@@ -163,12 +180,19 @@ export default function GoldPrice() {
   }, [loadIntlBars]);
 
   useEffect(() => {
+    if (filter.granularity === '60m' && hourStatus === 'idle') loadHourBars();
+  }, [filter.granularity, hourStatus, loadHourBars]);
+
+  useEffect(() => {
     saveFilter(filter);
     setPage(1);
   }, [filter]);
 
   const bars = history.bars;
   const intlBars = intlHistory.bars;
+  const isHourly = filter.granularity === '60m';
+  // 国际行情没有小时数据，60 分粒度下仍按日线展示
+  const intlGranularity = isHourly ? 'day' : filter.granularity;
   // 日线接口收盘前不含当天，把实时行情合并成今日 K 线
   const liveBars = useMemo(() => {
     if (!domesticLatest || !domesticLatest.date || !bars.length) return bars;
@@ -198,16 +222,16 @@ export default function GoldPrice() {
   }, [bars, domesticLatest]);
   const dailyBars = useMemo(() => withChange(aggregateBars(liveBars, 'day')), [liveBars]);
   const intlPeriodBars = useMemo(
-    () => withChange(aggregateBars(intlBars, filter.granularity)),
-    [intlBars, filter.granularity]
+    () => withChange(aggregateBars(intlBars, intlGranularity)),
+    [intlBars, intlGranularity]
   );
   const intlRangeBars = useMemo(
     () => filterByRange(intlPeriodBars, filter.range),
     [intlPeriodBars, filter.range]
   );
   const periodBars = useMemo(
-    () => withChange(aggregateBars(liveBars, filter.granularity)),
-    [liveBars, filter.granularity]
+    () => withChange(aggregateBars(isHourly ? hourBars : liveBars, filter.granularity)),
+    [isHourly, hourBars, liveBars, filter.granularity]
   );
   const rangeBars = useMemo(() => filterByRange(periodBars, filter.range), [periodBars, filter.range]);
   const resultBars = useMemo(
@@ -458,6 +482,7 @@ export default function GoldPrice() {
     loadIntlBars();
     loadDomesticBars();
     loadDomesticLatest();
+    if (filter.granularity === '60m') loadHourBars();
   };
 
   const handleExport = () => {
@@ -608,7 +633,8 @@ export default function GoldPrice() {
               </div>
 
               <p className="gp-filter__hint">
-                阈值为空表示不筛选；涨跌幅按所选粒度相对上一根 K 线收盘价计算，仅作用于国内行情。
+                阈值为空表示不筛选；涨跌幅按所选粒度相对上一根 K 线收盘价计算，仅作用于国内行情。60
+                分粒度仅提供最近约 5 个月数据。
               </p>
             </aside>
 
@@ -618,14 +644,37 @@ export default function GoldPrice() {
                   <div className="gp-card__head">
                     <div>
                       <h2>国内金价走势</h2>
-                      <p>沪金 AU0 日线，含今日实时行情 · 青色圆点为筛选命中点</p>
+                      <p>
+                        {isHourly
+                          ? '沪金 AU0 60 分钟线，最近约 5 个月 · 青色圆点为筛选命中点'
+                          : '沪金 AU0 日线，含今日实时行情 · 青色圆点为筛选命中点'}
+                      </p>
                     </div>
                     <span className="gp-card__count">{rangeBars.length} 个周期</span>
                   </div>
                   <div className="gp-chart-box">
                     <div className="gp-chart" ref={chartElement} />
                     {rangeBars.length === 0 && (
-                      <p className="gp-chart-empty">暂无国内行情数据，请稍后重试或检查网络。</p>
+                      <p
+                        className={`gp-chart-empty${
+                          isHourly && hourStatus === 'error' ? ' gp-chart-empty--action' : ''
+                        }`}
+                      >
+                        <span>
+                          {isHourly
+                            ? hourStatus === 'loading' || hourStatus === 'idle'
+                              ? '60 分钟行情加载中…'
+                              : hourError
+                                ? `60 分钟行情加载失败：${hourError}`
+                                : '暂无 60 分钟行情数据，请稍后重试。'
+                            : '暂无国内行情数据，请稍后重试或检查网络。'}
+                        </span>
+                        {isHourly && hourStatus === 'error' && (
+                          <button type="button" className="gp-btn gp-btn--ghost" onClick={loadHourBars}>
+                            重试
+                          </button>
+                        )}
+                      </p>
                     )}
                   </div>
                 </article>
@@ -634,7 +683,11 @@ export default function GoldPrice() {
                   <div className="gp-card__head">
                     <div>
                       <h2>国际金价走势</h2>
-                      <p>伦敦金 XAU 日线，单位美元/盎司 · 与左侧筛选共用时间范围与粒度</p>
+                      <p>
+                        {isHourly
+                          ? '伦敦金 XAU 日线，单位美元/盎司 · 60 分粒度仅作用于国内'
+                          : '伦敦金 XAU 日线，单位美元/盎司 · 与左侧筛选共用时间范围与粒度'}
+                      </p>
                     </div>
                     <span className="gp-card__count">{intlRangeBars.length} 个周期</span>
                   </div>
